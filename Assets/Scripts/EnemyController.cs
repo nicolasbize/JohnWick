@@ -7,21 +7,28 @@ using UnityEngine.UIElements;
 public class EnemyController : MonoBehaviour
 {
     [SerializeField] private float moveSpeed;
+    [SerializeField] private float flySpeed;
     [SerializeField] private float attackReach;
+    [SerializeField] private float durationGrounded;
     [SerializeField] private Vector2 minMaxSecsBeforeHitting;
     [SerializeField] private PlayerController player;
     [SerializeField] private CharacterSprite sprite;
     [SerializeField] private Animator animator;
-    
+    [SerializeField] private float gravity = 10f;
 
-    enum State { Idle, Walk, PrepareAttack, Attack, Hurt }
+
+    enum State { Idle, Walk, PrepareAttack, Attack, Hurt, Flying, Falling, Grounded }
 
     private Vector2 position;
-    private Vector2 speed;
+    private Vector2 velocity;
     private State state = State.Idle;
     private float timeSincePreparedToHit = float.NegativeInfinity;
     private float waitDurationBeforeHit = 0f;
     private float verticalMarginBetweenEnemyAndPlayer = 4;
+    private float timeSinceGrounded = float.NegativeInfinity;
+    private float zHeight = 0f;
+    private float dzHeight = 0f;
+    private bool wasPlayerInReach = false;
 
     void Start() {
         position = new Vector2(transform.position.x, transform.position.y);
@@ -29,6 +36,25 @@ public class EnemyController : MonoBehaviour
         sprite.OnInvincibilityEnd += Sprite_OnInvincibilityEnd;
         sprite.OnAttackFrame += Sprite_OnAttackFrame;
         player.RegisterEnemy(this);
+    }
+
+    public void ReceiveHit(Vector2 damageOrigin, int dmg = 0, bool isKnockDownHit = false) {
+        if (IsVulnerable(damageOrigin)) {
+            wasPlayerInReach = false; // knocks player out a bit
+            if (isKnockDownHit) {
+                animator.SetBool("IsFlying", true);
+                state = State.Flying;
+                velocity = (damageOrigin.x < position.x ? Vector2.right : Vector2.left) * flySpeed;
+            } else {
+                state = State.Hurt;
+                animator.SetTrigger("Hurt");
+            }
+        }
+    }
+
+    public bool IsVulnerable(Vector2 damageOrigin) {
+        return state != State.Hurt &&
+               state != State.Grounded;
     }
 
     private void Sprite_OnAttackFrame(object sender, System.EventArgs e) {
@@ -45,8 +71,15 @@ public class EnemyController : MonoBehaviour
         state = State.Idle; // no need for trigger, enable movement again
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
+        HandleFlying();
+        HandleFalling();
+        HandleGrounded();
+        HandleAttack();
+        
+        sprite.gameObject.transform.localPosition = Vector3.up * Mathf.RoundToInt(zHeight);
+
         if (CanMove()) {
             FacePlayer();
             Vector2 nextTargetDestination = GetNextMovementDirection();
@@ -54,59 +87,69 @@ public class EnemyController : MonoBehaviour
             animator.SetBool("IsWalking", isPlayerTooFar);
             if (isPlayerTooFar) {
                 WalkTowards(nextTargetDestination);
+                wasPlayerInReach = false;
             } else {
-                if (state != State.Attack && state != State.PrepareAttack) {
-                    StopWalking();
-                    PrepareAttack();
-                } else if (IsReadyToAttack()) {
-                    Attack();
-                }
+                state = State.PrepareAttack;
+                timeSincePreparedToHit = Time.timeSinceLevelLoad;
+                waitDurationBeforeHit = UnityEngine.Random.Range(minMaxSecsBeforeHitting.x, minMaxSecsBeforeHitting.y);
             }
         }
     }
 
-    public void ReceiveHit(Vector2 damageOrigin) {
-        if (IsVulnerable(damageOrigin)) {
-            state = State.Hurt;
-            animator.SetTrigger("Hurt");
+    private void HandleFlying() {
+        if (state == State.Flying) {
+            position += velocity * Time.deltaTime;
+            transform.position = new Vector3(Mathf.Round(position.x), Mathf.Round(position.y), 0);
+            Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
+            zHeight = 5f;
+            if ((transform.position.x < screenBoundaries.x + 8) ||
+                (transform.position.x > screenBoundaries.y - 8)) {
+                animator.SetBool("IsFlying", false);
+                animator.SetBool("IsFalling", true);
+                state = State.Falling;
+                dzHeight = 2f;
+            }
         }
     }
 
-    public bool IsVulnerable(Vector2 damageOrigin) {
-        return state != State.Hurt;
-    }
-
-    private void Attack() {
-        state = State.Attack;
-        if (UnityEngine.Random.Range(0f, 1f) > 0.5f) {
-            animator.SetTrigger("Punch");
-        } else {
-            animator.SetTrigger("PunchAlt");
+    private void HandleFalling() {
+        if (state == State.Falling) {
+            dzHeight -= gravity * Time.deltaTime;
+            zHeight += dzHeight;
+            if (zHeight < 0) {
+                state = State.Grounded;
+                zHeight = 0f;
+                timeSinceGrounded = Time.timeSinceLevelLoad;
+                animator.SetBool("IsFalling", false);
+            }
         }
     }
 
-    private bool IsReadyToAttack() {
-        return state == State.PrepareAttack &&
-            (Time.timeSinceLevelLoad - timeSincePreparedToHit > waitDurationBeforeHit);
+    private void HandleGrounded() {
+        if ((state == State.Grounded) && (Time.timeSinceLevelLoad - timeSinceGrounded > durationGrounded)) {
+            animator.SetTrigger("GetUp");
+            state = State.Idle;
+        }
+    }
+
+    private void HandleAttack() {
+        if (state == State.PrepareAttack && 
+            (Time.timeSinceLevelLoad - timeSincePreparedToHit > waitDurationBeforeHit)) {
+
+            state = State.Attack;
+            if (UnityEngine.Random.Range(0f, 1f) > 0.5f) {
+                animator.SetTrigger("Punch");
+            } else {
+                animator.SetTrigger("PunchAlt");
+            }
+        }
     }
 
     private void WalkTowards(Vector2 targetDestination) {
-        speed = targetDestination * moveSpeed;
-        position += speed * Time.deltaTime;
+        velocity = targetDestination * moveSpeed;
+        position += velocity * Time.deltaTime;
         transform.position = new Vector3(Mathf.Round(position.x), Mathf.Round(position.y), 0);
         state = State.Walk;
-    }
-
-    private void StopWalking() {
-        state = State.Idle;
-    }
-
-    private void PrepareAttack() {
-        if (state != State.PrepareAttack) {
-            state = State.PrepareAttack;
-            waitDurationBeforeHit = UnityEngine.Random.Range(minMaxSecsBeforeHitting.x, minMaxSecsBeforeHitting.y);
-            timeSincePreparedToHit = Time.timeSinceLevelLoad;
-        }
     }
 
     private bool IsPlayerWithinReach() {
@@ -131,7 +174,8 @@ public class EnemyController : MonoBehaviour
     }
 
     private bool CanMove() {
-        return state != State.Attack;
+        return state == State.Idle ||
+               state == State.Walk;
     }
 
     private void FacePlayer() {

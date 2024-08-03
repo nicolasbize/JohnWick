@@ -17,10 +17,10 @@ public class PlayerController : MonoBehaviour
     public enum State { Idle, Walking, Attacking, Hurt, Blocking }
 
     private State state = State.Idle;
-    private Vector2 speed;
+    private Vector2 velocity;
     private Vector2 position;
     private List<string> comboAttackTriggers = new List<string>() {
-        "Punch", "Punch", "Kick", "Roundhouse"
+        "Punch", "Punch", "PunchAlt", "Kick", "Roundhouse"
     };
     private int currentComboIndex = -1;
     private float timeLastAttack = float.NegativeInfinity;
@@ -36,6 +36,43 @@ public class PlayerController : MonoBehaviour
         sprite.OnInvincibilityEnd += Sprite_OnInvincibilityEnd;
         sprite.OnAttackFrame += Sprite_OnAttackFrame;
         position = new Vector2(transform.position.x, transform.position.y);
+    }
+
+    public bool IsFacingLeft() {
+        return sprite.GetComponent<SpriteRenderer>().flipX;
+    }
+
+    public void RegisterEnemy(EnemyController enemy) {
+        enemies.Add(enemy);
+    }
+
+    public void ReceiveHit(Vector2 damageOrigin, int dmg = 0, bool isKnockDownHit = false) {
+        if (IsVulnerable(damageOrigin)) {
+            state = State.Hurt;
+            animator.SetTrigger("Hurt");
+        }
+    }
+
+    public bool IsVulnerable(Vector2 damageOrigin) {
+        if (state == State.Hurt) {
+            return false;
+        }
+        if (state == State.Blocking && (
+            (IsFacingLeft() && damageOrigin.x < position.x) ||
+            (!IsFacingLeft() && damageOrigin.x > position.x))) {
+            return false;
+        }
+        return true;
+    }
+
+
+    private void Sprite_OnInvincibilityEnd(object sender, EventArgs e) {
+        state = State.Idle;
+    }
+
+    private void Sprite_OnAttackAnimationComplete(object sender, System.EventArgs e) {
+        timeLastAttack = Time.timeSinceLevelLoad;
+        state = State.Idle;
     }
 
     private void Sprite_OnAttackFrame(object sender, EventArgs e) {
@@ -56,47 +93,11 @@ public class PlayerController : MonoBehaviour
             bool isXAligned = Mathf.Abs(enemy.transform.position.x - transform.position.x) < attackReach + 1;
             isAlignedWithPlayer = isYAligned && isXAligned;
             if (isAlignedWithPlayer && isInFrontOfPlayer) {
-                enemy.ReceiveHit(position);
+                bool isKnockDownHit = currentComboIndex == comboAttackTriggers.Count - 1;
+                enemy.ReceiveHit(position, 1, isKnockDownHit);
             }
 
         }
-
-    }
-
-    private bool IsFacingLeft() {
-        return sprite.GetComponent<SpriteRenderer>().flipX;
-    }
-
-    public void RegisterEnemy(EnemyController enemy) {
-        enemies.Add(enemy);
-    }
-
-    private void Sprite_OnInvincibilityEnd(object sender, EventArgs e) {
-        state = State.Idle;
-    }
-
-    public void ReceiveHit(Vector2 damageOrigin) {
-        if (IsVulnerable(damageOrigin)) {
-            state = State.Hurt;
-            animator.SetTrigger("Hurt");
-        }
-    }
-
-    public bool IsVulnerable(Vector2 damageOrigin) {
-        if (state == State.Hurt) {
-            return false;
-        }
-        if (state == State.Blocking && (
-            (IsFacingLeft() && damageOrigin.x < position.x) ||
-            (!IsFacingLeft() && damageOrigin.x > position.x))) {
-            return false;
-        }
-        return true;
-    }
-
-    private void Sprite_OnAttackAnimationComplete(object sender, System.EventArgs e) {
-        timeLastAttack = Time.timeSinceLevelLoad;
-        state = State.Idle;
     }
 
     private void FixedUpdate() {
@@ -104,7 +105,6 @@ public class PlayerController : MonoBehaviour
         HandleBlockInput();
         HandleMoveInput();
         HandleAttackInput();
-
     }
 
     private void HandleJumpInput() {
@@ -156,24 +156,20 @@ public class PlayerController : MonoBehaviour
 
     private void HandleMoveInput() {
         if (CanMove()) {
-            speed = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) * moveSpeed;
-            position += speed * Time.deltaTime;
+            velocity = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) * moveSpeed;
+            position += velocity * Time.deltaTime;
             transform.position = new Vector3(Mathf.Round(position.x), Mathf.Round(position.y), 0);
 
-            if (speed != Vector2.zero) {
+            if (velocity != Vector2.zero) {
                 state = State.Walking;
-                if (speed.x != 0f) {
-                    sprite.GetComponent<SpriteRenderer>().flipX = speed.x < 0;
+                if (velocity.x != 0f) {
+                    sprite.GetComponent<SpriteRenderer>().flipX = velocity.x < 0;
                 }
             } else {
                 state = State.Idle;
             }
-            animator.SetBool("IsWalking", speed != Vector2.zero);
+            animator.SetBool("IsWalking", velocity != Vector2.zero);
         }
-    }
-
-    public bool IsFlipped() {
-        return sprite.GetComponent<SpriteRenderer>().flipX;
     }
 
     private bool CanAttack() {

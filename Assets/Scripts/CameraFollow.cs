@@ -13,11 +13,15 @@ public class CameraFollow : MonoBehaviour
     void LateUpdate()
     {
         Vector3 targetPosition = new Vector3(player.transform.position.x, 0f, -10f);
-        targetPosition += Vector3.right * (player.IsFlipped() ? -1 : 1) * viewDistance;
+        targetPosition += (player.IsFacingLeft() ? Vector3.left : Vector3.right) * viewDistance;
         transform.position = Vector3.Lerp(transform.position, targetPosition, cameraSpeed * Time.deltaTime);
         if (isPixelPerfect) {
             transform.position = new Vector3(Mathf.RoundToInt(transform.position.x), transform.position.y, transform.position.z);
 
         }
+    }
+
+    public Vector2 GetScreenXBoundaries() {
+        return new Vector2(transform.position.x - 32, transform.position.x + 32);
     }
 }
