@@ -6,12 +6,12 @@ using UnityEngine.UIElements;
 
 public class EnemyController : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed;
     [SerializeField] private float flySpeed;
-    [SerializeField] private float attackReach;
-    [SerializeField] private float durationGrounded;
     [SerializeField] private Vector2 minMaxSecsBeforeHitting;
     [SerializeField] private PlayerController player;
+    [SerializeField] private float moveSpeed;
+    [SerializeField] private float attackReach;
+    [SerializeField] private float durationGrounded;
     [SerializeField] private CharacterSprite sprite;
     [SerializeField] private Animator animator;
     [SerializeField] private float gravity = 10f;
