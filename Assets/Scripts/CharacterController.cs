@@ -5,13 +5,19 @@ public abstract class CharacterController : MonoBehaviour
 {
     public enum State { Idle, Walking, PreparingAttack, Attacking, Blocking, Hurt, Flying, Falling, Grounded }
 
+    public event EventHandler OnHealthChange;
+
+    [field: SerializeField] public int MaxHP { get; private set; }
     [SerializeField] protected float moveSpeed;
     [SerializeField] protected float attackReach;
+    [SerializeField] protected float durationLyingDead;
     [SerializeField] protected float durationGrounded;
     [SerializeField] protected CharacterSprite sprite;
     [SerializeField] protected Animator animator;
     [SerializeField] protected float gravity = 10f;
     [SerializeField] protected float verticalMarginBetweenEnemyAndPlayer;
+
+    public int CurrentHP { get; protected set; }
 
     protected Vector2 position; // floating point precise location, will get rounded up at the transform level
     protected Vector2 velocity;
@@ -20,6 +26,10 @@ public abstract class CharacterController : MonoBehaviour
     protected float dzHeight = 0f;
     protected bool grounded = true;
     protected State state = State.Idle;
+
+    private void Awake() {
+        CurrentHP = MaxHP;
+    }
 
     protected virtual void Start() {
         sprite.OnAttackAnimationComplete += Sprite_OnAttackAnimationComplete;
@@ -48,6 +58,12 @@ public abstract class CharacterController : MonoBehaviour
 
     private void Sprite_OnAttackFrame(object sender, EventArgs e) {
         AttemptAttack();
+    }
+
+    protected void ReceiveDamage(int damage) {
+        CurrentHP -= damage;
+        // todo death
+        OnHealthChange?.Invoke(this, EventArgs.Empty);
     }
 
     protected bool CanAttack() {

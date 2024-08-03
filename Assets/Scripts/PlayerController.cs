@@ -17,6 +17,11 @@ public class PlayerController : CharacterController {
         enemies.Add(enemy);
     }
 
+    public void UnregisterEnemy(EnemyController enemy) {
+        enemies.Remove(enemy);
+    }
+
+
     public override void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
             state = State.Hurt;
@@ -65,9 +70,10 @@ public class PlayerController : CharacterController {
             bool isXAligned = Mathf.Abs(enemy.transform.position.x - transform.position.x) < attackReach + 1;
             isAlignedWithPlayer = isYAligned && isXAligned;
             if (isAlignedWithPlayer && isInFrontOfPlayer) {
-                Hit.Type hitType = (currentComboIndex == comboAttackTriggers.Count - 1) ?
-                    Hit.Type.PowerEject : Hit.Type.Normal;
-                enemy.ReceiveHit(position, 1, hitType);
+                bool isPowerAttack = currentComboIndex == comboAttackTriggers.Count - 1;
+                Hit.Type hitType = isPowerAttack ? Hit.Type.PowerEject : Hit.Type.Normal;
+                int damage = isPowerAttack ? 2 : 3;
+                enemy.ReceiveHit(position, damage, hitType);
                 hasHitEnemy = true;
             }
         }

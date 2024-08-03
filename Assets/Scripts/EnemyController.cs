@@ -23,7 +23,7 @@ public class EnemyController : CharacterController {
                 animator.SetBool("IsFlying", true);
                 state = State.Flying;
                 velocity = (damageOrigin.x < position.x ? Vector2.right : Vector2.left) * flySpeed;
-            } else if (hitType == Hit.Type.Knockdown) {
+            } else if (hitType == Hit.Type.Knockdown || (CurrentHP <= 0)) {
                 animator.SetBool("IsFalling", true);
                 state = State.Falling;
                 velocity = (damageOrigin.x < position.x ? Vector2.right : Vector2.left) * moveSpeed;
@@ -32,6 +32,7 @@ public class EnemyController : CharacterController {
                 state = State.Hurt;
                 animator.SetTrigger("Hurt");
             }
+            ReceiveDamage(dmg);
         }
     }
 
@@ -103,9 +104,14 @@ public class EnemyController : CharacterController {
     }
 
     private void HandleGrounded() {
-        if ((state == State.Grounded) && (Time.timeSinceLevelLoad - timeSinceGrounded > durationGrounded)) {
-            animator.SetTrigger("GetUp");
-            state = State.Idle;
+        if (state == State.Grounded) {
+            if (CurrentHP > 0 && (Time.timeSinceLevelLoad - timeSinceGrounded > durationGrounded)) {
+                animator.SetTrigger("GetUp");
+                state = State.Idle;
+            } else if (CurrentHP <= 0 && (Time.timeSinceLevelLoad - timeSinceGrounded > durationGrounded)) {
+                player.UnregisterEnemy(this);
+                Destroy(gameObject);
+            }
         }
     }
 
