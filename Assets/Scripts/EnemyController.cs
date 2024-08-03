@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,16 +7,15 @@ using UnityEngine.UIElements;
 public class EnemyController : MonoBehaviour
 {
     [SerializeField] private float moveSpeed;
-    [SerializeField] private float hitReach;
+    [SerializeField] private float attackReach;
     [SerializeField] private Vector2 minMaxSecsBeforeHitting;
     [SerializeField] private PlayerController player;
     [SerializeField] private CharacterSprite sprite;
     [SerializeField] private Animator animator;
     
 
-    enum State { Idle, Walk, PrepareAttack, Attack }
+    enum State { Idle, Walk, PrepareAttack, Attack, Hurt }
 
-    private Rigidbody2D rb;
     private Vector2 position;
     private Vector2 speed;
     private State state = State.Idle;
@@ -26,14 +26,19 @@ public class EnemyController : MonoBehaviour
     void Start() {
         position = new Vector2(transform.position.x, transform.position.y);
         sprite.OnAttackAnimationComplete += Sprite_OnAttackAnimationComplete;
+        sprite.OnInvincibilityEnd += Sprite_OnInvincibilityEnd;
         sprite.OnAttackFrame += Sprite_OnAttackFrame;
-        rb = GetComponent<Rigidbody2D>();
+        player.RegisterEnemy(this);
     }
 
     private void Sprite_OnAttackFrame(object sender, System.EventArgs e) {
         if (IsPlayerWithinReach() && player.IsVulnerable()) {
-            player.ReceiveHitFromEnemy();
+            player.ReceiveHit();
         }
+    }
+
+    private void Sprite_OnInvincibilityEnd(object sender, EventArgs e) {
+        state = State.Idle;
     }
 
     private void Sprite_OnAttackAnimationComplete(object sender, System.EventArgs e) {
@@ -60,9 +65,20 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    public void ReceiveHit() {
+        if (IsVulnerable()) {
+            state = State.Hurt;
+            animator.SetTrigger("Hurt");
+        }
+    }
+
+    public bool IsVulnerable() {
+        return state != State.Hurt;
+    }
+
     private void Attack() {
         state = State.Attack;
-        if (Random.Range(0f, 1f) > 0.5f) {
+        if (UnityEngine.Random.Range(0f, 1f) > 0.5f) {
             animator.SetTrigger("Punch");
         } else {
             animator.SetTrigger("PunchAlt");
@@ -88,14 +104,14 @@ public class EnemyController : MonoBehaviour
     private void PrepareAttack() {
         if (state != State.PrepareAttack) {
             state = State.PrepareAttack;
-            waitDurationBeforeHit = Random.Range(minMaxSecsBeforeHitting.x, minMaxSecsBeforeHitting.y);
+            waitDurationBeforeHit = UnityEngine.Random.Range(minMaxSecsBeforeHitting.x, minMaxSecsBeforeHitting.y);
             timeSincePreparedToHit = Time.timeSinceLevelLoad;
         }
     }
 
     private bool IsPlayerWithinReach() {
         bool isYAligned = Mathf.Abs(player.transform.position.y - transform.position.y) < verticalMarginBetweenEnemyAndPlayer;
-        bool isXAligned = Mathf.Abs(player.transform.position.x - transform.position.x) < hitReach + 1;
+        bool isXAligned = Mathf.Abs(player.transform.position.x - transform.position.x) < attackReach + 1;
         return (isYAligned && isXAligned);
     }
 
@@ -107,9 +123,9 @@ public class EnemyController : MonoBehaviour
         }
 
         if (transform.position.x > player.transform.position.x) {
-            target = new Vector2(player.transform.position.x + hitReach, player.transform.position.y);
+            target = new Vector2(player.transform.position.x + attackReach, player.transform.position.y);
         } else {
-            target = new Vector2(player.transform.position.x - hitReach, player.transform.position.y);
+            target = new Vector2(player.transform.position.x - attackReach, player.transform.position.y);
         }
         return (target - position).normalized;
     }

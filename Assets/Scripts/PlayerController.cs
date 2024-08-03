@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
 {
 
     [SerializeField] private float moveSpeed = 1f;
+    [SerializeField] private float attackReach;
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float gravity = 10f;
     [SerializeField] private Animator animator;
@@ -26,21 +27,52 @@ public class PlayerController : MonoBehaviour
     private float zHeight = 0f;
     private float dzHeight = 0f;
     private bool grounded = true;
-    private Rigidbody2D rb;
+    private float verticalMarginBetweenEnemyAndPlayer = 5; // a bit more forgiving than for enemies
+    private List<EnemyController> enemies = new List<EnemyController>();
 
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
         sprite.OnAttackAnimationComplete += Sprite_OnAttackAnimationComplete;
         sprite.OnInvincibilityEnd += Sprite_OnInvincibilityEnd;
+        sprite.OnAttackFrame += Sprite_OnAttackFrame;
         position = new Vector2(transform.position.x, transform.position.y);
+    }
+
+    private void Sprite_OnAttackFrame(object sender, EventArgs e) {
+        // get list of vulnerable enemies within distance.
+        bool facingLeft = sprite.GetComponent<SpriteRenderer>().flipX;
+        foreach (EnemyController enemy in enemies) {
+            // they need to be facing the direction of the hit
+            bool isInFrontOfPlayer = false;
+            if (facingLeft && enemy.transform.position.x < transform.position.x) {
+                isInFrontOfPlayer = true;
+            }
+            if (!facingLeft && enemy.transform.position.x > transform.position.x) {
+                isInFrontOfPlayer = true;
+            }
+
+            // they need to be within distance in the right axis
+            bool isAlignedWithPlayer = false;
+            bool isYAligned = Mathf.Abs(enemy.transform.position.y - transform.position.y) < verticalMarginBetweenEnemyAndPlayer;
+            bool isXAligned = Mathf.Abs(enemy.transform.position.x - transform.position.x) < attackReach + 1;
+            isAlignedWithPlayer = isYAligned && isXAligned;
+            if (isAlignedWithPlayer && isInFrontOfPlayer) {
+                enemy.ReceiveHit();
+            }
+
+        }
+
+    }
+
+    public void RegisterEnemy(EnemyController enemy) {
+        enemies.Add(enemy);
     }
 
     private void Sprite_OnInvincibilityEnd(object sender, EventArgs e) {
         state = State.Idle;
     }
 
-    public void ReceiveHitFromEnemy() {
+    public void ReceiveHit() {
         if (IsVulnerable()) {
             state = State.Hurt;
             animator.SetTrigger("Hurt");
@@ -60,7 +92,7 @@ public class PlayerController : MonoBehaviour
         if (CanJump() && Input.GetButton("Jump")) {
             dzHeight = jumpForce;
             grounded = false;
-            animator.SetTrigger("Jump");
+            animator.SetBool("IsJumping", true);
         }
 
         if (!grounded) {
@@ -70,7 +102,7 @@ public class PlayerController : MonoBehaviour
                 grounded = true;
                 state = State.Idle;
                 zHeight = 0f;
-                animator.SetTrigger("Land");
+                animator.SetBool("IsJumping", false);
             }
         }
 
@@ -81,7 +113,6 @@ public class PlayerController : MonoBehaviour
             position += speed * Time.deltaTime;
             transform.position = new Vector3(Mathf.Round(position.x), Mathf.Round(position.y), 0);
 
-            //rb.velocity = speed * Time.deltaTime;
             if (speed != Vector2.zero) {
                 state = State.Walking;
                 if (speed.x != 0f) {
@@ -91,8 +122,6 @@ public class PlayerController : MonoBehaviour
                 state = State.Idle;
             }
             animator.SetBool("IsWalking", speed != Vector2.zero);
-        } else {
-            rb.velocity = Vector2.zero;
         }
 
         if (CanAttack() && Input.GetButtonDown("Attack")) {
