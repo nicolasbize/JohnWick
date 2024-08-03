@@ -14,7 +14,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private CharacterSprite sprite;
     [SerializeField] private float comboAttackMaxDuration = 0.2f; // s to perform combo
 
-    public enum State { Idle, Walking, Attacking, Hurt }
+    public enum State { Idle, Walking, Attacking, Hurt, Blocking }
 
     private State state = State.Idle;
     private Vector2 speed;
@@ -40,14 +40,13 @@ public class PlayerController : MonoBehaviour
 
     private void Sprite_OnAttackFrame(object sender, EventArgs e) {
         // get list of vulnerable enemies within distance.
-        bool facingLeft = sprite.GetComponent<SpriteRenderer>().flipX;
         foreach (EnemyController enemy in enemies) {
             // they need to be facing the direction of the hit
             bool isInFrontOfPlayer = false;
-            if (facingLeft && enemy.transform.position.x < transform.position.x) {
+            if (IsFacingLeft() && enemy.transform.position.x < transform.position.x) {
                 isInFrontOfPlayer = true;
             }
-            if (!facingLeft && enemy.transform.position.x > transform.position.x) {
+            if (!IsFacingLeft() && enemy.transform.position.x > transform.position.x) {
                 isInFrontOfPlayer = true;
             }
 
@@ -57,11 +56,15 @@ public class PlayerController : MonoBehaviour
             bool isXAligned = Mathf.Abs(enemy.transform.position.x - transform.position.x) < attackReach + 1;
             isAlignedWithPlayer = isYAligned && isXAligned;
             if (isAlignedWithPlayer && isInFrontOfPlayer) {
-                enemy.ReceiveHit();
+                enemy.ReceiveHit(position);
             }
 
         }
 
+    }
+
+    private bool IsFacingLeft() {
+        return sprite.GetComponent<SpriteRenderer>().flipX;
     }
 
     public void RegisterEnemy(EnemyController enemy) {
@@ -72,15 +75,23 @@ public class PlayerController : MonoBehaviour
         state = State.Idle;
     }
 
-    public void ReceiveHit() {
-        if (IsVulnerable()) {
+    public void ReceiveHit(Vector2 damageOrigin) {
+        if (IsVulnerable(damageOrigin)) {
             state = State.Hurt;
             animator.SetTrigger("Hurt");
         }
     }
 
-    public bool IsVulnerable() {
-        return state != State.Hurt;
+    public bool IsVulnerable(Vector2 damageOrigin) {
+        if (state == State.Hurt) {
+            return false;
+        }
+        if (state == State.Blocking && (
+            (IsFacingLeft() && damageOrigin.x < position.x) ||
+            (!IsFacingLeft() && damageOrigin.x > position.x))) {
+            return false;
+        }
+        return true;
     }
 
     private void Sprite_OnAttackAnimationComplete(object sender, System.EventArgs e) {
@@ -89,6 +100,14 @@ public class PlayerController : MonoBehaviour
     }
 
     private void FixedUpdate() {
+        HandleJumpInput();
+        HandleBlockInput();
+        HandleMoveInput();
+        HandleAttackInput();
+
+    }
+
+    private void HandleJumpInput() {
         if (CanJump() && Input.GetButton("Jump")) {
             dzHeight = jumpForce;
             grounded = false;
@@ -107,23 +126,19 @@ public class PlayerController : MonoBehaviour
         }
 
         sprite.gameObject.transform.localPosition = Vector3.up * Mathf.RoundToInt(zHeight);
+    }
 
-        if (CanMove()) {
-            speed = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) * moveSpeed;
-            position += speed * Time.deltaTime;
-            transform.position = new Vector3(Mathf.Round(position.x), Mathf.Round(position.y), 0);
-
-            if (speed != Vector2.zero) {
-                state = State.Walking;
-                if (speed.x != 0f) {
-                    sprite.GetComponent<SpriteRenderer>().flipX = speed.x < 0;
-                }
-            } else {
-                state = State.Idle;
-            }
-            animator.SetBool("IsWalking", speed != Vector2.zero);
+    private void HandleBlockInput() {
+        if (CanBlock() && Input.GetButton("Block")) {
+            state = State.Blocking;
         }
+        if (state == State.Blocking && !Input.GetButton("Block")) {
+            state = State.Idle;
+        }
+        animator.SetBool("IsBlocking", state == State.Blocking);
+    }
 
+    private void HandleAttackInput() {
         if (CanAttack() && Input.GetButtonDown("Attack")) {
             state = State.Attacking;
             if (!grounded) {
@@ -139,6 +154,24 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void HandleMoveInput() {
+        if (CanMove()) {
+            speed = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) * moveSpeed;
+            position += speed * Time.deltaTime;
+            transform.position = new Vector3(Mathf.Round(position.x), Mathf.Round(position.y), 0);
+
+            if (speed != Vector2.zero) {
+                state = State.Walking;
+                if (speed.x != 0f) {
+                    sprite.GetComponent<SpriteRenderer>().flipX = speed.x < 0;
+                }
+            } else {
+                state = State.Idle;
+            }
+            animator.SetBool("IsWalking", speed != Vector2.zero);
+        }
+    }
+
     public bool IsFlipped() {
         return sprite.GetComponent<SpriteRenderer>().flipX;
     }
@@ -148,11 +181,14 @@ public class PlayerController : MonoBehaviour
     }
 
     private bool CanMove() {
-        return (state != State.Attacking) || (!grounded);
+        return (state != State.Attacking && state != State.Blocking) || (!grounded);
     }
 
     private bool CanJump() {
-        return state != State.Attacking && grounded;
+        return state != State.Attacking && state != State.Blocking && grounded;
     }
 
+    private bool CanBlock() {
+        return state == State.Idle || state == State.Walking;
+    }
 }

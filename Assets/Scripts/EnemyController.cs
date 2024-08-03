@@ -32,8 +32,8 @@ public class EnemyController : MonoBehaviour
     }
 
     private void Sprite_OnAttackFrame(object sender, System.EventArgs e) {
-        if (IsPlayerWithinReach() && player.IsVulnerable()) {
-            player.ReceiveHit();
+        if (IsPlayerWithinReach() && player.IsVulnerable(position)) {
+            player.ReceiveHit(position);
         }
     }
 
@@ -65,14 +65,14 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    public void ReceiveHit() {
-        if (IsVulnerable()) {
+    public void ReceiveHit(Vector2 damageOrigin) {
+        if (IsVulnerable(damageOrigin)) {
             state = State.Hurt;
             animator.SetTrigger("Hurt");
         }
     }
 
-    public bool IsVulnerable() {
+    public bool IsVulnerable(Vector2 damageOrigin) {
         return state != State.Hurt;
     }
 
