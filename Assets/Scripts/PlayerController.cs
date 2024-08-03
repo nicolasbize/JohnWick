@@ -22,7 +22,7 @@ public class PlayerController : MonoBehaviour
     private List<string> comboAttackTriggers = new List<string>() {
         "Punch", "Punch", "PunchAlt", "Kick", "Roundhouse"
     };
-    private int currentComboIndex = -1;
+    private int currentComboIndex = 0;
     private float timeLastAttack = float.NegativeInfinity;
     private float zHeight = 0f;
     private float dzHeight = 0f;
@@ -46,7 +46,7 @@ public class PlayerController : MonoBehaviour
         enemies.Add(enemy);
     }
 
-    public void ReceiveHit(Vector2 damageOrigin, int dmg = 0, bool isKnockDownHit = false) {
+    public void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
             state = State.Hurt;
             animator.SetTrigger("Hurt");
@@ -76,6 +76,7 @@ public class PlayerController : MonoBehaviour
     }
 
     private void Sprite_OnAttackFrame(object sender, EventArgs e) {
+        bool hasHitEnemy = false;
         // get list of vulnerable enemies within distance.
         foreach (EnemyController enemy in enemies) {
             // they need to be facing the direction of the hit
@@ -93,10 +94,21 @@ public class PlayerController : MonoBehaviour
             bool isXAligned = Mathf.Abs(enemy.transform.position.x - transform.position.x) < attackReach + 1;
             isAlignedWithPlayer = isYAligned && isXAligned;
             if (isAlignedWithPlayer && isInFrontOfPlayer) {
-                bool isKnockDownHit = currentComboIndex == comboAttackTriggers.Count - 1;
-                enemy.ReceiveHit(position, 1, isKnockDownHit);
+                Hit.Type hitType = (currentComboIndex == comboAttackTriggers.Count - 1) ?
+                    Hit.Type.PowerEject : Hit.Type.Normal;
+                enemy.ReceiveHit(position, 1, hitType);
+                hasHitEnemy = true;
             }
-
+        }
+        
+        // increment combo
+        if (hasHitEnemy) {
+            if (Time.timeSinceLevelLoad - timeLastAttack < comboAttackMaxDuration) {
+                currentComboIndex = (currentComboIndex + 1) % comboAttackTriggers.Count;
+            } else {
+                currentComboIndex = 1; // don't start at zero since this is the first hit
+            }
+            timeLastAttack = Time.timeSinceLevelLoad;
         }
     }
 
@@ -142,13 +154,9 @@ public class PlayerController : MonoBehaviour
         if (CanAttack() && Input.GetButtonDown("Attack")) {
             state = State.Attacking;
             if (!grounded) {
+                currentComboIndex = 0;
                 animator.SetTrigger("AirKick");
             } else {
-                if ((Time.timeSinceLevelLoad - timeLastAttack) < comboAttackMaxDuration) {
-                    currentComboIndex = (currentComboIndex + 1) % (comboAttackTriggers.Count);
-                } else {
-                    currentComboIndex = 0;
-                }
                 animator.SetTrigger(comboAttackTriggers[currentComboIndex]);
             }
         }

@@ -38,13 +38,18 @@ public class EnemyController : MonoBehaviour
         player.RegisterEnemy(this);
     }
 
-    public void ReceiveHit(Vector2 damageOrigin, int dmg = 0, bool isKnockDownHit = false) {
+    public void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
             wasPlayerInReach = false; // knocks player out a bit
-            if (isKnockDownHit) {
+            if (hitType == Hit.Type.PowerEject) {
                 animator.SetBool("IsFlying", true);
                 state = State.Flying;
                 velocity = (damageOrigin.x < position.x ? Vector2.right : Vector2.left) * flySpeed;
+            } else if (hitType == Hit.Type.Knockdown) {
+                animator.SetBool("IsFalling", true);
+                state = State.Falling;
+                velocity = (damageOrigin.x < position.x ? Vector2.right : Vector2.left) * moveSpeed;
+                dzHeight = 2f;
             } else {
                 state = State.Hurt;
                 animator.SetTrigger("Hurt");
@@ -53,8 +58,9 @@ public class EnemyController : MonoBehaviour
     }
 
     public bool IsVulnerable(Vector2 damageOrigin) {
-        return state != State.Hurt &&
-               state != State.Grounded;
+        return state == State.Idle ||
+               state == State.Walk ||
+               state == State.PrepareAttack;
     }
 
     private void Sprite_OnAttackFrame(object sender, System.EventArgs e) {
