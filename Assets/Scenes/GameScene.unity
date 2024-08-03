@@ -761,8 +761,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 743523667}
-  - component: {fileID: 743523668}
   - component: {fileID: 743523670}
+  - component: {fileID: 743523668}
   m_Layer: 7
   m_Name: EnemyPunk
   m_TagString: Untagged
@@ -835,14 +835,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 10
-  flySpeed: 70
   attackReach: 15
   durationGrounded: 2
-  minMaxSecsBeforeHitting: {x: 0.2, y: 1.5}
-  player: {fileID: 1927224849}
   sprite: {fileID: 1153886291}
   animator: {fileID: 1153886290}
   gravity: 10
+  verticalMarginBetweenEnemyAndPlayer: 4
+  flySpeed: 70
+  minMaxSecsBeforeHitting: {x: 0.2, y: 1.5}
+  player: {fileID: 1927224849}
 --- !u!1 &1153886287
 GameObject:
   m_ObjectHideFlags: 0
@@ -1011,10 +1012,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 20
   attackReach: 15
-  jumpForce: 1.8
-  gravity: 5
-  animator: {fileID: 474681}
+  durationGrounded: 2
   sprite: {fileID: 474683}
+  animator: {fileID: 474681}
+  gravity: 5
+  verticalMarginBetweenEnemyAndPlayer: 5
+  jumpForce: 1.8
   comboAttackMaxDuration: 0.6
 --- !u!70 &1927224851
 CapsuleCollider2D:

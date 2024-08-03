@@ -1,59 +1,30 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
-{
+public class PlayerController : CharacterController {
 
-    [SerializeField] private float moveSpeed = 1f;
-    [SerializeField] private float attackReach;
-    [SerializeField] private float jumpForce = 5f;
-    [SerializeField] private float gravity = 10f;
-    [SerializeField] private Animator animator;
-    [SerializeField] private CharacterSprite sprite;
-    [SerializeField] private float comboAttackMaxDuration = 0.2f; // s to perform combo
+    [SerializeField] private float jumpForce;
+    [SerializeField] private float comboAttackMaxDuration; // s to perform combo
 
-    public enum State { Idle, Walking, Attacking, Hurt, Blocking }
-
-    private State state = State.Idle;
-    private Vector2 velocity;
-    private Vector2 position;
     private List<string> comboAttackTriggers = new List<string>() {
         "Punch", "Punch", "PunchAlt", "Kick", "Roundhouse"
     };
     private int currentComboIndex = 0;
-    private float timeLastAttack = float.NegativeInfinity;
-    private float zHeight = 0f;
-    private float dzHeight = 0f;
-    private bool grounded = true;
-    private float verticalMarginBetweenEnemyAndPlayer = 5; // a bit more forgiving than for enemies
     private List<EnemyController> enemies = new List<EnemyController>();
-
-    void Start()
-    {
-        sprite.OnAttackAnimationComplete += Sprite_OnAttackAnimationComplete;
-        sprite.OnInvincibilityEnd += Sprite_OnInvincibilityEnd;
-        sprite.OnAttackFrame += Sprite_OnAttackFrame;
-        position = new Vector2(transform.position.x, transform.position.y);
-    }
-
-    public bool IsFacingLeft() {
-        return sprite.GetComponent<SpriteRenderer>().flipX;
-    }
 
     public void RegisterEnemy(EnemyController enemy) {
         enemies.Add(enemy);
     }
 
-    public void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
+    public override void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
             state = State.Hurt;
             animator.SetTrigger("Hurt");
         }
     }
 
-    public bool IsVulnerable(Vector2 damageOrigin) {
+    public override bool IsVulnerable(Vector2 damageOrigin) {
         if (state == State.Hurt) {
             return false;
         }
@@ -75,7 +46,7 @@ public class PlayerController : MonoBehaviour
         state = State.Idle;
     }
 
-    private void Sprite_OnAttackFrame(object sender, EventArgs e) {
+    protected override void AttemptAttack() {
         bool hasHitEnemy = false;
         // get list of vulnerable enemies within distance.
         foreach (EnemyController enemy in enemies) {
@@ -112,7 +83,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void FixedUpdate() {
+    protected override void FixedUpdate() {
         HandleJumpInput();
         HandleBlockInput();
         HandleMoveInput();
@@ -180,19 +151,4 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private bool CanAttack() {
-        return state != State.Attacking;
-    }
-
-    private bool CanMove() {
-        return (state != State.Attacking && state != State.Blocking) || (!grounded);
-    }
-
-    private bool CanJump() {
-        return state != State.Attacking && state != State.Blocking && grounded;
-    }
-
-    private bool CanBlock() {
-        return state == State.Idle || state == State.Walking;
-    }
 }

@@ -1,46 +1,24 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-public class EnemyController : MonoBehaviour
-{
+public class EnemyController : CharacterController {
     [SerializeField] private float flySpeed;
     [SerializeField] private Vector2 minMaxSecsBeforeHitting;
     [SerializeField] private PlayerController player;
-    [SerializeField] private float moveSpeed;
-    [SerializeField] private float attackReach;
-    [SerializeField] private float durationGrounded;
-    [SerializeField] private CharacterSprite sprite;
-    [SerializeField] private Animator animator;
-    [SerializeField] private float gravity = 10f;
 
-
-    enum State { Idle, Walk, PrepareAttack, Attack, Hurt, Flying, Falling, Grounded }
-
-    private Vector2 position;
-    private Vector2 velocity;
-    private State state = State.Idle;
     private float timeSincePreparedToHit = float.NegativeInfinity;
     private float waitDurationBeforeHit = 0f;
-    private float verticalMarginBetweenEnemyAndPlayer = 4;
     private float timeSinceGrounded = float.NegativeInfinity;
-    private float zHeight = 0f;
-    private float dzHeight = 0f;
-    private bool wasPlayerInReach = false;
+    private bool isInHittingStance = false;
 
-    void Start() {
-        position = new Vector2(transform.position.x, transform.position.y);
-        sprite.OnAttackAnimationComplete += Sprite_OnAttackAnimationComplete;
-        sprite.OnInvincibilityEnd += Sprite_OnInvincibilityEnd;
-        sprite.OnAttackFrame += Sprite_OnAttackFrame;
+    protected override void Start() {
+        base.Start();
         player.RegisterEnemy(this);
     }
 
-    public void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
+    public override void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
-            wasPlayerInReach = false; // knocks player out a bit
+            isInHittingStance = false; // knocks player out a bit
             if (hitType == Hit.Type.PowerEject) {
                 animator.SetBool("IsFlying", true);
                 state = State.Flying;
@@ -57,28 +35,20 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    public bool IsVulnerable(Vector2 damageOrigin) {
+    public override bool IsVulnerable(Vector2 damageOrigin) {
         return state == State.Idle ||
-               state == State.Walk ||
-               state == State.PrepareAttack;
+               state == State.Walking ||
+               state == State.PreparingAttack;
     }
 
-    private void Sprite_OnAttackFrame(object sender, System.EventArgs e) {
+    protected override void AttemptAttack() {
         if (IsPlayerWithinReach() && player.IsVulnerable(position)) {
             player.ReceiveHit(position);
         }
+        isInHittingStance = false; // take a breather
     }
 
-    private void Sprite_OnInvincibilityEnd(object sender, EventArgs e) {
-        state = State.Idle;
-    }
-
-    private void Sprite_OnAttackAnimationComplete(object sender, System.EventArgs e) {
-        state = State.Idle; // no need for trigger, enable movement again
-    }
-
-    private void FixedUpdate()
-    {
+    protected override void FixedUpdate() {
         HandleFlying();
         HandleFalling();
         HandleGrounded();
@@ -93,9 +63,10 @@ public class EnemyController : MonoBehaviour
             animator.SetBool("IsWalking", isPlayerTooFar);
             if (isPlayerTooFar) {
                 WalkTowards(nextTargetDestination);
-                wasPlayerInReach = false;
-            } else {
-                state = State.PrepareAttack;
+                isInHittingStance = false;
+            } else if (!isPlayerTooFar && !isInHittingStance) {
+                isInHittingStance = true;
+                state = State.PreparingAttack;
                 timeSincePreparedToHit = Time.timeSinceLevelLoad;
                 waitDurationBeforeHit = UnityEngine.Random.Range(minMaxSecsBeforeHitting.x, minMaxSecsBeforeHitting.y);
             }
@@ -139,10 +110,10 @@ public class EnemyController : MonoBehaviour
     }
 
     private void HandleAttack() {
-        if (state == State.PrepareAttack && 
+        if (state == State.PreparingAttack && 
             (Time.timeSinceLevelLoad - timeSincePreparedToHit > waitDurationBeforeHit)) {
 
-            state = State.Attack;
+            state = State.Attacking;
             if (UnityEngine.Random.Range(0f, 1f) > 0.5f) {
                 animator.SetTrigger("Punch");
             } else {
@@ -155,7 +126,7 @@ public class EnemyController : MonoBehaviour
         velocity = targetDestination * moveSpeed;
         position += velocity * Time.deltaTime;
         transform.position = new Vector3(Mathf.Round(position.x), Mathf.Round(position.y), 0);
-        state = State.Walk;
+        state = State.Walking;
     }
 
     private bool IsPlayerWithinReach() {
@@ -177,11 +148,6 @@ public class EnemyController : MonoBehaviour
             target = new Vector2(player.transform.position.x - attackReach, player.transform.position.y);
         }
         return (target - position).normalized;
-    }
-
-    private bool CanMove() {
-        return state == State.Idle ||
-               state == State.Walk;
     }
 
     private void FacePlayer() {
