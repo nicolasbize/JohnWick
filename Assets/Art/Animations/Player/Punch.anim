@@ -21,15 +21,15 @@ AnimationClip:
   - serializedVersion: 2
     curve:
     - time: 0
-      value: {fileID: -1479272459, guid: 4a7ce129be01d30409499f92a6a46e86, type: 3}
+      value: {fileID: -1264172241, guid: 4a7ce129be01d30409499f92a6a46e86, type: 3}
     - time: 0.083333336
-      value: {fileID: 1511071015, guid: 4a7ce129be01d30409499f92a6a46e86, type: 3}
+      value: {fileID: -1479272459, guid: 4a7ce129be01d30409499f92a6a46e86, type: 3}
     - time: 0.16666667
-      value: {fileID: 400116680, guid: 4a7ce129be01d30409499f92a6a46e86, type: 3}
+      value: {fileID: 1511071015, guid: 4a7ce129be01d30409499f92a6a46e86, type: 3}
     - time: 0.25
-      value: {fileID: -2061187259, guid: 4a7ce129be01d30409499f92a6a46e86, type: 3}
+      value: {fileID: 400116680, guid: 4a7ce129be01d30409499f92a6a46e86, type: 3}
     attribute: m_Sprite
-    path: 
+    path: PlayerSprite
     classID: 212
     script: {fileID: 0}
     flags: 2
@@ -41,7 +41,7 @@ AnimationClip:
   m_ClipBindingConstant:
     genericBindings:
     - serializedVersion: 2
-      path: 0
+      path: 533382794
       attribute: 0
       script: {fileID: 0}
       typeID: 212
@@ -50,10 +50,10 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     pptrCurveMapping:
+    - {fileID: -1264172241, guid: 4a7ce129be01d30409499f92a6a46e86, type: 3}
     - {fileID: -1479272459, guid: 4a7ce129be01d30409499f92a6a46e86, type: 3}
     - {fileID: 1511071015, guid: 4a7ce129be01d30409499f92a6a46e86, type: 3}
     - {fileID: 400116680, guid: 4a7ce129be01d30409499f92a6a46e86, type: 3}
-    - {fileID: -2061187259, guid: 4a7ce129be01d30409499f92a6a46e86, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
@@ -87,7 +87,7 @@ AnimationClip:
     intParameter: 0
     messageOptions: 0
   - time: 0.25
-    functionName: OnAttackAnimationEnd
+    functionName: OnAttackAnimationEndFrameEvent
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

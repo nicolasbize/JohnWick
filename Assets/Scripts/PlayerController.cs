@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : CharacterController {
+public class PlayerController : BaseCharacterController {
 
     [SerializeField] private float jumpForce;
     [SerializeField] private float comboAttackMaxDuration; // s to perform combo
@@ -34,8 +34,8 @@ public class PlayerController : CharacterController {
             return false;
         }
         if (state == State.Blocking && (
-            (IsFacingLeft() && damageOrigin.x < position.x) ||
-            (!IsFacingLeft() && damageOrigin.x > position.x))) {
+            (IsFacingLeft && damageOrigin.x < position.x) ||
+            (!IsFacingLeft && damageOrigin.x > position.x))) {
             return false;
         }
         return true;
@@ -57,10 +57,10 @@ public class PlayerController : CharacterController {
         foreach (EnemyController enemy in enemies) {
             // they need to be facing the direction of the hit
             bool isInFrontOfPlayer = false;
-            if (IsFacingLeft() && enemy.transform.position.x < transform.position.x) {
+            if (IsFacingLeft && enemy.transform.position.x < transform.position.x) {
                 isInFrontOfPlayer = true;
             }
-            if (!IsFacingLeft() && enemy.transform.position.x > transform.position.x) {
+            if (!IsFacingLeft && enemy.transform.position.x > transform.position.x) {
                 isInFrontOfPlayer = true;
             }
 
@@ -114,7 +114,7 @@ public class PlayerController : CharacterController {
             }
         }
 
-        sprite.gameObject.transform.localPosition = Vector3.up * Mathf.RoundToInt(zHeight);
+        characterSprite.gameObject.transform.localPosition = Vector3.up * Mathf.RoundToInt(zHeight);
     }
 
     private void HandleBlockInput() {
@@ -148,7 +148,8 @@ public class PlayerController : CharacterController {
             if (velocity != Vector2.zero) {
                 state = State.Walking;
                 if (velocity.x != 0f) {
-                    sprite.GetComponent<SpriteRenderer>().flipX = velocity.x < 0;
+                    characterSprite.flipX = velocity.x < 0;
+                    IsFacingLeft = characterSprite.flipX;
                 }
             } else {
                 state = State.Idle;

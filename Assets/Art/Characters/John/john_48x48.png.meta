@@ -252,8 +252,8 @@ TextureImporter:
       name: john_48x48_6
       rect:
         serializedVersion: 2
-        x: 288
-        y: 432
+        x: 0
+        y: 384
         width: 48
         height: 48
       alignment: 7
@@ -273,7 +273,7 @@ TextureImporter:
       name: john_48x48_7
       rect:
         serializedVersion: 2
-        x: 0
+        x: 48
         y: 384
         width: 48
         height: 48
@@ -294,7 +294,7 @@ TextureImporter:
       name: john_48x48_8
       rect:
         serializedVersion: 2
-        x: 48
+        x: 96
         y: 384
         width: 48
         height: 48
@@ -315,7 +315,7 @@ TextureImporter:
       name: john_48x48_9
       rect:
         serializedVersion: 2
-        x: 96
+        x: 144
         y: 384
         width: 48
         height: 48
@@ -336,7 +336,7 @@ TextureImporter:
       name: john_48x48_10
       rect:
         serializedVersion: 2
-        x: 144
+        x: 192
         y: 384
         width: 48
         height: 48
@@ -357,7 +357,7 @@ TextureImporter:
       name: john_48x48_11
       rect:
         serializedVersion: 2
-        x: 192
+        x: 240
         y: 384
         width: 48
         height: 48
@@ -378,7 +378,7 @@ TextureImporter:
       name: john_48x48_12
       rect:
         serializedVersion: 2
-        x: 240
+        x: 288
         y: 384
         width: 48
         height: 48
@@ -399,7 +399,7 @@ TextureImporter:
       name: john_48x48_13
       rect:
         serializedVersion: 2
-        x: 288
+        x: 336
         y: 384
         width: 48
         height: 48
@@ -420,8 +420,8 @@ TextureImporter:
       name: john_48x48_14
       rect:
         serializedVersion: 2
-        x: 336
-        y: 384
+        x: 0
+        y: 336
         width: 48
         height: 48
       alignment: 7
@@ -441,7 +441,7 @@ TextureImporter:
       name: john_48x48_15
       rect:
         serializedVersion: 2
-        x: 0
+        x: 48
         y: 336
         width: 48
         height: 48
@@ -462,7 +462,7 @@ TextureImporter:
       name: john_48x48_16
       rect:
         serializedVersion: 2
-        x: 48
+        x: 96
         y: 336
         width: 48
         height: 48
@@ -483,7 +483,7 @@ TextureImporter:
       name: john_48x48_17
       rect:
         serializedVersion: 2
-        x: 96
+        x: 144
         y: 336
         width: 48
         height: 48
@@ -504,8 +504,8 @@ TextureImporter:
       name: john_48x48_18
       rect:
         serializedVersion: 2
-        x: 144
-        y: 336
+        x: 0
+        y: 288
         width: 48
         height: 48
       alignment: 7
@@ -525,7 +525,7 @@ TextureImporter:
       name: john_48x48_19
       rect:
         serializedVersion: 2
-        x: 0
+        x: 48
         y: 288
         width: 48
         height: 48
@@ -546,7 +546,7 @@ TextureImporter:
       name: john_48x48_20
       rect:
         serializedVersion: 2
-        x: 48
+        x: 96
         y: 288
         width: 48
         height: 48
@@ -567,8 +567,8 @@ TextureImporter:
       name: john_48x48_21
       rect:
         serializedVersion: 2
-        x: 96
-        y: 288
+        x: 0
+        y: 240
         width: 48
         height: 48
       alignment: 7
@@ -588,7 +588,7 @@ TextureImporter:
       name: john_48x48_22
       rect:
         serializedVersion: 2
-        x: 0
+        x: 48
         y: 240
         width: 48
         height: 48
@@ -609,7 +609,7 @@ TextureImporter:
       name: john_48x48_23
       rect:
         serializedVersion: 2
-        x: 48
+        x: 96
         y: 240
         width: 48
         height: 48
@@ -630,7 +630,7 @@ TextureImporter:
       name: john_48x48_24
       rect:
         serializedVersion: 2
-        x: 96
+        x: 144
         y: 240
         width: 48
         height: 48
@@ -651,7 +651,7 @@ TextureImporter:
       name: john_48x48_25
       rect:
         serializedVersion: 2
-        x: 144
+        x: 192
         y: 240
         width: 48
         height: 48
@@ -672,7 +672,7 @@ TextureImporter:
       name: john_48x48_26
       rect:
         serializedVersion: 2
-        x: 192
+        x: 240
         y: 240
         width: 48
         height: 48
@@ -693,8 +693,8 @@ TextureImporter:
       name: john_48x48_27
       rect:
         serializedVersion: 2
-        x: 240
-        y: 240
+        x: 0
+        y: 192
         width: 48
         height: 48
       alignment: 7
@@ -714,7 +714,7 @@ TextureImporter:
       name: john_48x48_28
       rect:
         serializedVersion: 2
-        x: 0
+        x: 48
         y: 192
         width: 48
         height: 48
@@ -735,7 +735,7 @@ TextureImporter:
       name: john_48x48_29
       rect:
         serializedVersion: 2
-        x: 48
+        x: 96
         y: 192
         width: 48
         height: 48
@@ -756,7 +756,7 @@ TextureImporter:
       name: john_48x48_30
       rect:
         serializedVersion: 2
-        x: 96
+        x: 144
         y: 192
         width: 48
         height: 48
@@ -777,7 +777,7 @@ TextureImporter:
       name: john_48x48_31
       rect:
         serializedVersion: 2
-        x: 144
+        x: 192
         y: 192
         width: 48
         height: 48
@@ -798,7 +798,7 @@ TextureImporter:
       name: john_48x48_32
       rect:
         serializedVersion: 2
-        x: 192
+        x: 240
         y: 192
         width: 48
         height: 48
@@ -819,8 +819,8 @@ TextureImporter:
       name: john_48x48_33
       rect:
         serializedVersion: 2
-        x: 240
-        y: 192
+        x: 0
+        y: 144
         width: 48
         height: 48
       alignment: 7
@@ -840,7 +840,7 @@ TextureImporter:
       name: john_48x48_34
       rect:
         serializedVersion: 2
-        x: 0
+        x: 48
         y: 144
         width: 48
         height: 48
@@ -861,7 +861,7 @@ TextureImporter:
       name: john_48x48_35
       rect:
         serializedVersion: 2
-        x: 48
+        x: 96
         y: 144
         width: 48
         height: 48
@@ -882,7 +882,7 @@ TextureImporter:
       name: john_48x48_36
       rect:
         serializedVersion: 2
-        x: 96
+        x: 144
         y: 144
         width: 48
         height: 48
@@ -903,7 +903,7 @@ TextureImporter:
       name: john_48x48_37
       rect:
         serializedVersion: 2
-        x: 144
+        x: 192
         y: 144
         width: 48
         height: 48
@@ -924,8 +924,8 @@ TextureImporter:
       name: john_48x48_38
       rect:
         serializedVersion: 2
-        x: 192
-        y: 144
+        x: 0
+        y: 96
         width: 48
         height: 48
       alignment: 7
@@ -945,7 +945,7 @@ TextureImporter:
       name: john_48x48_39
       rect:
         serializedVersion: 2
-        x: 0
+        x: 48
         y: 96
         width: 48
         height: 48
@@ -966,7 +966,7 @@ TextureImporter:
       name: john_48x48_40
       rect:
         serializedVersion: 2
-        x: 48
+        x: 96
         y: 96
         width: 48
         height: 48
@@ -987,8 +987,8 @@ TextureImporter:
       name: john_48x48_41
       rect:
         serializedVersion: 2
-        x: 96
-        y: 96
+        x: 0
+        y: 48
         width: 48
         height: 48
       alignment: 7
@@ -1008,7 +1008,7 @@ TextureImporter:
       name: john_48x48_42
       rect:
         serializedVersion: 2
-        x: 0
+        x: 48
         y: 48
         width: 48
         height: 48
@@ -1029,7 +1029,7 @@ TextureImporter:
       name: john_48x48_43
       rect:
         serializedVersion: 2
-        x: 48
+        x: 96
         y: 48
         width: 48
         height: 48
@@ -1050,27 +1050,6 @@ TextureImporter:
       name: john_48x48_44
       rect:
         serializedVersion: 2
-        x: 96
-        y: 48
-        width: 48
-        height: 48
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 52997435ef23f254881d210cf0c833f1
-      internalID: 406346960
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: john_48x48_45
-      rect:
-        serializedVersion: 2
         x: 0
         y: 0
         width: 48
@@ -1082,8 +1061,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f6c21ee02df96254d8a77ad2a792a298
-      internalID: 431838474
+      spriteID: 52997435ef23f254881d210cf0c833f1
+      internalID: 406346960
       vertices: []
       indices: 
       edges: []
@@ -1139,7 +1118,6 @@ TextureImporter:
       john_48x48_42: -920226892
       john_48x48_43: -760636690
       john_48x48_44: 406346960
-      john_48x48_45: 431838474
       john_48x48_5: -1133625241
       john_48x48_6: -196878793
       john_48x48_7: 368669001

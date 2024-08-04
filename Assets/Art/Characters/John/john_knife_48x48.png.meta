@@ -147,8 +147,8 @@ TextureImporter:
       name: john_knife_48x48_1
       rect:
         serializedVersion: 2
-        x: 0
-        y: 384
+        x: 48
+        y: 432
         width: 48
         height: 48
       alignment: 7
@@ -168,8 +168,8 @@ TextureImporter:
       name: john_knife_48x48_2
       rect:
         serializedVersion: 2
-        x: 48
-        y: 384
+        x: 96
+        y: 432
         width: 48
         height: 48
       alignment: 7
@@ -189,8 +189,8 @@ TextureImporter:
       name: john_knife_48x48_3
       rect:
         serializedVersion: 2
-        x: 96
-        y: 384
+        x: 144
+        y: 432
         width: 48
         height: 48
       alignment: 7
@@ -210,8 +210,8 @@ TextureImporter:
       name: john_knife_48x48_4
       rect:
         serializedVersion: 2
-        x: 144
-        y: 384
+        x: 192
+        y: 432
         width: 48
         height: 48
       alignment: 7
@@ -231,8 +231,8 @@ TextureImporter:
       name: john_knife_48x48_5
       rect:
         serializedVersion: 2
-        x: 192
-        y: 384
+        x: 240
+        y: 432
         width: 48
         height: 48
       alignment: 7
@@ -252,7 +252,7 @@ TextureImporter:
       name: john_knife_48x48_6
       rect:
         serializedVersion: 2
-        x: 240
+        x: 0
         y: 384
         width: 48
         height: 48
@@ -273,7 +273,7 @@ TextureImporter:
       name: john_knife_48x48_7
       rect:
         serializedVersion: 2
-        x: 288
+        x: 48
         y: 384
         width: 48
         height: 48
@@ -294,7 +294,7 @@ TextureImporter:
       name: john_knife_48x48_8
       rect:
         serializedVersion: 2
-        x: 336
+        x: 96
         y: 384
         width: 48
         height: 48
@@ -315,8 +315,8 @@ TextureImporter:
       name: john_knife_48x48_9
       rect:
         serializedVersion: 2
-        x: 0
-        y: 288
+        x: 144
+        y: 384
         width: 48
         height: 48
       alignment: 7
@@ -336,8 +336,8 @@ TextureImporter:
       name: john_knife_48x48_10
       rect:
         serializedVersion: 2
-        x: 48
-        y: 288
+        x: 192
+        y: 384
         width: 48
         height: 48
       alignment: 7
@@ -357,8 +357,8 @@ TextureImporter:
       name: john_knife_48x48_11
       rect:
         serializedVersion: 2
-        x: 96
-        y: 288
+        x: 240
+        y: 384
         width: 48
         height: 48
       alignment: 7
@@ -370,6 +370,111 @@ TextureImporter:
       bones: []
       spriteID: 371c26640a288e6438da0771d188311d
       internalID: 867912693
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: john_knife_48x48_12
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 384
+        width: 48
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a496d03c0aae57442b8d2d386c4abf48
+      internalID: 1466295150
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: john_knife_48x48_13
+      rect:
+        serializedVersion: 2
+        x: 336
+        y: 384
+        width: 48
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 795b598daa1774c478ee50e92f025f1b
+      internalID: -162370832
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: john_knife_48x48_14
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 288
+        width: 48
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 71a6b7da4735a844d8ab775e56d95bb5
+      internalID: 1234806691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: john_knife_48x48_15
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 288
+        width: 48
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2c69b961fbd470c4aadd81850829a6dc
+      internalID: -1518886513
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: john_knife_48x48_16
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 288
+        width: 48
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 53540bbaa1893e04e8dacc376ffdd0fe
+      internalID: 1920688347
       vertices: []
       indices: 
       edges: []
@@ -389,6 +494,11 @@ TextureImporter:
       john_knife_48x48_1: 348845626
       john_knife_48x48_10: 1369685721
       john_knife_48x48_11: 867912693
+      john_knife_48x48_12: 1466295150
+      john_knife_48x48_13: -162370832
+      john_knife_48x48_14: 1234806691
+      john_knife_48x48_15: -1518886513
+      john_knife_48x48_16: 1920688347
       john_knife_48x48_2: 439123549
       john_knife_48x48_3: 2098260544
       john_knife_48x48_4: 949509685

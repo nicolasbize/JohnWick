@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public abstract class CharacterController : MonoBehaviour
+public abstract class BaseCharacterController : MonoBehaviour
 {
     public enum State { Idle, Walking, PreparingAttack, Attacking, Blocking, Hurt, Flying, Falling, Grounded }
 
@@ -12,8 +12,7 @@ public abstract class CharacterController : MonoBehaviour
     [SerializeField] protected float attackReach;
     [SerializeField] protected float durationLyingDead;
     [SerializeField] protected float durationGrounded;
-    [SerializeField] protected CharacterSprite sprite;
-    [SerializeField] protected Animator animator;
+    [SerializeField] protected SpriteRenderer characterSprite;
     [SerializeField] protected float gravity = 10f;
     [SerializeField] protected float verticalMarginBetweenEnemyAndPlayer;
 
@@ -26,37 +25,34 @@ public abstract class CharacterController : MonoBehaviour
     protected float dzHeight = 0f;
     protected bool grounded = true;
     protected State state = State.Idle;
+    protected Animator animator;
 
     private void Awake() {
         CurrentHP = MaxHP;
     }
 
     protected virtual void Start() {
-        sprite.OnAttackAnimationComplete += Sprite_OnAttackAnimationComplete;
-        sprite.OnInvincibilityEnd += Sprite_OnInvincibilityEnd;
-        sprite.OnAttackFrame += Sprite_OnAttackFrame;
+        animator = GetComponent<Animator>();
         position = new Vector2(transform.position.x, transform.position.y);
     }
 
-    public bool IsFacingLeft() {
-        return sprite.GetComponent<SpriteRenderer>().flipX;
-    }
+    public bool IsFacingLeft { get; protected set; }
 
     public abstract void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal);
     public abstract bool IsVulnerable(Vector2 damageOrigin);
     protected abstract void AttemptAttack();
     protected abstract void FixedUpdate();
 
-    private void Sprite_OnInvincibilityEnd(object sender, EventArgs e) {
-        state = State.Idle;
-    }
-
-    private void Sprite_OnAttackAnimationComplete(object sender, System.EventArgs e) {
+    public void OnAttackAnimationEndFrameEvent() {
         timeLastAttack = Time.timeSinceLevelLoad;
         state = State.Idle;
     }
 
-    private void Sprite_OnAttackFrame(object sender, EventArgs e) {
+    public void OnInvincibilityAnimationFrameEnd() {
+        state = State.Idle;
+    }
+
+    public void OnAttackFrameEvent() {
         AttemptAttack();
     }
 

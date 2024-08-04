@@ -1,10 +1,16 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyController : CharacterController {
+public class EnemyController : BaseCharacterController {
+    
+    public enum EnemyType { Biker, Goon, Punk, StreetBoss, Thug}
+
     [SerializeField] private float flySpeed;
     [SerializeField] private Vector2 minMaxSecsBeforeHitting;
     [SerializeField] private PlayerController player;
+    [SerializeField] private EnemyType enemyType;
+    
 
     private float timeSincePreparedToHit = float.NegativeInfinity;
     private float waitDurationBeforeHit = 0f;
@@ -18,15 +24,16 @@ public class EnemyController : CharacterController {
 
     public override void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
+            Vector2 attackVector = damageOrigin.x < position.x ? Vector2.right : Vector2.left;
             isInHittingStance = false; // knocks player out a bit
             if (hitType == Hit.Type.PowerEject) {
                 animator.SetBool("IsFlying", true);
                 state = State.Flying;
-                velocity = (damageOrigin.x < position.x ? Vector2.right : Vector2.left) * flySpeed;
+                velocity = attackVector * flySpeed;
             } else if (hitType == Hit.Type.Knockdown || (CurrentHP <= 0)) {
                 animator.SetBool("IsFalling", true);
                 state = State.Falling;
-                velocity = (damageOrigin.x < position.x ? Vector2.right : Vector2.left) * moveSpeed;
+                velocity = attackVector * moveSpeed;
                 dzHeight = 2f;
             } else {
                 state = State.Hurt;
@@ -55,7 +62,7 @@ public class EnemyController : CharacterController {
         HandleGrounded();
         HandleAttack();
         
-        sprite.gameObject.transform.localPosition = Vector3.up * Mathf.RoundToInt(zHeight);
+        characterSprite.gameObject.transform.localPosition = Vector3.up * Mathf.RoundToInt(zHeight);
 
         if (CanMove()) {
             FacePlayer();
@@ -158,7 +165,8 @@ public class EnemyController : CharacterController {
 
     private void FacePlayer() {
         if (player != null) {
-            sprite.GetComponent<SpriteRenderer>().flipX = player.transform.position.x < transform.position.x;
+            characterSprite.flipX = player.transform.position.x < transform.position.x;
+            IsFacingLeft = characterSprite.flipX;
         }
     }
 }

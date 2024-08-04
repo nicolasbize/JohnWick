@@ -647,6 +647,27 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: thug_48x48_25
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 96
+        width: 48
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dcb527715e126b144851f26e98fe6386
+      internalID: -166402895
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -676,6 +697,7 @@ TextureImporter:
       thug_48x48_22: -814735428
       thug_48x48_23: -1696297017
       thug_48x48_24: 478135402
+      thug_48x48_25: -166402895
       thug_48x48_3: 1849348258
       thug_48x48_4: -270862682
       thug_48x48_5: 1467431044

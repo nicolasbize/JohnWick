@@ -647,6 +647,27 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: biker_48x48_25
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 96
+        width: 48
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c04a4198b5ed64149a1643480537d09b
+      internalID: 500213210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -676,6 +697,7 @@ TextureImporter:
       biker_48x48_22: 86900030
       biker_48x48_23: 1418494227
       biker_48x48_24: -1877620692
+      biker_48x48_25: 500213210
       biker_48x48_3: -1915426621
       biker_48x48_4: 1310505454
       biker_48x48_5: 36205903

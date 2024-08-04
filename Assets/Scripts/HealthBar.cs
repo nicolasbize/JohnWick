@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class HealthBar : MonoBehaviour
 {
-    [SerializeField] private CharacterController character;
+    [SerializeField] private BaseCharacterController character;
     [SerializeField] private SpriteRenderer backgroundSprite;
     [SerializeField] private SpriteRenderer meterSprite;
 
