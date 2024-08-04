@@ -44,6 +44,9 @@ TagManager:
   - name: Background
     uniqueID: 1613406175
     locked: 0
+  - name: Furniture
+    uniqueID: 2942060791
+    locked: 0
   - name: Characters
     uniqueID: 3395407851
     locked: 0
