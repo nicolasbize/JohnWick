@@ -6,6 +6,7 @@ public abstract class BaseCharacterController : MonoBehaviour
     public enum State { Idle, Walking, PreparingAttack, Attacking, Blocking, Hurt, Flying, Falling, Grounded }
 
     public event EventHandler OnHealthChange;
+    public event EventHandler OnDirectionChange;
 
     [field: SerializeField] public int MaxHP { get; private set; }
     [SerializeField] protected float moveSpeed;
@@ -54,6 +55,10 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     public void OnAttackFrameEvent() {
         AttemptAttack();
+    }
+
+    protected void NotifyChangeDirection() {
+        OnDirectionChange?.Invoke(this, EventArgs.Empty);
     }
 
     protected void ReceiveDamage(int damage) {

@@ -33,7 +33,7 @@ public class EnemyController : BaseCharacterController {
             } else if (hitType == Hit.Type.Knockdown || (CurrentHP <= 0)) {
                 animator.SetBool("IsFalling", true);
                 state = State.Falling;
-                velocity = attackVector * moveSpeed;
+                velocity = attackVector * moveSpeed * 3;
                 dzHeight = 2f;
             } else {
                 state = State.Hurt;
@@ -93,6 +93,7 @@ public class EnemyController : BaseCharacterController {
                 animator.SetBool("IsFalling", true);
                 state = State.Falling;
                 dzHeight = 2f;
+                velocity = velocity.normalized * -10; // bounce 
             }
         }
     }
@@ -101,6 +102,8 @@ public class EnemyController : BaseCharacterController {
         if (state == State.Falling) {
             dzHeight -= gravity * Time.deltaTime;
             zHeight += dzHeight;
+            position += velocity * Time.deltaTime;
+            transform.position = new Vector3(Mathf.Round(position.x), Mathf.Round(position.y), 0);
             if (zHeight < 0) {
                 state = State.Grounded;
                 zHeight = 0f;

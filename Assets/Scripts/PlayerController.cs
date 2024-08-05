@@ -72,6 +72,9 @@ public class PlayerController : BaseCharacterController {
             if (isAlignedWithPlayer && isInFrontOfPlayer) {
                 bool isPowerAttack = currentComboIndex == comboAttackTriggers.Count - 1;
                 Hit.Type hitType = isPowerAttack ? Hit.Type.PowerEject : Hit.Type.Normal;
+                if (!grounded) {
+                    hitType = Hit.Type.Knockdown;
+                }
                 int damage = isPowerAttack ? 2 : 3;
                 enemy.ReceiveHit(position, damage, hitType);
                 hasHitEnemy = true;
@@ -90,10 +93,15 @@ public class PlayerController : BaseCharacterController {
     }
 
     protected override void FixedUpdate() {
+        bool wasFacingLeft = IsFacingLeft;
         HandleJumpInput();
         HandleBlockInput();
         HandleMoveInput();
         HandleAttackInput();
+        
+        if (IsFacingLeft != wasFacingLeft) {
+            NotifyChangeDirection();
+        }
     }
 
     private void HandleJumpInput() {
@@ -114,7 +122,7 @@ public class PlayerController : BaseCharacterController {
             }
         }
 
-        characterSprite.gameObject.transform.localPosition = Vector3.up * Mathf.RoundToInt(zHeight);
+        characterSprite.gameObject.transform.localPosition = Vector3.up * Mathf.FloorToInt(zHeight);
     }
 
     private void HandleBlockInput() {
@@ -143,7 +151,7 @@ public class PlayerController : BaseCharacterController {
         if (CanMove()) {
             velocity = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) * moveSpeed;
             position += velocity * Time.deltaTime;
-            transform.position = new Vector3(Mathf.Round(position.x), Mathf.Round(position.y), 0);
+            transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y), 0);
 
             if (velocity != Vector2.zero) {
                 state = State.Walking;
