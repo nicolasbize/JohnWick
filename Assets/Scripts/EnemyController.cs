@@ -84,7 +84,7 @@ public class EnemyController : BaseCharacterController {
     private void HandleFlying() {
         if (state == State.Flying) {
             position += velocity * Time.deltaTime;
-            transform.position = new Vector3(Mathf.Round(position.x), Mathf.Round(position.y), 0);
+            transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y), 0);
             Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
             zHeight = 5f;
             if ((transform.position.x < screenBoundaries.x + 8) ||
@@ -103,7 +103,7 @@ public class EnemyController : BaseCharacterController {
             dzHeight -= gravity * Time.deltaTime;
             zHeight += dzHeight;
             position += velocity * Time.deltaTime;
-            transform.position = new Vector3(Mathf.Round(position.x), Mathf.Round(position.y), 0);
+            transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y), 0);
             if (zHeight < 0) {
                 state = State.Grounded;
                 zHeight = 0f;
@@ -141,7 +141,7 @@ public class EnemyController : BaseCharacterController {
     private void WalkTowards(Vector2 targetDestination) {
         velocity = targetDestination * moveSpeed;
         position += velocity * Time.deltaTime;
-        transform.position = new Vector3(Mathf.Round(position.x), Mathf.Round(position.y), 0);
+        transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y), 0);
         state = State.Walking;
     }
 

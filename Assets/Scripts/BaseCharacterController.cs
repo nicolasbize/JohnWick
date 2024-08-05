@@ -7,6 +7,7 @@ public abstract class BaseCharacterController : MonoBehaviour
 
     public event EventHandler OnHealthChange;
     public event EventHandler OnDirectionChange;
+    public event EventHandler OnDeath;
 
     [field: SerializeField] public int MaxHP { get; private set; }
     [SerializeField] protected float moveSpeed;
@@ -65,6 +66,9 @@ public abstract class BaseCharacterController : MonoBehaviour
         CurrentHP -= damage;
         // todo death
         OnHealthChange?.Invoke(this, EventArgs.Empty);
+        if (CurrentHP <= 0) {
+            OnDeath?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     protected bool CanAttack() {

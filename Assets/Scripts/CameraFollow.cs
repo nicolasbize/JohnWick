@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,42 +6,54 @@ using UnityEngine;
 public class CameraFollow : MonoBehaviour
 {
 
-    [SerializeField] PlayerController player;
-    [SerializeField] int viewDistance;
-    [SerializeField] float cameraSpeed;
+    public event EventHandler OnPositionChange;
 
-    private Vector3 positionBeforeSwap = Vector3.zero;
-    private float lastDirectionChangeTime = float.NegativeInfinity;
-    private bool isChangingDirection = false;
+    [SerializeField] private PlayerController player;
+    [SerializeField] private int viewDistance;
+    [SerializeField] private float cameraSpeed;
+
+    private Vector3 positionBeforeUnlock = Vector3.zero;
+    private float lastLockChangeTime = float.NegativeInfinity;
+    private bool wasJustUnlocked = false;
+    public bool IsLocked { get; private set; } = true;
 
     private void Start() {
-        player.OnDirectionChange += Player_OnDirectionChange;
+        Unlock();
     }
 
-    private void Player_OnDirectionChange(object sender, System.EventArgs e) {
-        lastDirectionChangeTime = Time.timeSinceLevelLoad;
-        positionBeforeSwap = transform.position;
-        isChangingDirection = true;
+    public void LockInPlace() {
+        IsLocked = true;
+    }
+
+    public void Unlock() {
+        IsLocked = false;
+        lastLockChangeTime = Time.timeSinceLevelLoad;
+        positionBeforeUnlock = transform.position;
+        wasJustUnlocked = true;
     }
 
     private void LateUpdate()
     {
-        Vector3 targetPosition = new Vector3(Mathf.FloorToInt(player.transform.position.x), 0f, -10f);
-        targetPosition += (player.IsFacingLeft ? Vector3.left : Vector3.right) * viewDistance;
-        if (isChangingDirection) {
-            float timeSinceSwap = Time.timeSinceLevelLoad - lastDirectionChangeTime;
-            float progress = Mathf.Min(timeSinceSwap / cameraSpeed);
-            if (progress >= 1) {
-                isChangingDirection = false;
+        if (!IsLocked) {
+            Vector3 originalPosition = transform.position;
+            Vector3 targetPosition = new Vector3(Mathf.FloorToInt(player.transform.position.x + viewDistance), originalPosition.y, originalPosition.z);
+            if (targetPosition.x >= originalPosition.x) {  // cannot go backwards
+                if (wasJustUnlocked) {
+                    float timeSinceSwap = Time.timeSinceLevelLoad - lastLockChangeTime;
+                    float progress = Mathf.Min(timeSinceSwap / cameraSpeed);
+                    if (progress >= 1) {
+                        wasJustUnlocked = false;
+                    }
+                    float lerpedPosX = Mathf.Lerp(positionBeforeUnlock.x, targetPosition.x, progress);
+                    transform.position = new Vector3(lerpedPosX, transform.position.y, transform.position.z);
+                } else {
+                    transform.position = targetPosition;
+                }
+                if (transform.position != originalPosition) {
+                    OnPositionChange?.Invoke(this, EventArgs.Empty);
+                }
             }
-            float lerpedPosX = Mathf.Lerp(positionBeforeSwap.x, targetPosition.x, progress);
-            transform.position = new Vector3(lerpedPosX, 0f, -10f);
-        } else {
-            //transform.position = new Vector3(Mathf.FloorToInt(targetPosition.x), 0f, -10f);
-            transform.position = targetPosition;
         }
-        //transform.position = Vector3.Lerp(transform.position, targetPosition, cameraSpeed * Time.deltaTime);
-        
     }
 
     public Vector2 GetScreenXBoundaries() {
