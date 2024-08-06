@@ -36,6 +36,7 @@ public class Checkpoint : MonoBehaviour
     private void TryActivateNewEnemy() {
         if (activeEnemies.Count < maxEnemiesAtOnce && enemiesLeft.Count > 0) {
             EnemyController enemy = enemiesLeft.Dequeue();
+            enemy.OnDying += OnEnemyDying;
             enemy.OnDeath += OnEnemyDeath;
             enemy.gameObject.SetActive(true);
             enemy.GetComponent<EnemyController>().enabled = true;
@@ -43,9 +44,12 @@ public class Checkpoint : MonoBehaviour
         }
     }
 
-    private void OnEnemyDeath(object sender, System.EventArgs e) {
+    private void OnEnemyDying(object sender, EventArgs e) {
         activeEnemies.Remove((EnemyController)sender);
         TryActivateNewEnemy();
+    }
+
+    private void OnEnemyDeath(object sender, System.EventArgs e) {
         if (activeEnemies.Count == 0) {
             OnComplete?.Invoke(this, EventArgs.Empty);
         }

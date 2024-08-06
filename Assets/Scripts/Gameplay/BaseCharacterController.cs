@@ -7,6 +7,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     public enum State { Idle, Walking, PreparingAttack, Attacking, Blocking, Hurt, Flying, Falling, Grounded, Dropping, WaitingForDoor, Dying, Dead }
 
     public event EventHandler OnDirectionChange;
+    public event EventHandler OnDying;
     public event EventHandler OnDeath;
 
     [field: SerializeField] public int MaxHP { get; protected set; }
@@ -76,10 +77,9 @@ public abstract class BaseCharacterController : MonoBehaviour {
         }
     }
 
-    protected bool CanMoveTo(Vector2 position) {
-        Vector3 targetedPosition = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y), 0);
+    protected bool CanMoveTo(Vector2 destination) {
+        Vector3 targetedPosition = new Vector3(destination.x, destination.y, 0);
         Vector2 direction = (targetedPosition - transform.position).normalized;
-        LayerMask playerMask = LayerMask.GetMask("Player");
         LayerMask worldMask = LayerMask.GetMask("World");
         LayerMask enemyMask = LayerMask.GetMask("Enemy");
         LayerMask mask;
@@ -111,6 +111,11 @@ public abstract class BaseCharacterController : MonoBehaviour {
             OnDeath?.Invoke(this, EventArgs.Empty);
         }
     }
+
+    protected void NotifyDying() {
+        OnDying?.Invoke(this, EventArgs.Empty);
+    }
+
 
     protected bool CanAttack() {
         return state != State.Attacking;

@@ -78,7 +78,7 @@ public class PlayerController : BaseCharacterController {
                 if (!grounded) {
                     hitType = Hit.Type.Knockdown;
                 }
-                int damage = isPowerAttack ? 2 : 3;
+                int damage = isPowerAttack ? 2 : 4;
                 enemy.ReceiveHit(position, damage, hitType);
                 hasHitEnemy = true;
             }
@@ -93,6 +93,9 @@ public class PlayerController : BaseCharacterController {
                 BreakCombo();
             }
             timeLastAttack = Time.timeSinceLevelLoad;
+        } else {
+            // don't reset combo but start over
+            currentComboIndex = 0;
         }
     }
 
@@ -114,7 +117,7 @@ public class PlayerController : BaseCharacterController {
         RestrictScreenBoundaries();
 
         if (Time.timeSinceLevelLoad - timeLastAttack > comboAttackMaxDuration) {
-            ComboIndicator.Instance.ResetCombo();
+            BreakCombo();
         }
     }
 

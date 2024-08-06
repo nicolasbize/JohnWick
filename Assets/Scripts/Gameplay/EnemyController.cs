@@ -43,6 +43,7 @@ public class EnemyController : BaseCharacterController {
             zHeight = 50;
             state = State.Dropping;
             position = new Vector2(transform.position.x, transform.position.y);
+            characterSprite.gameObject.transform.localPosition = Vector3.up * Mathf.RoundToInt(zHeight);
         }
     }
 
@@ -183,6 +184,7 @@ public class EnemyController : BaseCharacterController {
                 } else {
                     state = State.Dying;
                     timeDyingStart = Time.timeSinceLevelLoad;
+                    NotifyDying();
                 }
             }
         }
@@ -199,13 +201,11 @@ public class EnemyController : BaseCharacterController {
             } else {
                 // oscillate five times
                 bool isHidden = Mathf.RoundToInt(progress * 10f) % 2 == 1;
-                foreach (SpriteRenderer sprite in GetComponentsInChildren<SpriteRenderer>()) {
-                    if (isHidden) {
-                        sprite.enabled = false;
-                    } else {
-                        sprite.enabled = true;
-                        sprite.color = new Color(1f, 1f, 1f, 1f - progress);
-                    }
+                if (isHidden) {
+                    characterSprite.enabled = false;
+                } else {
+                    characterSprite.enabled = true;
+                    characterSprite.color = new Color(1f, 1f, 1f, 1f - progress);
                 }
             }
         }
