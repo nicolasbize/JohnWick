@@ -21,6 +21,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 342119844202352376}
     - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
+      propertyPath: <EnemySO>k__BackingField
+      value: 
+      objectReference: {fileID: 11400000, guid: 2a65ec2d997847a4eb3026290d8fc8ac, type: 2}
+    - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
       propertyPath: <EnemyType>k__BackingField
       value: 2
       objectReference: {fileID: 0}

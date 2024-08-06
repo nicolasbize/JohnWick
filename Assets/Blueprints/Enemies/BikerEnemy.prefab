@@ -140,7 +140,7 @@ MonoBehaviour:
   <MaxHP>k__BackingField: 14
   moveSpeed: 10
   attackReach: 15
-  durationLyingDead: 5
+  durationLyingDead: 2
   durationGrounded: 2
   characterSprite: {fileID: 606705804587000774}
   gravity: 10
@@ -148,7 +148,8 @@ MonoBehaviour:
   flySpeed: 70
   minMaxSecsBeforeHitting: {x: 0.2, y: 1.5}
   player: {fileID: 0}
-  <EnemyType>k__BackingField: 0
+  garageDoor: {fileID: 0}
+  <EnemySO>k__BackingField: {fileID: 11400000, guid: b42eafa3a270e5a48bba1d1286b95125, type: 2}
 --- !u!95 &4996358437077790443
 Animator:
   serializedVersion: 5

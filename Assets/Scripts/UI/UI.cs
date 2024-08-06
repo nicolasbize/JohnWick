@@ -30,7 +30,7 @@ public class UI : MonoBehaviour
     }
 
     public void NotifyEnemyHealthChange(EnemyController enemy) {
-        EnemySO enemySO = enemyData.Find(e => e.enemyType == enemy.EnemyType);
+        EnemySO enemySO = enemyData.Find(e => e.enemyType == enemy.EnemySO.enemyType);
         Rect spriteRect = new Rect(0.0f, 0.0f, enemySO.avatarImage.width, enemySO.avatarImage.height);
         enemyAvatar.sprite = Sprite.Create(enemySO.avatarImage, spriteRect, Vector2.zero, 1f);
         enemyHealthbar.RefreshMeter(enemy.MaxHP, enemy.CurrentHP);

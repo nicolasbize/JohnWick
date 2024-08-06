@@ -18,6 +18,7 @@ public class Checkpoint : MonoBehaviour
         foreach (EnemyController enemy in GetComponentsInChildren<EnemyController>()) {
             enemiesLeft.Enqueue(enemy);
             enemy.CheckForGarageInitialPosition();
+            enemy.CheckForRoofInitialPosition();
             if (enemy.transform.position.x < CameraLockTargetX) {
                 enemy.gameObject.SetActive(false);
             } else {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class EnemyController : BaseCharacterController {
     
@@ -10,8 +11,7 @@ public class EnemyController : BaseCharacterController {
     [SerializeField] private Vector2 minMaxSecsBeforeHitting;
     [SerializeField] private PlayerController player;
     [SerializeField] private GarageDoor garageDoor;
-    [field: SerializeField] public Type EnemyType { get; private set; }
-    
+    [field:SerializeField] public EnemySO EnemySO { get; private set; }
 
     private float timeSincePreparedToHit = float.NegativeInfinity;
     private float waitDurationBeforeHit = 0f;
@@ -20,6 +20,8 @@ public class EnemyController : BaseCharacterController {
 
     protected override void Start() {
         base.Start();
+        MaxHP = EnemySO.maxHealth;
+        CurrentHP = MaxHP;
         player.RegisterEnemy(this);
     }
 
@@ -31,6 +33,16 @@ public class EnemyController : BaseCharacterController {
                 renderer.sortingLayerName = "Furniture";
                 renderer.sortingOrder = 1;
             }
+        }
+    }
+
+    public void CheckForRoofInitialPosition() {
+        if (transform.position.y > 32) {
+            int posY = Mathf.FloorToInt(Random.Range(-25, -5));
+            transform.position = new Vector3(transform.position.x, posY, 0);
+            zHeight = 50;
+            state = State.Dropping;
+            position = new Vector2(transform.position.x, transform.position.y);
         }
     }
 
@@ -80,6 +92,8 @@ public class EnemyController : BaseCharacterController {
         HandleDropping(); // for spawns
         HandleGarageDoorHidding(); // for spawns
 
+        HandleDying();
+
         HandleFlying();
         HandleFalling();
         HandleGrounded();
@@ -106,7 +120,6 @@ public class EnemyController : BaseCharacterController {
 
     protected override void ReceiveDamage(int damage) {
         base.ReceiveDamage(damage);
-        // todo death
         UI.Instance.NotifyEnemyHealthChange(this);
     }
 
@@ -152,7 +165,7 @@ public class EnemyController : BaseCharacterController {
             zHeight += dzHeight;
             position += velocity * Time.deltaTime;
             transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y), 0);
-            if (zHeight < 0) {
+            if (zHeight <= 0) {
                 state = State.Grounded;
                 zHeight = 0f;
                 timeSinceGrounded = Time.timeSinceLevelLoad;
@@ -163,12 +176,37 @@ public class EnemyController : BaseCharacterController {
 
     private void HandleGrounded() {
         if (state == State.Grounded) {
-            if (CurrentHP > 0 && (Time.timeSinceLevelLoad - timeSinceGrounded > durationGrounded)) {
-                animator.SetTrigger("GetUp");
-                state = State.Idle;
-            } else if (CurrentHP <= 0 && (Time.timeSinceLevelLoad - timeSinceGrounded > durationGrounded)) {
+            if (Time.timeSinceLevelLoad - timeSinceGrounded > durationGrounded) {
+                if (CurrentHP > 0) {
+                    animator.SetTrigger("GetUp");
+                    state = State.Idle;
+                } else {
+                    state = State.Dying;
+                    timeDyingStart = Time.timeSinceLevelLoad;
+                }
+            }
+        }
+    }
+
+    private void HandleDying() {
+        if (state == State.Dying) {
+            float progress = (Time.timeSinceLevelLoad - timeDyingStart) / durationLyingDead;
+            if (progress >= 1 ) {
+                state = State.Dead;
+                NotifyDeath();
                 player.UnregisterEnemy(this);
                 Destroy(gameObject);
+            } else {
+                // oscillate five times
+                bool isHidden = Mathf.RoundToInt(progress * 10f) % 2 == 1;
+                foreach (SpriteRenderer sprite in GetComponentsInChildren<SpriteRenderer>()) {
+                    if (isHidden) {
+                        sprite.enabled = false;
+                    } else {
+                        sprite.enabled = true;
+                        sprite.color = new Color(1f, 1f, 1f, 1f - progress);
+                    }
+                }
             }
         }
     }

@@ -4,12 +4,12 @@ using UnityEngine.TextCore.Text;
 using Random = UnityEngine.Random;
 
 public abstract class BaseCharacterController : MonoBehaviour {
-    public enum State { Idle, Walking, PreparingAttack, Attacking, Blocking, Hurt, Flying, Falling, Grounded, Dropping, WaitingForDoor }
+    public enum State { Idle, Walking, PreparingAttack, Attacking, Blocking, Hurt, Flying, Falling, Grounded, Dropping, WaitingForDoor, Dying, Dead }
 
     public event EventHandler OnDirectionChange;
     public event EventHandler OnDeath;
 
-    [field: SerializeField] public int MaxHP { get; private set; }
+    [field: SerializeField] public int MaxHP { get; protected set; }
     [SerializeField] protected float moveSpeed;
     [SerializeField] protected float attackReach;
     [SerializeField] protected float durationLyingDead;
@@ -23,6 +23,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     protected Vector2 position; // floating point precise location, will get rounded up at the transform level
     protected Vector2 velocity;
     protected float timeLastAttack = float.NegativeInfinity;
+    protected float timeDyingStart = float.NegativeInfinity;
     protected float zHeight = 0f;
     protected float dzHeight = 0f;
     protected bool grounded = true;
@@ -35,12 +36,6 @@ public abstract class BaseCharacterController : MonoBehaviour {
 
     protected virtual void Start() {
         animator = GetComponent<Animator>();
-        if (transform.position.y > 32) {
-            int posY = Mathf.FloorToInt(Random.Range(-25, -5));
-            transform.position = new Vector3(transform.position.x, posY, 0);
-            zHeight = 50;
-            state = State.Dropping;
-        }
         position = new Vector2(transform.position.x, transform.position.y);
     }
 
@@ -106,6 +101,12 @@ public abstract class BaseCharacterController : MonoBehaviour {
 
     protected virtual void ReceiveDamage(int damage) {
         CurrentHP -= damage;
+        if (CurrentHP < 0) {
+            CurrentHP = 0;
+        }
+    }
+
+    protected void NotifyDeath() {
         if (CurrentHP <= 0) {
             OnDeath?.Invoke(this, EventArgs.Empty);
         }

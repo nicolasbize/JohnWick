@@ -3036,14 +3036,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <MaxHP>k__BackingField: 17
   moveSpeed: 20
-  attackReach: 16
+  attackReach: 18
   durationLyingDead: 5
   durationGrounded: 2
   characterSprite: {fileID: 474682}
   gravity: 5
-  verticalMarginBetweenEnemyAndPlayer: 5
+  verticalMarginBetweenEnemyAndPlayer: 6
   jumpForce: 1.8
-  comboAttackMaxDuration: 1
+  comboAttackMaxDuration: 1.5
 --- !u!95 &1927224850
 Animator:
   serializedVersion: 5

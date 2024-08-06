@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyType: 1
   avatarImage: {fileID: 2800000, guid: 85c9d9e920dc6fa418e44eaf877a8e6b, type: 3}
-  maxHealth: 10
+  maxHealth: 14
   isStageBoss: 0
