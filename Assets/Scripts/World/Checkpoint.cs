@@ -9,7 +9,9 @@ public class Checkpoint : MonoBehaviour
 
     [SerializeField] private int maxEnemiesAtOnce = 2;
     [field:SerializeField] public int CameraLockTargetX { get; private set; }
-    
+
+    private bool isCompleted = false;
+
     private Queue<EnemyController> enemiesLeft = new Queue<EnemyController>();
     private List<EnemyController> activeEnemies = new List<EnemyController>();
 
@@ -50,8 +52,9 @@ public class Checkpoint : MonoBehaviour
     }
 
     private void OnEnemyDeath(object sender, System.EventArgs e) {
-        if (activeEnemies.Count == 0) {
+        if (activeEnemies.Count == 0 && !isCompleted) {
             OnComplete?.Invoke(this, EventArgs.Empty);
+            isCompleted = true;
         }
     }
 

@@ -15,20 +15,24 @@ public class Level : MonoBehaviour
         foreach(Checkpoint checkpoint in GetComponentsInChildren<Checkpoint>(true)) {
             checkpointQueue.Enqueue(checkpoint);
         }
-        ActivateNextCheckpoint();
+        ActivateNextCheckpoint(false);
     }
 
-    private void ActivateNextCheckpoint() {
+    private void ActivateNextCheckpoint(bool flashGoIndicator = true) {
         if (checkpointQueue.Count > 0){
             nextCheckpoint = checkpointQueue.Dequeue();
             nextCheckpoint.OnComplete += OnCompleteCheckpoint;
             mainCamera.Unlock();
+            if (flashGoIndicator) {
+                UI.Instance.NotifyGoGoGo();
+            }
         } else {
             Debug.Log("completed level");
         }
     }
 
     private void OnCompleteCheckpoint(object sender, System.EventArgs e) {
+        ((Checkpoint) sender).OnComplete -= OnCompleteCheckpoint;
         ActivateNextCheckpoint();
     }
 

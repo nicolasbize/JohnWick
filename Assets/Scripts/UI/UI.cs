@@ -9,6 +9,7 @@ public class UI : MonoBehaviour
     [SerializeField] private Image enemyAvatar;
     [SerializeField] private List<EnemySO> enemyData;
     [SerializeField] private HealthBar heroHealthbar;
+    [SerializeField] private Animator goIndicatorAnimator;
 
     private float timeSinceLastHealthRefresh = float.NegativeInfinity;
 
@@ -41,6 +42,10 @@ public class UI : MonoBehaviour
 
     public void NotifyHeroHealthChange(PlayerController player) {
         heroHealthbar.RefreshMeter(player.MaxHP, player.CurrentHP);
+    }
+
+    public void NotifyGoGoGo() {
+        goIndicatorAnimator.SetTrigger("Flash");
     }
 
     private void HideEnemyHealthbar() {

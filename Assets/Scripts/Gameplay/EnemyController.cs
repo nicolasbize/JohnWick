@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
 public class EnemyController : BaseCharacterController {
@@ -69,6 +70,7 @@ public class EnemyController : BaseCharacterController {
                 velocity = attackVector * moveSpeed * 3;
                 dzHeight = 2f;
             } else {
+                velocity = attackVector * moveSpeed * 2;
                 state = State.Hurt;
                 animator.SetTrigger("Hurt");
             }
@@ -93,8 +95,8 @@ public class EnemyController : BaseCharacterController {
         HandleDropping(); // for spawns
         HandleGarageDoorHidding(); // for spawns
 
+        HandleHurt();
         HandleDying();
-
         HandleFlying();
         HandleFalling();
         HandleGrounded();
@@ -122,6 +124,14 @@ public class EnemyController : BaseCharacterController {
     protected override void ReceiveDamage(int damage) {
         base.ReceiveDamage(damage);
         UI.Instance.NotifyEnemyHealthChange(this);
+    }
+
+    private void HandleHurt() {
+        if (state == State.Hurt) {
+            // carry momentum
+            position += velocity * Time.deltaTime;
+            transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y), 0);
+        }
     }
 
     private void HandleFlying() {
