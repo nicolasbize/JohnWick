@@ -1,23 +1,28 @@
 using System;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
+using static UnityEngine.EventSystems.EventTrigger;
 using Random = UnityEngine.Random;
 
 public abstract class BaseCharacterController : MonoBehaviour {
-    public enum State { Idle, Walking, PreparingAttack, Attacking, Blocking, Hurt, Flying, Falling, Grounded, Dropping, WaitingForDoor, Dying, Dead }
+    public enum State { Idle, Walking, PreparingAttack, Attacking, Blocking, Hurt, Flying, Falling, Grounded, Dropping, WaitingForDoor, Dying, Dead, WaitingForPlayer }
+    public enum InitialPosition { Behind, Garage, Roof, Street }
 
     public event EventHandler OnDirectionChange;
     public event EventHandler OnDying;
     public event EventHandler OnDeath;
 
     [field: SerializeField] public int MaxHP { get; protected set; }
+    [field: SerializeField] public bool HasKnife { get; protected set; }
     [SerializeField] protected float moveSpeed;
     [SerializeField] protected float attackReach;
     [SerializeField] protected float durationLyingDead;
     [SerializeField] protected float durationGrounded;
     [SerializeField] protected SpriteRenderer characterSprite;
+    [SerializeField] protected Transform knifeTransform;
     [SerializeField] protected float gravity = 10f;
     [SerializeField] protected float verticalMarginBetweenEnemyAndPlayer;
+    [SerializeField] protected Knife knifePrefab;
 
     public int CurrentHP { get; protected set; }
 
@@ -30,6 +35,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     protected bool grounded = true;
     protected State state = State.Idle;
     protected Animator animator;
+    protected InitialPosition initialPosition = InitialPosition.Street;
 
     private void Awake() {
         CurrentHP = MaxHP;
@@ -38,7 +44,13 @@ public abstract class BaseCharacterController : MonoBehaviour {
     protected virtual void Start() {
         animator = GetComponent<Animator>();
         position = new Vector2(transform.position.x, transform.position.y);
+        if (HasKnife && knifeTransform != null) {
+            knifeTransform.gameObject.SetActive(true);
+        } else {
+            knifeTransform.gameObject.SetActive(false);
+        }
     }
+
 
     public bool IsFacingLeft { get; protected set; }
 
@@ -60,6 +72,16 @@ public abstract class BaseCharacterController : MonoBehaviour {
         AttemptAttack();
     }
 
+    protected void ThrowKnife() {
+        Knife knife = Instantiate(knifePrefab);
+        knife.transform.SetParent(transform.parent);
+        knife.Direction = IsFacingLeft ? Vector2.left : Vector2.right;
+        knife.transform.position = transform.position + Vector3.down * 19 + (IsFacingLeft ? Vector3.left : Vector3.right) * 8;
+        knife.Emitter = this;
+        HasKnife = false;
+        knifeTransform.gameObject.SetActive(false);
+    }
+
     protected void TryMoveTo(Vector2 newPosition) {
         // check on horiz and vert axis separately to prevent blocking on wall when going in diagonal
         if (CanMoveTo(new Vector2(position.x, newPosition.y))) {
@@ -78,7 +100,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     }
 
     protected bool CanMoveTo(Vector2 destination) {
-        Vector3 targetedPosition = new Vector3(destination.x, destination.y, 0);
+        Vector3 targetedPosition = new Vector3(Mathf.FloorToInt(destination.x), Mathf.FloorToInt(destination.y), 0);
         Vector2 direction = (targetedPosition - transform.position).normalized;
         LayerMask worldMask = LayerMask.GetMask("World");
         LayerMask enemyMask = LayerMask.GetMask("Enemy");

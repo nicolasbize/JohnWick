@@ -169,7 +169,12 @@ public class PlayerController : BaseCharacterController {
                 currentComboIndex = 0;
                 animator.SetTrigger("AirKick");
             } else {
-                animator.SetTrigger(comboAttackTriggers[currentComboIndex]);
+                if (HasKnife) {
+                    animator.SetTrigger("PunchAlt");
+                    ThrowKnife();
+                } else {
+                    animator.SetTrigger(comboAttackTriggers[currentComboIndex]);
+                }
             }
         }
     }
@@ -183,6 +188,7 @@ public class PlayerController : BaseCharacterController {
                 state = State.Walking;
                 if (velocity.x != 0f) {
                     characterSprite.flipX = velocity.x < 0;
+                    knifeTransform.GetComponent<SpriteRenderer>().flipX = characterSprite.flipX;
                     IsFacingLeft = characterSprite.flipX;
                 }
             } else {

@@ -19,13 +19,7 @@ public class Checkpoint : MonoBehaviour
     {
         foreach (EnemyController enemy in GetComponentsInChildren<EnemyController>()) {
             enemiesLeft.Enqueue(enemy);
-            enemy.CheckForGarageInitialPosition();
-            enemy.CheckForRoofInitialPosition();
-            if (enemy.transform.position.x < CameraLockTargetX) {
-                enemy.gameObject.SetActive(false);
-            } else {
-                enemy.GetComponent<EnemyController>().enabled = false;
-            }
+            enemy.InitializeFromCheckpoint(this);
         }
     }
 
@@ -40,8 +34,7 @@ public class Checkpoint : MonoBehaviour
             EnemyController enemy = enemiesLeft.Dequeue();
             enemy.OnDying += OnEnemyDying;
             enemy.OnDeath += OnEnemyDeath;
-            enemy.gameObject.SetActive(true);
-            enemy.GetComponent<EnemyController>().enabled = true;
+            enemy.ActivateFromCheckpoint();
             activeEnemies.Add(enemy);
         }
     }

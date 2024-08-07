@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEngine.EventSystems.EventTrigger;
 using Random = UnityEngine.Random;
 
 public class EnemyController : BaseCharacterController {
@@ -18,6 +19,7 @@ public class EnemyController : BaseCharacterController {
     private float waitDurationBeforeHit = 0f;
     private float timeSinceGrounded = float.NegativeInfinity;
     private bool isInHittingStance = false;
+    private Vector3 originalPosition;
 
     protected override void Start() {
         base.Start();
@@ -26,10 +28,42 @@ public class EnemyController : BaseCharacterController {
         player.RegisterEnemy(this);
     }
 
-    public void CheckForGarageInitialPosition() {
+    public void InitializeFromCheckpoint(Checkpoint checkpoint) {
+        state = State.WaitingForPlayer;
+        CheckForGarageInitialPosition(); // maybe set state to garage
+        CheckForRoofInitialPosition(); // maybe set state to dropping
+        CheckForBehindPosition(checkpoint);
+    }
+
+    public void ActivateFromCheckpoint() {
+        if (initialPosition == InitialPosition.Street && state == State.WaitingForPlayer) {
+            state = State.Idle; // only activate if waiting, might be on the ground due to knife strike
+        } else if (initialPosition == InitialPosition.Behind) {
+            state = State.Idle;
+            position = new Vector2(originalPosition.x, originalPosition.y);
+            transform.position = originalPosition;
+        } else if (initialPosition == InitialPosition.Roof) {
+            position = new Vector2(position.x, position.y - 65);
+            zHeight = 65;
+            transform.position = new Vector3(position.x, position.y, 0);
+            state = State.Dropping;
+        } else if (initialPosition == InitialPosition.Garage) {
+            state = State.WaitingForDoor;
+        }
+    }
+
+    private void CheckForBehindPosition(Checkpoint checkpoint) {
+        if (transform.position.x < checkpoint.CameraLockTargetX && transform.position.y < 32) {
+            initialPosition = InitialPosition.Behind;
+            originalPosition = new Vector2(transform.position.x, transform.position.y);
+            transform.position = new Vector3(0, 200, 0);
+        }
+    }
+
+    private void CheckForGarageInitialPosition() {
         if (garageDoor != null && !garageDoor.IsOpened) {
             garageDoor.OnDoorOpened += GarageDoor_OnDoorOpened;
-            state = State.WaitingForDoor;
+            initialPosition = InitialPosition.Garage;
             foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>()) {
                 renderer.sortingLayerName = "Furniture";
                 renderer.sortingOrder = 1;
@@ -37,14 +71,9 @@ public class EnemyController : BaseCharacterController {
         }
     }
 
-    public void CheckForRoofInitialPosition() {
+    private void CheckForRoofInitialPosition() {
         if (transform.position.y > 32) {
-            int posY = Mathf.FloorToInt(Random.Range(-25, -5));
-            transform.position = new Vector3(transform.position.x, posY, 0);
-            zHeight = 50;
-            state = State.Dropping;
-            position = new Vector2(transform.position.x, transform.position.y);
-            characterSprite.gameObject.transform.localPosition = Vector3.up * Mathf.RoundToInt(zHeight);
+            initialPosition = InitialPosition.Roof;
         }
     }
 
@@ -81,7 +110,9 @@ public class EnemyController : BaseCharacterController {
     public override bool IsVulnerable(Vector2 damageOrigin) {
         return state == State.Idle ||
                state == State.Walking ||
-               state == State.PreparingAttack;
+               state == State.PreparingAttack ||
+               // the following allows to throw knife upon seeing htem before they are activated
+               (state == State.WaitingForPlayer && initialPosition == InitialPosition.Street);
     }
 
     protected override void AttemptAttack() {
@@ -94,16 +125,30 @@ public class EnemyController : BaseCharacterController {
     protected override void FixedUpdate() {
         HandleDropping(); // for spawns
         HandleGarageDoorHidding(); // for spawns
-
         HandleHurt();
         HandleDying();
         HandleFlying();
         HandleFalling();
         HandleGrounded();
-        HandleAttack();
-        
-        characterSprite.gameObject.transform.localPosition = Vector3.up * Mathf.RoundToInt(zHeight);
 
+        if (state != State.WaitingForPlayer) {
+            HandleMoving();
+            HandleAttack();
+        }
+
+        characterSprite.gameObject.transform.localPosition = Vector3.up * Mathf.RoundToInt(zHeight);
+    }
+
+    public void ActivateGameplay() {
+
+    }
+
+    protected override void ReceiveDamage(int damage) {
+        base.ReceiveDamage(damage);
+        UI.Instance.NotifyEnemyHealthChange(this);
+    }
+
+    private void HandleMoving() {
         if (CanMove()) {
             FacePlayer();
             Vector2 nextTargetDestination = GetNextMovementDirection();
@@ -119,11 +164,6 @@ public class EnemyController : BaseCharacterController {
                 waitDurationBeforeHit = UnityEngine.Random.Range(minMaxSecsBeforeHitting.x, minMaxSecsBeforeHitting.y);
             }
         }
-    }
-
-    protected override void ReceiveDamage(int damage) {
-        base.ReceiveDamage(damage);
-        UI.Instance.NotifyEnemyHealthChange(this);
     }
 
     private void HandleHurt() {
