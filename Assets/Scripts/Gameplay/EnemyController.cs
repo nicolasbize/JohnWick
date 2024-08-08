@@ -104,6 +104,7 @@ public class EnemyController : BaseCharacterController {
 
     public override void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
+            ReceiveDamage(dmg);
             Vector2 attackVector = damageOrigin.x < position.x ? Vector2.right : Vector2.left;
             isInHittingStance = false; // knocks player out a bit
             if (hitType == Hit.Type.PowerEject) {
@@ -120,7 +121,6 @@ public class EnemyController : BaseCharacterController {
                 state = State.Hurt;
                 animator.SetTrigger("Hurt");
             }
-            ReceiveDamage(dmg);
         }
     }
 
@@ -236,20 +236,6 @@ public class EnemyController : BaseCharacterController {
             }
         }
     }
-
-    private void HandleDropping() {
-        if (state == State.Dropping) {
-            dzHeight -= gravity * Time.deltaTime;
-            zHeight += dzHeight;
-            position += velocity * Time.deltaTime;
-            transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y), 0);
-            if (zHeight < 0) {
-                state = State.Idle;
-                zHeight = 0f;
-            }
-        }
-    }
-
 
     private void HandleAttack() {
         if (state == State.PreparingAttack && 

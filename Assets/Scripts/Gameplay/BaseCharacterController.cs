@@ -21,6 +21,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     [SerializeField] protected float durationLyingDead;
     [SerializeField] protected float durationGrounded;
     [SerializeField] protected float durationInvincibleAfterGettingUp;
+    [SerializeField] protected bool isDisappearWhenDying;
     [SerializeField] protected SpriteRenderer characterSprite;
     [SerializeField] protected Transform knifeTransform;
     [SerializeField] protected float gravity = 10f;
@@ -38,7 +39,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     protected float zHeight = 0f;
     protected float dzHeight = 0f;
     protected bool grounded = true;
-    protected State state = State.Idle;
+    public State state { get; protected set; } = State.Idle;
     protected Animator animator;
     protected InitialPosition initialPosition = InitialPosition.Street;
 
@@ -122,6 +123,18 @@ public abstract class BaseCharacterController : MonoBehaviour {
         return hit.collider == null || hit.collider.gameObject == gameObject;
     }
 
+    protected void HandleDropping() {
+        if (state == State.Dropping) {
+            dzHeight -= gravity * Time.deltaTime;
+            zHeight += dzHeight;
+            position += velocity * Time.deltaTime;
+            transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y), 0);
+            if (zHeight < 0) {
+                state = State.Idle;
+                zHeight = 0f;
+            }
+        }
+    }
 
     protected void HandleFalling() {
         if (state == State.Falling) {
@@ -162,7 +175,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
                     OnDeath?.Invoke(this, EventArgs.Empty);
                 }
                 HandleExtraWorkAfterDeath();
-            } else {
+            } else if (isDisappearWhenDying) {
                 // oscillate five times
                 bool isHidden = Mathf.RoundToInt(progress * 10f) % 2 == 1;
                 if (isHidden) {

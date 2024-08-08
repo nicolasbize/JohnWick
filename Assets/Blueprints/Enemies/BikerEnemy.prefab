@@ -141,10 +141,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <MaxHP>k__BackingField: 14
   <HasKnife>k__BackingField: 0
+  hasMultipleKnives: 0
+  timeBetweenKnives: 0
   moveSpeed: 10
   attackReach: 15
   durationLyingDead: 2
   durationGrounded: 2
+  durationInvincibleAfterGettingUp: 0
+  isDisappearWhenDying: 1
   characterSprite: {fileID: 606705804587000774}
   knifeTransform: {fileID: 9154080743437862026}
   gravity: 10

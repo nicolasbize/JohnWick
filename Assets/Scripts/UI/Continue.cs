@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -5,6 +6,9 @@ using UnityEngine;
 
 public class Continue : MonoBehaviour
 {
+    public event EventHandler OnGameOver;
+    public event EventHandler OnContinue;
+
     [SerializeField] private List<Transform> numbers;
     [SerializeField] private Transform numberContainer;
 
@@ -17,7 +21,6 @@ public class Continue : MonoBehaviour
         foreach (Transform child in numberContainer) {
             Destroy(child.gameObject);
         }
-        timeSinceLastCount = Time.timeSinceLevelLoad;
         isRunning = true;
         RefreshCounter();
     }
@@ -25,18 +28,30 @@ public class Continue : MonoBehaviour
     private void RefreshCounter() {
         Transform number = Instantiate(numbers[currentIndex]);
         number.SetParent(numberContainer);
+        number.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, -2, 0);
+        timeSinceLastCount = Time.timeSinceLevelLoad;
     }
 
     void Update()
     {
         if (isRunning && (Time.timeSinceLevelLoad - timeSinceLastCount > 1)) {
             currentIndex -= 1;
-            if (currentIndex < 0) {
+            RefreshCounter();
+            if (currentIndex <= 0) {
                 // game over
                 isRunning = false;
+                OnGameOver?.Invoke(this, EventArgs.Empty);
             } else {
                 timeSinceLastCount = Time.timeSinceLevelLoad;
             }
         }
+
+        if (isRunning && currentIndex < 9 && IsActionButtonPressed()) {
+            OnContinue?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    private bool IsActionButtonPressed() {
+        return Input.GetButtonDown("Attack") || Input.GetButtonDown("Block") || Input.GetButtonDown("Jump");
     }
 }

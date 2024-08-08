@@ -10,6 +10,11 @@ public class UI : MonoBehaviour
     [SerializeField] private List<EnemySO> enemyData;
     [SerializeField] private HealthBar heroHealthbar;
     [SerializeField] private Animator goIndicatorAnimator;
+    [SerializeField] private PlayerController player;
+    [SerializeField] private Continue continueScreen;
+    [SerializeField] private Counter score;
+
+    private int highscore = 0;
 
     private float timeSinceLastHealthRefresh = float.NegativeInfinity;
 
@@ -20,7 +25,34 @@ public class UI : MonoBehaviour
     }
 
     private void Start() {
+        continueScreen.gameObject.SetActive(false);
         HideEnemyHealthbar();
+        player.OnDeath += OnPlayerDeath;
+        continueScreen.OnContinue += OnContinueGame;
+        continueScreen.OnGameOver += OnGameOver;
+    }
+
+    private void OnGameOver(object sender, System.EventArgs e) {
+        MaybeIncreaseHighScore();
+    }
+
+    private void OnContinueGame(object sender, System.EventArgs e) {
+        MaybeIncreaseHighScore();
+        continueScreen.gameObject.SetActive(false);
+        score.SetValue(0);
+        player.Respawn();
+    }
+
+    private void MaybeIncreaseHighScore() {
+        int currentScore = score.GetValue();
+        if (currentScore > highscore) {
+            highscore = currentScore;
+        }
+    }
+
+    private void OnPlayerDeath(object sender, System.EventArgs e) {
+        continueScreen.gameObject.SetActive(true);
+        continueScreen.StartCountdown();
     }
 
     private void Update() {

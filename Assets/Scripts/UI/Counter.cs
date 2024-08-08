@@ -23,6 +23,10 @@ public class Counter : MonoBehaviour
         Refresh();
     }
 
+    public int GetValue() {
+        return currentValue;
+    }
+
     public void Refresh() {
         var number = currentValue;
         foreach (Transform child in transform) {

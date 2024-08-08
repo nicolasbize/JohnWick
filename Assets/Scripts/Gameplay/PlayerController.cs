@@ -31,6 +31,7 @@ public class PlayerController : BaseCharacterController {
     public override void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
             Vector2 attackVector = damageOrigin.x < position.x ? Vector2.right : Vector2.left;
+            ReceiveDamage(dmg);
             if (hitType == Hit.Type.Knockdown || (CurrentHP <= 0)) {
                 animator.SetBool("IsFalling", true);
                 state = State.Falling;
@@ -41,7 +42,6 @@ public class PlayerController : BaseCharacterController {
                 state = State.Hurt;
                 animator.SetTrigger("Hurt");
             }
-            ReceiveDamage(dmg);
             UI.Instance.NotifyHeroHealthChange(this);
             BreakCombo();
         }
@@ -125,12 +125,14 @@ public class PlayerController : BaseCharacterController {
 
     protected override void FixedUpdate() {
         bool wasFacingLeft = IsFacingLeft;
+        HandleDropping();
         HandleJumpInput();
         HandleBlockInput();
         HandleMoveInput();
         HandleAttackInput();
         HandleFalling();
         HandleGrounded();
+        HandleDying();
 
         if (IsFacingLeft != wasFacingLeft) {
             NotifyChangeDirection();
@@ -139,6 +141,23 @@ public class PlayerController : BaseCharacterController {
 
         if (Time.timeSinceLevelLoad - timeLastAttack > comboAttackMaxDuration) {
             BreakCombo();
+        }
+    }
+
+    public void Respawn() {
+        state = State.Idle;
+        grounded = false;
+        animator.SetBool("IsJumping", true);
+        Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
+        float midX = Mathf.FloorToInt((screenBoundaries.y - screenBoundaries.x) / 2f);
+        position = new Vector2(midX, -10f);
+        zHeight = 50;
+        CurrentHP = MaxHP;
+        UI.Instance.NotifyHeroHealthChange(this);
+        foreach (EnemyController enemy in enemies) {
+            if (enemy.state != State.WaitingForPlayer) {
+                enemy.ReceiveHit(position, 0, Hit.Type.Knockdown);
+            }
         }
     }
 
