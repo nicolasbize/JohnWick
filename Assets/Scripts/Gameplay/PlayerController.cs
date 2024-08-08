@@ -7,6 +7,12 @@ public class PlayerController : BaseCharacterController {
     [SerializeField] private float jumpForce;
     [SerializeField] private float comboAttackMaxDuration; // s to perform combo
 
+    public static PlayerController Instance;
+
+    private void Awake() {
+        Instance = this;
+    }
+
     private List<string> comboAttackTriggers = new List<string>() {
         "Punch", "Punch", "PunchAlt", "Kick", "Roundhouse"
     };
@@ -24,19 +30,32 @@ public class PlayerController : BaseCharacterController {
 
     public override void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
-            state = State.Hurt;
-            animator.SetTrigger("Hurt");
-            CurrentHP -= dmg;
+            Vector2 attackVector = damageOrigin.x < position.x ? Vector2.right : Vector2.left;
+            if (hitType == Hit.Type.Knockdown || (CurrentHP <= 0)) {
+                animator.SetBool("IsFalling", true);
+                state = State.Falling;
+                velocity = attackVector * moveSpeed * 1.5f;
+                dzHeight = 1f;
+            } else {
+                velocity = attackVector * moveSpeed;
+                state = State.Hurt;
+                animator.SetTrigger("Hurt");
+            }
+            ReceiveDamage(dmg);
             UI.Instance.NotifyHeroHealthChange(this);
             BreakCombo();
         }
     }
 
-    public override bool IsVulnerable(Vector2 damageOrigin) {
-        if (state == State.Hurt) {
+    public override bool IsVulnerable(Vector2 damageOrigin, bool canBlock = true) {
+        if (state == State.Hurt || state == State.Falling || state == State.Grounded || state == State.Dying || state == State.Dead) {
             return false;
         }
-        if (state == State.Blocking && (
+        if (Time.timeSinceLevelLoad - timeSinceGrounded < durationGrounded + durationInvincibleAfterGettingUp) {
+            return false;
+        }
+
+        if (canBlock && state == State.Blocking && (
             (IsFacingLeft && damageOrigin.x < position.x) ||
             (!IsFacingLeft && damageOrigin.x > position.x))) {
             return false;
@@ -54,7 +73,7 @@ public class PlayerController : BaseCharacterController {
         state = State.Idle;
     }
 
-    protected override void AttemptAttack() {
+    protected override void MaybeInductDamage() {
         bool hasHitEnemy = false;
         // get list of vulnerable enemies within distance.
         foreach (EnemyController enemy in enemies) {
@@ -110,6 +129,8 @@ public class PlayerController : BaseCharacterController {
         HandleBlockInput();
         HandleMoveInput();
         HandleAttackInput();
+        HandleFalling();
+        HandleGrounded();
 
         if (IsFacingLeft != wasFacingLeft) {
             NotifyChangeDirection();

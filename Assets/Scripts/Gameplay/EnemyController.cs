@@ -17,7 +17,6 @@ public class EnemyController : BaseCharacterController {
 
     private float timeSincePreparedToHit = float.NegativeInfinity;
     private float waitDurationBeforeHit = 0f;
-    private float timeSinceGrounded = float.NegativeInfinity;
     private bool isInHittingStance = false;
     private Vector3 originalPosition;
 
@@ -30,9 +29,11 @@ public class EnemyController : BaseCharacterController {
 
     public void InitializeFromCheckpoint(Checkpoint checkpoint) {
         state = State.WaitingForPlayer;
-        CheckForGarageInitialPosition(); // maybe set state to garage
-        CheckForRoofInitialPosition(); // maybe set state to dropping
-        CheckForBehindPosition(checkpoint);
+        if (!CheckForGarageInitialPosition()) {
+            if (!CheckForRoofInitialPosition()) {
+                CheckForBehindPosition(checkpoint);
+            }
+        }
     }
 
     public void ActivateFromCheckpoint() {
@@ -46,9 +47,14 @@ public class EnemyController : BaseCharacterController {
             position = new Vector2(position.x, position.y - 65);
             zHeight = 65;
             transform.position = new Vector3(position.x, position.y, 0);
+            // force sprite to render first up there otherwise it sees as teleporting
+            characterSprite.gameObject.transform.localPosition = Vector3.up * Mathf.RoundToInt(zHeight);
             state = State.Dropping;
         } else if (initialPosition == InitialPosition.Garage) {
-            state = State.WaitingForDoor;
+            if (garageDoor != null && !garageDoor.IsOpened) {
+                // only change state if the door isn't opened already
+                state = State.WaitingForDoor;
+            }
         }
     }
 
@@ -60,7 +66,7 @@ public class EnemyController : BaseCharacterController {
         }
     }
 
-    private void CheckForGarageInitialPosition() {
+    private bool CheckForGarageInitialPosition() {
         if (garageDoor != null && !garageDoor.IsOpened) {
             garageDoor.OnDoorOpened += GarageDoor_OnDoorOpened;
             initialPosition = InitialPosition.Garage;
@@ -68,13 +74,17 @@ public class EnemyController : BaseCharacterController {
                 renderer.sortingLayerName = "Furniture";
                 renderer.sortingOrder = 1;
             }
+            return true;
         }
+        return false;
     }
 
-    private void CheckForRoofInitialPosition() {
+    private bool CheckForRoofInitialPosition() {
         if (transform.position.y > 32) {
             initialPosition = InitialPosition.Roof;
+            return true;
         }
+        return false;
     }
 
     private void GarageDoor_OnDoorOpened(object sender, EventArgs e) {
@@ -83,6 +93,13 @@ public class EnemyController : BaseCharacterController {
             renderer.sortingLayerName = "Characters";
             renderer.sortingOrder = 0;
         }
+    }
+
+    protected override void HandleExtraWorkAfterDeath() {
+        if (player != null) {
+            player.UnregisterEnemy(this);
+        }
+        Destroy(gameObject);
     }
 
     public override void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
@@ -107,7 +124,7 @@ public class EnemyController : BaseCharacterController {
         }
     }
 
-    public override bool IsVulnerable(Vector2 damageOrigin) {
+    public override bool IsVulnerable(Vector2 damageOrigin, bool canBlock = true) {
         return state == State.Idle ||
                state == State.Walking ||
                state == State.PreparingAttack ||
@@ -115,9 +132,14 @@ public class EnemyController : BaseCharacterController {
                (state == State.WaitingForPlayer && initialPosition == InitialPosition.Street);
     }
 
-    protected override void AttemptAttack() {
-        if (IsPlayerWithinReach() && player.IsVulnerable(position)) {
-            player.ReceiveHit(position, 1);
+    protected override void MaybeInductDamage() {
+        if (HasKnife && player.IsVulnerable(position)) {
+            ThrowKnife();
+            timeLastKnifeThrown = Time.timeSinceLevelLoad;
+        } else {
+            if (IsPlayerWithinReach() && player.IsVulnerable(position)) {
+                player.ReceiveHit(position, 1);
+            }
         }
         isInHittingStance = false; // take a breather
     }
@@ -134,6 +156,7 @@ public class EnemyController : BaseCharacterController {
         if (state != State.WaitingForPlayer) {
             HandleMoving();
             HandleAttack();
+            CheckForKnifeRespawn();
         }
 
         characterSprite.gameObject.transform.localPosition = Vector3.up * Mathf.RoundToInt(zHeight);
@@ -151,17 +174,32 @@ public class EnemyController : BaseCharacterController {
     private void HandleMoving() {
         if (CanMove()) {
             FacePlayer();
-            Vector2 nextTargetDestination = GetNextMovementDirection();
-            bool isPlayerTooFar = nextTargetDestination.magnitude > 0;
-            animator.SetBool("IsWalking", isPlayerTooFar);
-            if (isPlayerTooFar) {
-                WalkTowards(nextTargetDestination);
-                isInHittingStance = false;
-            } else if (!isPlayerTooFar && !isInHittingStance) {
-                isInHittingStance = true;
-                state = State.PreparingAttack;
-                timeSincePreparedToHit = Time.timeSinceLevelLoad;
-                waitDurationBeforeHit = UnityEngine.Random.Range(minMaxSecsBeforeHitting.x, minMaxSecsBeforeHitting.y);
+            if (HasKnife) {
+                Vector2 nextTargetDestination = GetKnifeThrowingPosition();
+                Vector2 direction = nextTargetDestination - position;
+                if (direction.magnitude < 2) {
+                    isInHittingStance = true;
+                    state = State.PreparingAttack;
+                    timeSincePreparedToHit = Time.timeSinceLevelLoad;
+                    waitDurationBeforeHit = UnityEngine.Random.Range(minMaxSecsBeforeHitting.x, minMaxSecsBeforeHitting.y);
+                    animator.SetBool("IsWalking", false);
+                } else {
+                    WalkTowards(direction.normalized);
+                    animator.SetBool("IsWalking", true);
+                }
+            } else {
+                Vector2 nextTargetDestination = GetNextMovementDirection();
+                bool isPlayerTooFar = nextTargetDestination.magnitude > 0;
+                animator.SetBool("IsWalking", isPlayerTooFar);
+                if (isPlayerTooFar) {
+                    WalkTowards(nextTargetDestination);
+                    isInHittingStance = false;
+                } else if (!isPlayerTooFar && !isInHittingStance) {
+                    isInHittingStance = true;
+                    state = State.PreparingAttack;
+                    timeSincePreparedToHit = Time.timeSinceLevelLoad;
+                    waitDurationBeforeHit = UnityEngine.Random.Range(minMaxSecsBeforeHitting.x, minMaxSecsBeforeHitting.y);
+                }
             }
         }
     }
@@ -192,8 +230,10 @@ public class EnemyController : BaseCharacterController {
     }
 
     private void HandleGarageDoorHidding() {
-        if (garageDoor != null && !garageDoor.IsOpened && !garageDoor.IsOpening && state == State.WaitingForDoor) {
-            garageDoor.Open();
+        if (state == State.WaitingForDoor) {
+            if (garageDoor != null && !garageDoor.IsOpened && !garageDoor.IsOpening) {
+                garageDoor.Open();
+            }
         }
     }
 
@@ -210,67 +250,28 @@ public class EnemyController : BaseCharacterController {
         }
     }
 
-    private void HandleFalling() {
-        if (state == State.Falling) {
-            dzHeight -= gravity * Time.deltaTime;
-            zHeight += dzHeight;
-            position += velocity * Time.deltaTime;
-            transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y), 0);
-            if (zHeight <= 0) {
-                state = State.Grounded;
-                zHeight = 0f;
-                timeSinceGrounded = Time.timeSinceLevelLoad;
-                animator.SetBool("IsFalling", false);
-            }
-        }
-    }
-
-    private void HandleGrounded() {
-        if (state == State.Grounded) {
-            if (Time.timeSinceLevelLoad - timeSinceGrounded > durationGrounded) {
-                if (CurrentHP > 0) {
-                    animator.SetTrigger("GetUp");
-                    state = State.Idle;
-                } else {
-                    state = State.Dying;
-                    timeDyingStart = Time.timeSinceLevelLoad;
-                    NotifyDying();
-                }
-            }
-        }
-    }
-
-    private void HandleDying() {
-        if (state == State.Dying) {
-            float progress = (Time.timeSinceLevelLoad - timeDyingStart) / durationLyingDead;
-            if (progress >= 1 ) {
-                state = State.Dead;
-                NotifyDeath();
-                player.UnregisterEnemy(this);
-                Destroy(gameObject);
-            } else {
-                // oscillate five times
-                bool isHidden = Mathf.RoundToInt(progress * 10f) % 2 == 1;
-                if (isHidden) {
-                    characterSprite.enabled = false;
-                } else {
-                    characterSprite.enabled = true;
-                    characterSprite.color = new Color(1f, 1f, 1f, 1f - progress);
-                }
-            }
-        }
-    }
 
     private void HandleAttack() {
         if (state == State.PreparingAttack && 
             (Time.timeSinceLevelLoad - timeSincePreparedToHit > waitDurationBeforeHit)) {
 
             state = State.Attacking;
-            if (UnityEngine.Random.Range(0f, 1f) > 0.5f) {
-                animator.SetTrigger("Punch");
+            if (HasKnife) {
+                animator.SetTrigger("ThrowKnife");
             } else {
-                animator.SetTrigger("PunchAlt");
+                if (UnityEngine.Random.Range(0f, 1f) > 0.5f) {
+                    animator.SetTrigger("Punch");
+                } else {
+                    animator.SetTrigger("PunchAlt");
+                }
             }
+        }
+    }
+
+    private void CheckForKnifeRespawn() {
+        if (hasMultipleKnives && !HasKnife && (Time.timeSinceLevelLoad - timeLastKnifeThrown > timeBetweenKnives)) {
+            HasKnife = true;
+            UpdateKnifeGameObject();
         }
     }
 
@@ -291,6 +292,17 @@ public class EnemyController : BaseCharacterController {
         return (isYAligned && isXAligned);
     }
 
+    private Vector2 GetKnifeThrowingPosition() {
+        float buffer = 6f;
+        Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
+        // find closest screen boundary
+        float destX = screenBoundaries.x + buffer;
+        if (Mathf.Abs(position.x - screenBoundaries.x) > Mathf.Abs(position.x - screenBoundaries.y)) {
+            destX = screenBoundaries.y - buffer;
+        }
+        return new Vector2(destX, player.transform.position.y);
+    }
+
     private Vector2 GetNextMovementDirection() {
         Vector2 target = Vector2.zero;
 
@@ -309,6 +321,9 @@ public class EnemyController : BaseCharacterController {
     private void FacePlayer() {
         if (player != null) {
             characterSprite.flipX = player.transform.position.x < transform.position.x;
+            if (HasKnife) {
+                knifeTransform.GetComponent<SpriteRenderer>().flipX = characterSprite.flipX;
+            }
             IsFacingLeft = characterSprite.flipX;
         }
     }

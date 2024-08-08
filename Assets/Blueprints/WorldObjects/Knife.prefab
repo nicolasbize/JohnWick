@@ -218,6 +218,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 10
   speed: 100
+  yHitBuffer: 4
   <Direction>k__BackingField: {x: 0, y: 0}
   <Emitter>k__BackingField: {fileID: 0}
   knifeSprite: {fileID: 3892142688850214156}

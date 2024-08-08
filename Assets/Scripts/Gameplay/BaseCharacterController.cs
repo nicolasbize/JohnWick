@@ -14,10 +14,13 @@ public abstract class BaseCharacterController : MonoBehaviour {
 
     [field: SerializeField] public int MaxHP { get; protected set; }
     [field: SerializeField] public bool HasKnife { get; protected set; }
+    [SerializeField] protected bool hasMultipleKnives;
+    [SerializeField] protected float timeBetweenKnives;
     [SerializeField] protected float moveSpeed;
     [SerializeField] protected float attackReach;
     [SerializeField] protected float durationLyingDead;
     [SerializeField] protected float durationGrounded;
+    [SerializeField] protected float durationInvincibleAfterGettingUp;
     [SerializeField] protected SpriteRenderer characterSprite;
     [SerializeField] protected Transform knifeTransform;
     [SerializeField] protected float gravity = 10f;
@@ -30,6 +33,8 @@ public abstract class BaseCharacterController : MonoBehaviour {
     protected Vector2 velocity;
     protected float timeLastAttack = float.NegativeInfinity;
     protected float timeDyingStart = float.NegativeInfinity;
+    protected float timeSinceGrounded = float.NegativeInfinity;
+    protected float timeLastKnifeThrown = float.NegativeInfinity;
     protected float zHeight = 0f;
     protected float dzHeight = 0f;
     protected bool grounded = true;
@@ -37,13 +42,14 @@ public abstract class BaseCharacterController : MonoBehaviour {
     protected Animator animator;
     protected InitialPosition initialPosition = InitialPosition.Street;
 
-    private void Awake() {
-        CurrentHP = MaxHP;
-    }
-
     protected virtual void Start() {
+        CurrentHP = MaxHP;
         animator = GetComponent<Animator>();
         position = new Vector2(transform.position.x, transform.position.y);
+        UpdateKnifeGameObject();
+    }
+
+    protected void UpdateKnifeGameObject() {
         if (HasKnife && knifeTransform != null) {
             knifeTransform.gameObject.SetActive(true);
         } else {
@@ -51,12 +57,11 @@ public abstract class BaseCharacterController : MonoBehaviour {
         }
     }
 
-
     public bool IsFacingLeft { get; protected set; }
 
     public abstract void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal);
-    public abstract bool IsVulnerable(Vector2 damageOrigin);
-    protected abstract void AttemptAttack();
+    public abstract bool IsVulnerable(Vector2 damageOrigin, bool canBlock = true);
+    protected abstract void MaybeInductDamage();
     protected abstract void FixedUpdate();
 
     public void OnAttackAnimationEndFrameEvent() {
@@ -69,7 +74,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     }
 
     public void OnAttackFrameEvent() {
-        AttemptAttack();
+        MaybeInductDamage();
     }
 
     protected void ThrowKnife() {
@@ -117,6 +122,61 @@ public abstract class BaseCharacterController : MonoBehaviour {
         return hit.collider == null || hit.collider.gameObject == gameObject;
     }
 
+
+    protected void HandleFalling() {
+        if (state == State.Falling) {
+            dzHeight -= gravity * Time.deltaTime;
+            zHeight += dzHeight;
+            position += velocity * Time.deltaTime;
+            transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y), 0);
+            if (zHeight <= 0) {
+                state = State.Grounded;
+                zHeight = 0f;
+                timeSinceGrounded = Time.timeSinceLevelLoad;
+                animator.SetBool("IsFalling", false);
+            }
+        }
+    }
+
+    protected void HandleGrounded() {
+        if (state == State.Grounded) {
+            if (Time.timeSinceLevelLoad - timeSinceGrounded > durationGrounded) {
+                if (CurrentHP > 0) {
+                    animator.SetTrigger("GetUp");
+                    state = State.Idle;
+                } else {
+                    state = State.Dying;
+                    timeDyingStart = Time.timeSinceLevelLoad;
+                    OnDying?.Invoke(this, EventArgs.Empty);
+                }
+            }
+        }
+    }
+
+    protected void HandleDying() {
+        if (state == State.Dying) {
+            float progress = (Time.timeSinceLevelLoad - timeDyingStart) / durationLyingDead;
+            if (progress >= 1) {
+                state = State.Dead;
+                if (CurrentHP <= 0) {
+                    OnDeath?.Invoke(this, EventArgs.Empty);
+                }
+                HandleExtraWorkAfterDeath();
+            } else {
+                // oscillate five times
+                bool isHidden = Mathf.RoundToInt(progress * 10f) % 2 == 1;
+                if (isHidden) {
+                    characterSprite.enabled = false;
+                } else {
+                    characterSprite.enabled = true;
+                    characterSprite.color = new Color(1f, 1f, 1f, 1f - progress);
+                }
+            }
+        }
+    }
+
+    protected virtual void HandleExtraWorkAfterDeath() { }
+
     protected void NotifyChangeDirection() {
         OnDirectionChange?.Invoke(this, EventArgs.Empty);
     }
@@ -127,17 +187,6 @@ public abstract class BaseCharacterController : MonoBehaviour {
             CurrentHP = 0;
         }
     }
-
-    protected void NotifyDeath() {
-        if (CurrentHP <= 0) {
-            OnDeath?.Invoke(this, EventArgs.Empty);
-        }
-    }
-
-    protected void NotifyDying() {
-        OnDying?.Invoke(this, EventArgs.Empty);
-    }
-
 
     protected bool CanAttack() {
         return state != State.Attacking;
