@@ -7,6 +7,8 @@ public class PlayerController : BaseCharacterController {
     [SerializeField] private float jumpForce;
     [SerializeField] private float comboAttackMaxDuration; // s to perform combo
 
+    public Pickable PickableItem { get; set; }
+
     public static PlayerController Instance;
 
     private void Awake() {
@@ -30,17 +32,19 @@ public class PlayerController : BaseCharacterController {
 
     public override void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
-            Vector2 attackVector = damageOrigin.x < position.x ? Vector2.right : Vector2.left;
+            Vector2 attackVector = damageOrigin.x < precisePosition.x ? Vector2.right : Vector2.left;
             ReceiveDamage(dmg);
             if (hitType == Hit.Type.Knockdown || (CurrentHP <= 0)) {
                 animator.SetBool("IsFalling", true);
                 state = State.Falling;
-                velocity = attackVector * moveSpeed * 1.5f;
+                preciseVelocity = attackVector * 50f;
                 dzHeight = 1f;
+                Debug.Log("isfalling due to knife!");
             } else {
-                velocity = attackVector * moveSpeed;
+                preciseVelocity = attackVector * (moveSpeed / 2f);
                 state = State.Hurt;
                 animator.SetTrigger("Hurt");
+                Debug.Log("ishurt");
             }
             UI.Instance.NotifyHeroHealthChange(this);
             BreakCombo();
@@ -56,8 +60,8 @@ public class PlayerController : BaseCharacterController {
         }
 
         if (canBlock && state == State.Blocking && (
-            (IsFacingLeft && damageOrigin.x < position.x) ||
-            (!IsFacingLeft && damageOrigin.x > position.x))) {
+            (IsFacingLeft && damageOrigin.x < precisePosition.x) ||
+            (!IsFacingLeft && damageOrigin.x > precisePosition.x))) {
             return false;
         }
         return true;
@@ -98,7 +102,7 @@ public class PlayerController : BaseCharacterController {
                     hitType = Hit.Type.Knockdown;
                 }
                 int damage = isPowerAttack ? 2 : 4;
-                enemy.ReceiveHit(position, damage, hitType);
+                enemy.ReceiveHit(precisePosition, damage, hitType);
                 hasHitEnemy = true;
             }
         }
@@ -150,25 +154,26 @@ public class PlayerController : BaseCharacterController {
         animator.SetBool("IsJumping", true);
         Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
         float midX = Mathf.FloorToInt((screenBoundaries.y - screenBoundaries.x) / 2f);
-        position = new Vector2(midX, -10f);
-        zHeight = 50;
+        precisePosition = new Vector2(midX, 20);
+        height = 50;
+        SetTransformFromPrecisePosition();
         CurrentHP = MaxHP;
         UI.Instance.NotifyHeroHealthChange(this);
         foreach (EnemyController enemy in enemies) {
             if (enemy.state != State.WaitingForPlayer) {
-                enemy.ReceiveHit(position, 0, Hit.Type.Knockdown);
+                enemy.ReceiveHit(precisePosition, 0, Hit.Type.Knockdown);
             }
         }
     }
 
     private void RestrictScreenBoundaries() {
         Vector2 xBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
-        if (position.x <  xBoundaries.x) {
-            position.x = xBoundaries.x;
-        } else if (position.x > xBoundaries.y) {
-            position.x = xBoundaries.y;
+        if (precisePosition.x <  xBoundaries.x) {
+            precisePosition.x = xBoundaries.x;
+        } else if (precisePosition.x > xBoundaries.y) {
+            precisePosition.x = xBoundaries.y;
         }
-        transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y), 0);
+        SetTransformFromPrecisePosition();
     }
 
     private void HandleJumpInput() {
@@ -180,16 +185,14 @@ public class PlayerController : BaseCharacterController {
 
         if (!grounded) {
             dzHeight -= gravity * Time.deltaTime;
-            zHeight += dzHeight;
-            if (zHeight < 0f) {
+            height += dzHeight;
+            if (height < 0f) {
                 grounded = true;
                 state = State.Idle;
-                zHeight = 0f;
+                height = 0f;
                 animator.SetBool("IsJumping", false);
             }
         }
-
-        characterSprite.gameObject.transform.localPosition = Vector3.up * Mathf.FloorToInt(zHeight);
     }
 
     private void HandleBlockInput() {
@@ -204,16 +207,26 @@ public class PlayerController : BaseCharacterController {
 
     private void HandleAttackInput() {
         if (CanAttack() && Input.GetButtonDown("Attack")) {
-            state = State.Attacking;
-            if (!grounded) {
-                currentComboIndex = 0;
-                animator.SetTrigger("AirKick");
+            // first check if there is something to pick up
+            if (PickableItem != null && (!HasKnife && PickableItem.Type == Pickable.PickableType.Knife)) {
+                animator.SetTrigger("Pickup");
+                if (PickableItem.Type == Pickable.PickableType.Knife) {
+                    HasKnife = true;
+                    UpdateKnifeGameObject();
+                }
+                PickableItem.PickupItem();
             } else {
-                if (HasKnife) {
-                    animator.SetTrigger("PunchAlt");
-                    ThrowKnife();
+                state = State.Attacking;
+                if (!grounded) {
+                    currentComboIndex = 0;
+                    animator.SetTrigger("AirKick");
                 } else {
-                    animator.SetTrigger(comboAttackTriggers[currentComboIndex]);
+                    if (HasKnife) {
+                        animator.SetTrigger("PunchAlt");
+                        ThrowKnife();
+                    } else {
+                        animator.SetTrigger(comboAttackTriggers[currentComboIndex]);
+                    }
                 }
             }
         }
@@ -221,20 +234,20 @@ public class PlayerController : BaseCharacterController {
 
     private void HandleMoveInput() {
         if (CanMove()) {
-            velocity = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) * moveSpeed;
-            TryMoveTo(position + velocity * Time.deltaTime);
+            preciseVelocity = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) * moveSpeed;
+            TryMoveTo(precisePosition + preciseVelocity * Time.deltaTime);
 
-            if (velocity != Vector2.zero) {
+            if (preciseVelocity != Vector2.zero) {
                 state = State.Walking;
-                if (velocity.x != 0f) {
-                    characterSprite.flipX = velocity.x < 0;
+                if (preciseVelocity.x != 0f) {
+                    characterSprite.flipX = preciseVelocity.x < 0;
                     knifeTransform.GetComponent<SpriteRenderer>().flipX = characterSprite.flipX;
                     IsFacingLeft = characterSprite.flipX;
                 }
             } else {
                 state = State.Idle;
             }
-            animator.SetBool("IsWalking", velocity != Vector2.zero);
+            animator.SetBool("IsWalking", preciseVelocity != Vector2.zero);
         }
     }
 

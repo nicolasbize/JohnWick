@@ -9,6 +9,7 @@ public class Knife : MonoBehaviour
     [SerializeField] private int damage;
     [SerializeField] private float speed;
     [SerializeField] private float yHitBuffer;
+    [SerializeField] private float height;
     [field:SerializeField] public Vector2 Direction { get; set; }
     [field:SerializeField] public BaseCharacterController Emitter { get; set; }
     [SerializeField] private SpriteRenderer knifeSprite;
@@ -24,7 +25,7 @@ public class Knife : MonoBehaviour
     {
         knifeSprite.flipX = Direction.x < 0;
         position += speed * Direction * Time.deltaTime;
-        transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y), 0f);
+        transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y + height), Mathf.FloorToInt(position.y));
 
         if (!WithinBoundaries(Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries())) {
             Destroy(gameObject);

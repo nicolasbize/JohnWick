@@ -30,6 +30,7 @@ public class UI : MonoBehaviour
         player.OnDeath += OnPlayerDeath;
         continueScreen.OnContinue += OnContinueGame;
         continueScreen.OnGameOver += OnGameOver;
+        goIndicatorAnimator.gameObject.SetActive(false);
     }
 
     private void OnGameOver(object sender, System.EventArgs e) {
@@ -77,6 +78,7 @@ public class UI : MonoBehaviour
     }
 
     public void NotifyGoGoGo() {
+        goIndicatorAnimator.gameObject.SetActive(true);
         goIndicatorAnimator.SetTrigger("Flash");
     }
 

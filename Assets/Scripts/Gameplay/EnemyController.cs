@@ -41,14 +41,12 @@ public class EnemyController : BaseCharacterController {
             state = State.Idle; // only activate if waiting, might be on the ground due to knife strike
         } else if (initialPosition == InitialPosition.Behind) {
             state = State.Idle;
-            position = new Vector2(originalPosition.x, originalPosition.y);
+            precisePosition = new Vector2(originalPosition.x, originalPosition.y);
             transform.position = originalPosition;
         } else if (initialPosition == InitialPosition.Roof) {
-            position = new Vector2(position.x, position.y - 65);
-            zHeight = 65;
-            transform.position = new Vector3(position.x, position.y, 0);
-            // force sprite to render first up there otherwise it sees as teleporting
-            characterSprite.gameObject.transform.localPosition = Vector3.up * Mathf.RoundToInt(zHeight);
+            height = 50;
+            precisePosition = new Vector2(originalPosition.x, originalPosition.y - height);
+            SetTransformFromPrecisePosition();
             state = State.Dropping;
         } else if (initialPosition == InitialPosition.Garage) {
             if (garageDoor != null && !garageDoor.IsOpened) {
@@ -70,8 +68,8 @@ public class EnemyController : BaseCharacterController {
         if (garageDoor != null && !garageDoor.IsOpened) {
             garageDoor.OnDoorOpened += GarageDoor_OnDoorOpened;
             initialPosition = InitialPosition.Garage;
-            foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>()) {
-                renderer.sortingLayerName = "Furniture";
+            foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>()) { // cover character and weapons
+                renderer.sortingLayerName = "BackgroundFurniture";
                 renderer.sortingOrder = 1;
             }
             return true;
@@ -81,6 +79,7 @@ public class EnemyController : BaseCharacterController {
 
     private bool CheckForRoofInitialPosition() {
         if (transform.position.y > 32) {
+            originalPosition = new Vector2(transform.position.x, transform.position.y);
             initialPosition = InitialPosition.Roof;
             return true;
         }
@@ -105,19 +104,28 @@ public class EnemyController : BaseCharacterController {
     public override void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
             ReceiveDamage(dmg);
-            Vector2 attackVector = damageOrigin.x < position.x ? Vector2.right : Vector2.left;
+            Vector2 attackVector = damageOrigin.x < precisePosition.x ? Vector2.right : Vector2.left;
             isInHittingStance = false; // knocks player out a bit
+            if (HasKnife) {
+                HasKnife = false;
+                hasMultipleKnives = false;
+                UpdateKnifeGameObject();
+                Pickable pickable = Instantiate(pickableKnifePrefab);
+                pickable.IsFalling = true;
+                pickable.transform.SetParent(transform.parent);
+                pickable.transform.position = transform.position + Vector3.down * 4;
+            }
             if (hitType == Hit.Type.PowerEject) {
                 animator.SetBool("IsFlying", true);
                 state = State.Flying;
-                velocity = attackVector * flySpeed;
+                preciseVelocity = attackVector * flySpeed;
             } else if (hitType == Hit.Type.Knockdown || (CurrentHP <= 0)) {
                 animator.SetBool("IsFalling", true);
                 state = State.Falling;
-                velocity = attackVector * moveSpeed * 3;
+                preciseVelocity = attackVector * moveSpeed * 3;
                 dzHeight = 2f;
             } else {
-                velocity = attackVector * moveSpeed * 2;
+                preciseVelocity = attackVector * moveSpeed * 2;
                 state = State.Hurt;
                 animator.SetTrigger("Hurt");
             }
@@ -133,12 +141,12 @@ public class EnemyController : BaseCharacterController {
     }
 
     protected override void MaybeInductDamage() {
-        if (HasKnife && player.IsVulnerable(position)) {
+        if (HasKnife && player.IsVulnerable(precisePosition)) {
             ThrowKnife();
             timeLastKnifeThrown = Time.timeSinceLevelLoad;
         } else {
-            if (IsPlayerWithinReach() && player.IsVulnerable(position)) {
-                player.ReceiveHit(position, 1);
+            if (IsPlayerWithinReach() && player.IsVulnerable(precisePosition)) {
+                player.ReceiveHit(precisePosition, 1);
             }
         }
         isInHittingStance = false; // take a breather
@@ -158,8 +166,6 @@ public class EnemyController : BaseCharacterController {
             HandleAttack();
             CheckForKnifeRespawn();
         }
-
-        characterSprite.gameObject.transform.localPosition = Vector3.up * Mathf.RoundToInt(zHeight);
     }
 
     public void ActivateGameplay() {
@@ -176,7 +182,7 @@ public class EnemyController : BaseCharacterController {
             FacePlayer();
             if (HasKnife) {
                 Vector2 nextTargetDestination = GetKnifeThrowingPosition();
-                Vector2 direction = nextTargetDestination - position;
+                Vector2 direction = nextTargetDestination - precisePosition;
                 if (direction.magnitude < 2) {
                     isInHittingStance = true;
                     state = State.PreparingAttack;
@@ -207,24 +213,24 @@ public class EnemyController : BaseCharacterController {
     private void HandleHurt() {
         if (state == State.Hurt) {
             // carry momentum
-            position += velocity * Time.deltaTime;
-            transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y), 0);
+            precisePosition += preciseVelocity * Time.deltaTime;
+            SetTransformFromPrecisePosition();
         }
     }
 
     private void HandleFlying() {
         if (state == State.Flying) {
-            position += velocity * Time.deltaTime;
-            transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y), 0);
+            precisePosition += preciseVelocity * Time.deltaTime;
+            SetTransformFromPrecisePosition();
             Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
-            zHeight = 5f;
+            height = 5f;
             if ((transform.position.x < screenBoundaries.x + 8) ||
                 (transform.position.x > screenBoundaries.y - 8)) {
                 animator.SetBool("IsFlying", false);
                 animator.SetBool("IsFalling", true);
                 state = State.Falling;
                 dzHeight = 2f;
-                velocity = velocity.normalized * -10; // bounce 
+                preciseVelocity = preciseVelocity.normalized * -10; // bounce 
             }
         }
     }
@@ -262,9 +268,9 @@ public class EnemyController : BaseCharacterController {
     }
 
     private void WalkTowards(Vector2 targetDestination) {
-        velocity = targetDestination * moveSpeed;
-        TryMoveTo(position + velocity * Time.deltaTime);
-        if (velocity != Vector2.zero) {
+        preciseVelocity = targetDestination * moveSpeed;
+        TryMoveTo(precisePosition + preciseVelocity * Time.deltaTime);
+        if (preciseVelocity != Vector2.zero) {
             state = State.Walking;
         } else {
             state = State.Idle;
@@ -283,7 +289,7 @@ public class EnemyController : BaseCharacterController {
         Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
         // find closest screen boundary
         float destX = screenBoundaries.x + buffer;
-        if (Mathf.Abs(position.x - screenBoundaries.x) > Mathf.Abs(position.x - screenBoundaries.y)) {
+        if (Mathf.Abs(precisePosition.x - screenBoundaries.x) > Mathf.Abs(precisePosition.x - screenBoundaries.y)) {
             destX = screenBoundaries.y - buffer;
         }
         return new Vector2(destX, player.transform.position.y);
@@ -301,7 +307,7 @@ public class EnemyController : BaseCharacterController {
         } else {
             target = new Vector2(player.transform.position.x - attackReach, player.transform.position.y);
         }
-        return (target - position).normalized;
+        return (target - precisePosition).normalized;
     }
 
     private void FacePlayer() {

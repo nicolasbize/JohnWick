@@ -13,8 +13,8 @@ TagManager:
   - UI
   - Player
   - Enemy
-  - Ammo
-  - 
+  - Weapon
+  - Pickable
   - 
   - 
   - 
@@ -44,7 +44,10 @@ TagManager:
   - name: Background
     uniqueID: 1613406175
     locked: 0
-  - name: Furniture
+  - name: BackgroundFurniture
+    uniqueID: 2338155655
+    locked: 0
+  - name: StreetFurniture
     uniqueID: 2942060791
     locked: 0
   - name: Characters

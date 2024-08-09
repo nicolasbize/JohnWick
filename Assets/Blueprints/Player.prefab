@@ -71,7 +71,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -899559445
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: -791444991, guid: 7aedb1b30b99e7146a6e623b18902fb1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -110,7 +110,7 @@ Transform:
   m_GameObject: {fileID: 4968344810883991231}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -155,7 +155,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -899559445
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: -1264172241, guid: 4a7ce129be01d30409499f92a6a46e86, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -228,11 +228,14 @@ MonoBehaviour:
   durationLyingDead: 5
   durationGrounded: 2
   durationInvincibleAfterGettingUp: 2
+  isDisappearWhenDying: 0
   characterSprite: {fileID: 2323785191009764439}
+  shadowSprite: {fileID: 1865782696534494878}
   knifeTransform: {fileID: 7921063904444868017}
   gravity: 5
   verticalMarginBetweenEnemyAndPlayer: 6
   knifePrefab: {fileID: 108443578691346250, guid: 0b40b998f539b6b4ba3c286736f5e081, type: 3}
+  pickableKnifePrefab: {fileID: 0}
   jumpForce: 1.8
   comboAttackMaxDuration: 1.5
 --- !u!95 &1230420181552706133
@@ -413,7 +416,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6479635142808492428, guid: 3e2d59c457c98cc41bb7d36cb45d9ced, type: 3}
       propertyPath: m_SortingLayer
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 6479635142808492428, guid: 3e2d59c457c98cc41bb7d36cb45d9ced, type: 3}
       propertyPath: m_SortingOrder
@@ -440,6 +443,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3e2d59c457c98cc41bb7d36cb45d9ced, type: 3}
+--- !u!212 &1865782696534494878 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 6479635142808492428, guid: 3e2d59c457c98cc41bb7d36cb45d9ced, type: 3}
+  m_PrefabInstance: {fileID: 4614182660741175058}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8263179898406001211 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3649157014746942761, guid: 3e2d59c457c98cc41bb7d36cb45d9ced, type: 3}
