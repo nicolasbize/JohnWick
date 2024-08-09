@@ -40,6 +40,7 @@ public class PlayerController : BaseCharacterController {
                 preciseVelocity = attackVector * 50f;
                 dzHeight = 1f;
                 Debug.Log("isfalling due to knife!");
+                Camera.main.GetComponent<CameraFollow>().Shake(0.05f, 1);
             } else {
                 preciseVelocity = attackVector * (moveSpeed / 2f);
                 state = State.Hurt;

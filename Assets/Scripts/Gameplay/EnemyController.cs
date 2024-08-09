@@ -124,6 +124,7 @@ public class EnemyController : BaseCharacterController {
                 state = State.Falling;
                 preciseVelocity = attackVector * moveSpeed * 3;
                 dzHeight = 2f;
+                Camera.main.GetComponent<CameraFollow>().Shake(0.05f, 1);
             } else {
                 preciseVelocity = attackVector * moveSpeed * 2;
                 state = State.Hurt;
@@ -231,6 +232,7 @@ public class EnemyController : BaseCharacterController {
                 state = State.Falling;
                 dzHeight = 2f;
                 preciseVelocity = preciseVelocity.normalized * -10; // bounce 
+                Camera.main.GetComponent<CameraFollow>().Shake(0.05f, 1);
             }
         }
     }
