@@ -122,14 +122,15 @@ public abstract class BaseCharacterController : MonoBehaviour {
         Vector2 direction = (targetedPosition - transform.position).normalized;
         LayerMask worldMask = LayerMask.GetMask("World");
         LayerMask enemyMask = LayerMask.GetMask("Enemy");
+        LayerMask barrelMask = LayerMask.GetMask("Barrel");
         LayerMask mask;
         if (this is EnemyController) {
             mask = enemyMask; // only collide with other enemies
         } else {
-            mask = worldMask;
+            mask = worldMask | barrelMask;
         }
         RaycastHit2D hit = Physics2D.Raycast(transform.position + Vector3.down * height, direction, 3f, mask);
-        Debug.DrawRay(transform.position + Vector3.down * Mathf.CeilToInt(height), direction, Color.red);
+        //Debug.DrawRay(transform.position + Vector3.down * Mathf.CeilToInt(height), direction, Color.red);
         //if (hit.collider != null && hit.collider.gameObject != gameObject) {
         //    Debug.Log(hit.collider);
         //}
@@ -160,7 +161,6 @@ public abstract class BaseCharacterController : MonoBehaviour {
                 height = 0f;
                 timeSinceGrounded = Time.timeSinceLevelLoad;
                 animator.SetBool("IsFalling", false);
-                Debug.Log("grounded");
             }
         }
     }

@@ -145,8 +145,8 @@ MonoBehaviour:
   timeBetweenKnives: 0
   moveSpeed: 10
   attackReach: 15
-  durationLyingDead: 2
-  durationGrounded: 2
+  durationLyingDead: 1
+  durationGrounded: 1.5
   durationInvincibleAfterGettingUp: 0
   isDisappearWhenDying: 1
   characterSprite: {fileID: 606705804587000774}

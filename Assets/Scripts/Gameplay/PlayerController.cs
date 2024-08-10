@@ -41,12 +41,10 @@ public class PlayerController : BaseCharacterController {
                 dzHeight = 1f;
                 Camera.main.GetComponent<CameraFollow>().Shake(0.05f, 1);
                 GenerateSparkFX();
-                Debug.Log("falling");
             } else {
                 preciseVelocity = attackVector * (moveSpeed / 2f);
                 state = State.Hurt;
                 animator.SetTrigger("Hurt");
-                Debug.Log("hurt");
             }
             UI.Instance.NotifyHeroHealthChange(this);
             BreakCombo();
@@ -230,8 +228,20 @@ public class PlayerController : BaseCharacterController {
                         animator.SetTrigger(comboAttackTriggers[currentComboIndex]);
                     }
                 }
-                Debug.Log("attack");
+
+                // check if a barrel was on the way and break it
+                MaybeBreakBarrel();
             }
+        }
+    }
+
+    private void MaybeBreakBarrel() {
+        LayerMask barrelMask = LayerMask.GetMask("Barrel");
+        Vector3 direction = IsFacingLeft ? Vector3.left : Vector3.right;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position + Vector3.down * height, direction, attackReach, barrelMask);
+        if (hit.collider != null && hit.collider.gameObject.GetComponent<Barrel>() != null) {
+            Barrel barrel = hit.collider.gameObject.GetComponent<Barrel>();
+            barrel.Break(precisePosition);
         }
     }
 
