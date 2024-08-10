@@ -19,6 +19,7 @@ public class UI : MonoBehaviour
 
     private float timeSinceLastHealthRefresh = float.NegativeInfinity;
     private AudioSource audioSource;
+    private bool isBossMode = false;
 
     public static UI Instance;
 
@@ -66,8 +67,18 @@ public class UI : MonoBehaviour
         }
     }
 
-    public void NotifyEnemyHealthChange(EnemyController enemy) {
-        EnemySO enemySO = enemyData.Find(e => e.enemyType == enemy.EnemySO.enemyType);
+    public void SetBossMode(BaseCharacterController enemy, EnemyController.Type enemyType) {
+        isBossMode = true;
+        NotifyEnemyHealthChange(enemy, enemyType);
+    }
+
+    public void RemoveBossMode() {
+        isBossMode = false;
+        HideEnemyHealthbar();
+    }
+
+    public void NotifyEnemyHealthChange(BaseCharacterController enemy, EnemyController.Type enemyType) {
+        EnemySO enemySO = enemyData.Find(e => e.enemyType == enemyType);
         Rect spriteRect = new Rect(0.0f, 0.0f, enemySO.avatarImage.width, enemySO.avatarImage.height);
         enemyAvatar.sprite = Sprite.Create(enemySO.avatarImage, spriteRect, Vector2.zero, 1f);
         enemyHealthbar.RefreshMeter(enemy.MaxHP, enemy.CurrentHP);
@@ -87,7 +98,9 @@ public class UI : MonoBehaviour
     }
 
     private void HideEnemyHealthbar() {
-        enemyAvatar.gameObject.SetActive(false);
-        enemyHealthbar.gameObject.SetActive(false);
+        if (!isBossMode) {
+            enemyAvatar.gameObject.SetActive(false);
+            enemyHealthbar.gameObject.SetActive(false);
+        }
     }
 }

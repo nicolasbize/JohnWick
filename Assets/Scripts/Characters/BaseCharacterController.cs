@@ -1,9 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
-using UnityEngine.UIElements;
-using static UnityEngine.EventSystems.EventTrigger;
-using Random = UnityEngine.Random;
 
 public abstract class BaseCharacterController : MonoBehaviour {
     public enum State { Idle, Walking, PreparingAttack, Attacking, Blocking, Hurt, Flying, Falling, Grounded, Dropping, WaitingForDoor, Dying, Dead, WaitingForPlayer, Jumping }
@@ -12,6 +8,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     public event EventHandler OnDirectionChange;
     public event EventHandler OnDying;
     public event EventHandler OnDeath;
+    public event EventHandler OnFinishDropping;
 
     [field: SerializeField] public int MaxHP { get; protected set; }
     [field: SerializeField] public bool HasKnife { get; protected set; }
@@ -62,11 +59,8 @@ public abstract class BaseCharacterController : MonoBehaviour {
     }
 
     protected void UpdateKnifeGameObject() {
-        if (HasKnife && knifeTransform != null) {
-            knifeTransform.gameObject.SetActive(true);
-        } else {
-            knifeTransform.gameObject.SetActive(false);
-        }
+        if (knifeTransform == null) return;
+        knifeTransform.gameObject.SetActive(HasKnife);
     }
 
     public bool IsFacingLeft { get; protected set; }
@@ -74,7 +68,6 @@ public abstract class BaseCharacterController : MonoBehaviour {
     public abstract void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal);
     public abstract bool IsVulnerable(Vector2 damageOrigin, bool canBlock = true);
     protected abstract void MaybeInductDamage();
-    protected abstract void Update();
     protected abstract void FixedUpdate();
 
     public void OnAttackAnimationEndFrameEvent() {
@@ -157,6 +150,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
             if (height < 0) {
                 state = State.Idle;
                 height = 0f;
+                OnFinishDropping?.Invoke(this, EventArgs.Empty);
             }
         }
     }

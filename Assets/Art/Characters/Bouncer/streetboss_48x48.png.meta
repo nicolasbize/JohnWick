@@ -710,6 +710,27 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: streetboss_48x48_28
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 48
+        width: 48
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dc5aa67be7d42cc42bb5ac1938ae3d2b
+      internalID: 1019966918
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -742,6 +763,7 @@ TextureImporter:
       streetboss_48x48_25: -533649170
       streetboss_48x48_26: 741968905
       streetboss_48x48_27: 770137745
+      streetboss_48x48_28: 1019966918
       streetboss_48x48_3: 1495011032
       streetboss_48x48_4: 194133536
       streetboss_48x48_5: -813250062

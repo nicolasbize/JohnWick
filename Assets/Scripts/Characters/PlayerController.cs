@@ -19,13 +19,13 @@ public class PlayerController : BaseCharacterController {
         "Punch", "Punch", "PunchAlt", "Kick", "Roundhouse"
     };
     private int currentComboIndex = 0;
-    private List<EnemyController> enemies = new List<EnemyController>();
+    private List<BaseCharacterController> enemies = new List<BaseCharacterController>();
 
-    public void RegisterEnemy(EnemyController enemy) {
+    public void RegisterEnemy(BaseCharacterController enemy) {
         enemies.Add(enemy);
     }
 
-    public void UnregisterEnemy(EnemyController enemy) {
+    public void UnregisterEnemy(BaseCharacterController enemy) {
         enemies.Remove(enemy);
     }
 
@@ -83,7 +83,7 @@ public class PlayerController : BaseCharacterController {
     protected override void MaybeInductDamage() {
         bool hasHitEnemy = false;
         // get list of vulnerable enemies within distance.
-        foreach (EnemyController enemy in enemies) {
+        foreach (BaseCharacterController enemy in enemies) {
             // they need to be facing the direction of the hit
             bool isInFrontOfPlayer = false;
             if (IsFacingLeft && enemy.transform.position.x < transform.position.x) {
@@ -131,9 +131,6 @@ public class PlayerController : BaseCharacterController {
         ComboIndicator.Instance.ResetCombo();
     }
 
-    protected override void Update() {
-    }
-
     protected override void FixedUpdate() {
         bool wasFacingLeft = IsFacingLeft;
 
@@ -166,7 +163,7 @@ public class PlayerController : BaseCharacterController {
         SetTransformFromPrecisePosition();
         CurrentHP = MaxHP;
         UI.Instance.NotifyHeroHealthChange(this);
-        foreach (EnemyController enemy in enemies) {
+        foreach (BaseCharacterController enemy in enemies) {
             if (enemy.state != State.WaitingForPlayer) {
                 enemy.ReceiveHit(precisePosition, 0, Hit.Type.Knockdown);
             }

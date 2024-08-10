@@ -12,7 +12,7 @@ public class Level : MonoBehaviour
 
     private void Start() {
         mainCamera.OnPositionChange += Camera_OnPositionChange;
-        foreach(Checkpoint checkpoint in GetComponentsInChildren<Checkpoint>(true)) {
+        foreach(Checkpoint checkpoint in GetComponentsInChildren<Checkpoint>()) {
             checkpointQueue.Enqueue(checkpoint);
         }
         ActivateNextCheckpoint(false);

@@ -158,10 +158,6 @@ public class EnemyController : BaseCharacterController {
         isInHittingStance = false; // take a breather
     }
 
-    protected override void Update() {
-    }
-
-
     protected override void FixedUpdate() {
         HandleDropping(); // for spawns
         HandleGarageDoorHidding(); // for spawns
@@ -181,7 +177,7 @@ public class EnemyController : BaseCharacterController {
 
     protected override void ReceiveDamage(int damage) {
         base.ReceiveDamage(damage);
-        UI.Instance.NotifyEnemyHealthChange(this);
+        UI.Instance.NotifyEnemyHealthChange(this, EnemySO.enemyType);
     }
 
     private void HandleMoving() {
