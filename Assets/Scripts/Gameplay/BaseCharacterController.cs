@@ -123,8 +123,11 @@ public abstract class BaseCharacterController : MonoBehaviour {
     }
 
     protected bool CanMoveTo(Vector2 destination) {
-        if (this is PlayerController && destination.y > 30) return false; // not great but the following still allows to hit the walls :(
+        // hardcoded limits because I can't get proper sliding/collision in unity :(
+        if (this is PlayerController && destination.y > 30) return false;
         if (this is PlayerController && destination.y < 2) return false;
+        if (this is PlayerController && destination.x > 294 && destination.y > 28 - (destination.x - 295)) return false;
+
         if (state == State.Dying) return true;
         Vector3 targetedPosition = new Vector3(Mathf.FloorToInt(destination.x), Mathf.FloorToInt(destination.y), 0);
         Vector2 direction = (targetedPosition - transform.position).normalized;

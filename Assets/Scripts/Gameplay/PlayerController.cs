@@ -194,7 +194,6 @@ public class PlayerController : BaseCharacterController {
         if (state == State.Jumping) {
             dzHeight -= gravity * Time.deltaTime;
             height += dzHeight;
-            Debug.Log(height);
             if (height < 0f) {
                 state = State.Idle;
                 height = 0f;

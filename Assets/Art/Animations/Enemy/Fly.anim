@@ -69,15 +69,6 @@ AnimationClip:
   - serializedVersion: 2
     curve:
     - time: 0
-      value: {fileID: 456539017, guid: aacf26f82de3ea04aa232509a92ac5e3, type: 3}
-    attribute: m_Sprite
-    path: StreetBossEnemySprite
-    classID: 212
-    script: {fileID: 0}
-    flags: 2
-  - serializedVersion: 2
-    curve:
-    - time: 0
       value: {fileID: -822936764, guid: 411f97d2e20af0d4fbcfd5b842bc44b4, type: 3}
     attribute: m_Sprite
     path: ThugEnemySprite
@@ -128,15 +119,6 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 2752585241
-      attribute: 0
-      script: {fileID: 0}
-      typeID: 212
-      customType: 23
-      isPPtrCurve: 1
-      isIntCurve: 0
-      isSerializeReferenceCurve: 0
-    - serializedVersion: 2
       path: 1477121957
       attribute: 0
       script: {fileID: 0}
@@ -149,7 +131,6 @@ AnimationClip:
     - {fileID: 1225959934, guid: 9a2a86038ea6c594fa964e689f688cc9, type: 3}
     - {fileID: 1637910360, guid: df3ea6bb0cb460a439905044ed60bbf4, type: 3}
     - {fileID: -1211632101, guid: 88cab07d6783da241a319a1d1e2232ec, type: 3}
-    - {fileID: 456539017, guid: aacf26f82de3ea04aa232509a92ac5e3, type: 3}
     - {fileID: -822936764, guid: 411f97d2e20af0d4fbcfd5b842bc44b4, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2

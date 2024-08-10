@@ -57,19 +57,6 @@ AnimationClip:
   - serializedVersion: 2
     curve:
     - time: 0
-      value: {fileID: 243840145, guid: aacf26f82de3ea04aa232509a92ac5e3, type: 3}
-    - time: 0.33333334
-      value: {fileID: 1510231081, guid: aacf26f82de3ea04aa232509a92ac5e3, type: 3}
-    - time: 0.41666666
-      value: {fileID: 1443899046, guid: aacf26f82de3ea04aa232509a92ac5e3, type: 3}
-    attribute: m_Sprite
-    path: StreetBossEnemySprite
-    classID: 212
-    script: {fileID: 0}
-    flags: 2
-  - serializedVersion: 2
-    curve:
-    - time: 0
       value: {fileID: 78121986, guid: 88cab07d6783da241a319a1d1e2232ec, type: 3}
     - time: 0.083333336
       value: {fileID: -672429015, guid: 88cab07d6783da241a319a1d1e2232ec, type: 3}
@@ -153,15 +140,6 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 2752585241
-      attribute: 0
-      script: {fileID: 0}
-      typeID: 212
-      customType: 23
-      isPPtrCurve: 1
-      isIntCurve: 0
-      isSerializeReferenceCurve: 0
-    - serializedVersion: 2
       path: 1442540041
       attribute: 0
       script: {fileID: 0}
@@ -202,9 +180,6 @@ AnimationClip:
     - {fileID: -814735428, guid: 411f97d2e20af0d4fbcfd5b842bc44b4, type: 3}
     - {fileID: -1696297017, guid: 411f97d2e20af0d4fbcfd5b842bc44b4, type: 3}
     - {fileID: 478135402, guid: 411f97d2e20af0d4fbcfd5b842bc44b4, type: 3}
-    - {fileID: 243840145, guid: aacf26f82de3ea04aa232509a92ac5e3, type: 3}
-    - {fileID: 1510231081, guid: aacf26f82de3ea04aa232509a92ac5e3, type: 3}
-    - {fileID: 1443899046, guid: aacf26f82de3ea04aa232509a92ac5e3, type: 3}
     - {fileID: 78121986, guid: 88cab07d6783da241a319a1d1e2232ec, type: 3}
     - {fileID: -672429015, guid: 88cab07d6783da241a319a1d1e2232ec, type: 3}
     - {fileID: 321580139, guid: 88cab07d6783da241a319a1d1e2232ec, type: 3}
