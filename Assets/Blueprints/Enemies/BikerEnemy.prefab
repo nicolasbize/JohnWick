@@ -156,6 +156,7 @@ MonoBehaviour:
   verticalMarginBetweenEnemyAndPlayer: 4
   knifePrefab: {fileID: 108443578691346250, guid: 0b40b998f539b6b4ba3c286736f5e081, type: 3}
   pickableKnifePrefab: {fileID: 6911809719835533780, guid: f8a876390a6eeb54bb5e7653879895ba, type: 3}
+  sparkPrefab: {fileID: 5678868446284842596, guid: a0b29e60691760b4bb48a4ab60cd1739, type: 3}
   flySpeed: 70
   minMaxSecsBeforeHitting: {x: 0.2, y: 1.5}
   player: {fileID: 0}

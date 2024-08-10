@@ -119,12 +119,14 @@ public class EnemyController : BaseCharacterController {
                 animator.SetBool("IsFlying", true);
                 state = State.Flying;
                 preciseVelocity = attackVector * flySpeed;
+                GenerateSparkFX();
             } else if (hitType == Hit.Type.Knockdown || (CurrentHP <= 0)) {
                 animator.SetBool("IsFalling", true);
                 state = State.Falling;
                 preciseVelocity = attackVector * moveSpeed * 3;
                 dzHeight = 2f;
                 Camera.main.GetComponent<CameraFollow>().Shake(0.05f, 1);
+                GenerateSparkFX();
             } else {
                 preciseVelocity = attackVector * moveSpeed * 2;
                 state = State.Hurt;
@@ -153,7 +155,7 @@ public class EnemyController : BaseCharacterController {
         isInHittingStance = false; // take a breather
     }
 
-    protected override void FixedUpdate() {
+    protected override void Update() {
         HandleDropping(); // for spawns
         HandleGarageDoorHidding(); // for spawns
         HandleHurt();

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 201cd7d520319bf4e8e101f2ac1a2c09
+guid: 94f083d0c79db984ba6ebd9d6f42350f
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -123,127 +123,85 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: rotating-knife_0
+      name: spark_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 16
-        height: 16
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ca6e5ebb010789245bbf5e6a0f8c3e38
-      internalID: -1202976251
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: rotating-knife_1
-      rect:
-        serializedVersion: 2
-        x: 16
-        y: 0
-        width: 16
-        height: 16
+        width: 48
+        height: 48
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2984e326c340da341b7d1e359888c1ac
-      internalID: 554067498
+      spriteID: 9da943696969ac947992490e6a2a585c
+      internalID: 340918726
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: rotating-knife_2
-      rect:
-        serializedVersion: 2
-        x: 32
-        y: 0
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 76044ff16e1a46344a2c63a884743226
-      internalID: 721342513
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: rotating-knife_3
+      name: spark_1
       rect:
         serializedVersion: 2
         x: 48
         y: 0
-        width: 16
-        height: 16
+        width: 48
+        height: 48
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fcf96dbb267e6a943af7b85bca3c2698
-      internalID: 1701653210
+      spriteID: b88dbb4d32673bb43b8da10092dd85de
+      internalID: 1947713386
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: rotating-knife_4
+      name: spark_2
       rect:
         serializedVersion: 2
-        x: 64
+        x: 96
         y: 0
-        width: 16
-        height: 16
+        width: 48
+        height: 48
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c88577bbe72274148bc52b36b752d93e
-      internalID: 909006113
+      spriteID: be996dd652574af4abf6b339c0e8aef5
+      internalID: 2099192084
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: rotating-knife_5
+      name: spark_3
       rect:
         serializedVersion: 2
-        x: 80
+        x: 144
         y: 0
-        width: 16
-        height: 16
+        width: 48
+        height: 48
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0839d8bf1695ca04eb62c6051581dde3
-      internalID: -1047640346
+      spriteID: 99716ca2b81370843916ae43830e9df9
+      internalID: -1037798375
       vertices: []
       indices: 
       edges: []
@@ -259,12 +217,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      rotating-knife_0: -1202976251
-      rotating-knife_1: 554067498
-      rotating-knife_2: 721342513
-      rotating-knife_3: 1701653210
-      rotating-knife_4: 909006113
-      rotating-knife_5: -1047640346
+      spark_0: 340918726
+      spark_1: 1947713386
+      spark_2: 2099192084
+      spark_3: -1037798375
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

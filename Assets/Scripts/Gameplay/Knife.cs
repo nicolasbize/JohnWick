@@ -8,7 +8,7 @@ public class Knife : MonoBehaviour
 {
     [SerializeField] private int damage;
     [SerializeField] private float speed;
-    [SerializeField] private float yHitBuffer;
+    [SerializeField] private float zHitBuffer;
     [SerializeField] private float height;
     [field:SerializeField] public Vector2 Direction { get; set; }
     [field:SerializeField] public BaseCharacterController Emitter { get; set; }
@@ -19,6 +19,7 @@ public class Knife : MonoBehaviour
     void Start()
     {
         position = new Vector2(transform.position.x, transform.position.y);
+        height = 8;
     }
 
     void Update()
@@ -54,9 +55,9 @@ public class Knife : MonoBehaviour
     }
 
     private bool IsAlignedWith(GameObject gameObject) {
-        float yKnife = transform.position.y + 20; // lots of empty space due to unity weird sorting algos
-        float yObject = gameObject.transform.position.y;
-        return (yKnife > yObject - yHitBuffer) && (yKnife < yObject + yHitBuffer);
+        float zKnife = transform.position.z;
+        float zObject = gameObject.transform.position.z;
+        return (zKnife > zObject - zHitBuffer) && (zKnife < zObject + zHitBuffer);
     }
 
 }

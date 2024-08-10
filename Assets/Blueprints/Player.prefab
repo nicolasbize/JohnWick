@@ -236,6 +236,7 @@ MonoBehaviour:
   verticalMarginBetweenEnemyAndPlayer: 6
   knifePrefab: {fileID: 108443578691346250, guid: 0b40b998f539b6b4ba3c286736f5e081, type: 3}
   pickableKnifePrefab: {fileID: 0}
+  sparkPrefab: {fileID: 5678868446284842596, guid: a0b29e60691760b4bb48a4ab60cd1739, type: 3}
   jumpForce: 1.8
   comboAttackMaxDuration: 1.5
 --- !u!95 &1230420181552706133

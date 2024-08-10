@@ -30,6 +30,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     [SerializeField] protected float verticalMarginBetweenEnemyAndPlayer;
     [SerializeField] protected Knife knifePrefab;
     [SerializeField] protected Pickable pickableKnifePrefab;
+    [SerializeField] protected Spark sparkPrefab;
 
     public int CurrentHP { get; protected set; }
 
@@ -67,7 +68,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     public abstract void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal);
     public abstract bool IsVulnerable(Vector2 damageOrigin, bool canBlock = true);
     protected abstract void MaybeInductDamage();
-    protected abstract void FixedUpdate();
+    protected abstract void Update();
 
     public void OnAttackAnimationEndFrameEvent() {
         timeLastAttack = Time.timeSinceLevelLoad;
@@ -86,7 +87,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
         Knife knife = Instantiate(knifePrefab);
         knife.transform.SetParent(transform.parent);
         knife.Direction = IsFacingLeft ? Vector2.left : Vector2.right;
-        knife.transform.position = transform.position + Vector3.down * 19 + (IsFacingLeft ? Vector3.left : Vector3.right) * 8;
+        knife.transform.position = transform.position + (IsFacingLeft ? Vector3.left : Vector3.right) * 8;
         knife.Emitter = this;
         HasKnife = false;
         knifeTransform.gameObject.SetActive(false);
@@ -159,6 +160,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
                 height = 0f;
                 timeSinceGrounded = Time.timeSinceLevelLoad;
                 animator.SetBool("IsFalling", false);
+                Debug.Log("grounded");
             }
         }
     }
@@ -213,8 +215,13 @@ public abstract class BaseCharacterController : MonoBehaviour {
         }
     }
 
+    protected void GenerateSparkFX() {
+        Spark spark = Instantiate<Spark>(sparkPrefab, transform.parent);
+        spark.transform.position = new Vector3(transform.position.x, transform.position.y + 12, 0);
+    }
+
     protected bool CanAttack() {
-        return state != State.Attacking;
+        return state == State.Idle || state == State.Walking;
     }
 
     protected bool CanMove() {

@@ -39,13 +39,14 @@ public class PlayerController : BaseCharacterController {
                 state = State.Falling;
                 preciseVelocity = attackVector * 50f;
                 dzHeight = 1f;
-                Debug.Log("isfalling due to knife!");
                 Camera.main.GetComponent<CameraFollow>().Shake(0.05f, 1);
+                GenerateSparkFX();
+                Debug.Log("falling");
             } else {
                 preciseVelocity = attackVector * (moveSpeed / 2f);
                 state = State.Hurt;
                 animator.SetTrigger("Hurt");
-                Debug.Log("ishurt");
+                Debug.Log("hurt");
             }
             UI.Instance.NotifyHeroHealthChange(this);
             BreakCombo();
@@ -128,11 +129,11 @@ public class PlayerController : BaseCharacterController {
         ComboIndicator.Instance.ResetCombo();
     }
 
-    protected override void FixedUpdate() {
+    protected override void Update() {
         bool wasFacingLeft = IsFacingLeft;
         HandleDropping();
         HandleJumpInput();
-        HandleBlockInput();
+        // HandleBlockInput(); // blocking seems useless in this game, removing for now but keeping in the code.
         HandleMoveInput();
         HandleAttackInput();
         HandleFalling();
@@ -169,10 +170,10 @@ public class PlayerController : BaseCharacterController {
 
     private void RestrictScreenBoundaries() {
         Vector2 xBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
-        if (precisePosition.x <  xBoundaries.x) {
-            precisePosition.x = xBoundaries.x;
-        } else if (precisePosition.x > xBoundaries.y) {
-            precisePosition.x = xBoundaries.y;
+        if (precisePosition.x < xBoundaries.x + 8) {
+            precisePosition.x = xBoundaries.x + 8;
+        } else if (precisePosition.x > xBoundaries.y - 8) {
+            precisePosition.x = xBoundaries.y - 8;
         }
         SetTransformFromPrecisePosition();
     }
@@ -229,6 +230,7 @@ public class PlayerController : BaseCharacterController {
                         animator.SetTrigger(comboAttackTriggers[currentComboIndex]);
                     }
                 }
+                Debug.Log("attack");
             }
         }
     }
