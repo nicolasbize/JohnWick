@@ -13,10 +13,12 @@ public class UI : MonoBehaviour
     [SerializeField] private PlayerController player;
     [SerializeField] private Continue continueScreen;
     [SerializeField] private Counter score;
+    [SerializeField] private AudioClip gogogoSound;
 
     private int highscore = 0;
 
     private float timeSinceLastHealthRefresh = float.NegativeInfinity;
+    private AudioSource audioSource;
 
     public static UI Instance;
 
@@ -25,6 +27,7 @@ public class UI : MonoBehaviour
     }
 
     private void Start() {
+        audioSource = GetComponent<AudioSource>();
         continueScreen.gameObject.SetActive(false);
         HideEnemyHealthbar();
         player.OnDeath += OnPlayerDeath;
@@ -80,6 +83,7 @@ public class UI : MonoBehaviour
     public void NotifyGoGoGo() {
         goIndicatorAnimator.gameObject.SetActive(true);
         goIndicatorAnimator.SetTrigger("Flash");
+        audioSource.PlayOneShot(gogogoSound);
     }
 
     private void HideEnemyHealthbar() {

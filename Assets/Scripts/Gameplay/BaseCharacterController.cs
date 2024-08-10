@@ -6,7 +6,7 @@ using static UnityEngine.EventSystems.EventTrigger;
 using Random = UnityEngine.Random;
 
 public abstract class BaseCharacterController : MonoBehaviour {
-    public enum State { Idle, Walking, PreparingAttack, Attacking, Blocking, Hurt, Flying, Falling, Grounded, Dropping, WaitingForDoor, Dying, Dead, WaitingForPlayer }
+    public enum State { Idle, Walking, PreparingAttack, Attacking, Blocking, Hurt, Flying, Falling, Grounded, Dropping, WaitingForDoor, Dying, Dead, WaitingForPlayer, Jumping }
     public enum InitialPosition { Behind, Garage, Roof, Street }
 
     public event EventHandler OnDirectionChange;
@@ -31,10 +31,14 @@ public abstract class BaseCharacterController : MonoBehaviour {
     [SerializeField] protected Knife knifePrefab;
     [SerializeField] protected Pickable pickableKnifePrefab;
     [SerializeField] protected Spark sparkPrefab;
+    [SerializeField] protected AudioClip hitSound;
+    [SerializeField] protected AudioClip hitAltSound;
+    [SerializeField] protected AudioClip missSound;
+
 
     public int CurrentHP { get; protected set; }
+    public State state { get; protected set; } = State.Idle;
 
-    //protected Vector2 position;
     protected Vector2 preciseVelocity;
     protected float timeLastAttack = float.NegativeInfinity;
     protected float timeDyingStart = float.NegativeInfinity;
@@ -43,16 +47,18 @@ public abstract class BaseCharacterController : MonoBehaviour {
     protected Vector2 precisePosition = Vector2.zero; // x axis goes from -32 to end of level, y goes from -32 to 0
     protected float height = 0f;
     protected float dzHeight = 0f;
-    protected bool grounded = true;
-    public State state { get; protected set; } = State.Idle;
+    //protected bool grounded = true;
     protected Animator animator;
     protected InitialPosition initialPosition = InitialPosition.Street;
+    protected AudioSource audioSource;
+    protected State statePriorToAttacking = State.Idle;
 
     protected virtual void Start() {
         CurrentHP = MaxHP;
         animator = GetComponent<Animator>();
         precisePosition = new Vector2(transform.position.x, transform.position.y);
         UpdateKnifeGameObject();
+        audioSource = GetComponent<AudioSource>();
     }
 
     protected void UpdateKnifeGameObject() {
@@ -69,10 +75,11 @@ public abstract class BaseCharacterController : MonoBehaviour {
     public abstract bool IsVulnerable(Vector2 damageOrigin, bool canBlock = true);
     protected abstract void MaybeInductDamage();
     protected abstract void Update();
+    protected abstract void FixedUpdate();
 
     public void OnAttackAnimationEndFrameEvent() {
         timeLastAttack = Time.timeSinceLevelLoad;
-        state = State.Idle;
+        state = statePriorToAttacking;
     }
 
     public void OnInvincibilityAnimationFrameEnd() {
@@ -117,6 +124,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
 
     protected bool CanMoveTo(Vector2 destination) {
         if (this is PlayerController && destination.y > 30) return false; // not great but the following still allows to hit the walls :(
+        if (this is PlayerController && destination.y < 2) return false;
         if (state == State.Dying) return true;
         Vector3 targetedPosition = new Vector3(Mathf.FloorToInt(destination.x), Mathf.FloorToInt(destination.y), 0);
         Vector2 direction = (targetedPosition - transform.position).normalized;
@@ -221,17 +229,17 @@ public abstract class BaseCharacterController : MonoBehaviour {
     }
 
     protected bool CanAttack() {
-        return state == State.Idle || state == State.Walking;
+        return state == State.Idle || state == State.Walking || state == State.Jumping;
     }
 
     protected bool CanMove() {
         return state == State.Idle ||
                state == State.Walking ||
-               !grounded;
+               state == State.Jumping;
     }
 
     protected bool CanJump() {
-        return state != State.Attacking && state != State.Blocking && grounded;
+        return state == State.Idle || state == State.Walking;
     }
 
     protected bool CanBlock() {

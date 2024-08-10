@@ -120,6 +120,7 @@ public class EnemyController : BaseCharacterController {
                 state = State.Flying;
                 preciseVelocity = attackVector * flySpeed;
                 GenerateSparkFX();
+                audioSource.PlayOneShot(hitAltSound);
             } else if (hitType == Hit.Type.Knockdown || (CurrentHP <= 0)) {
                 animator.SetBool("IsFalling", true);
                 state = State.Falling;
@@ -127,10 +128,12 @@ public class EnemyController : BaseCharacterController {
                 dzHeight = 2f;
                 Camera.main.GetComponent<CameraFollow>().Shake(0.05f, 1);
                 GenerateSparkFX();
+                audioSource.PlayOneShot(hitAltSound);
             } else {
                 preciseVelocity = attackVector * moveSpeed * 2;
                 state = State.Hurt;
                 animator.SetTrigger("Hurt");
+                audioSource.PlayOneShot(hitSound);
             }
         }
     }
@@ -156,6 +159,10 @@ public class EnemyController : BaseCharacterController {
     }
 
     protected override void Update() {
+    }
+
+
+    protected override void FixedUpdate() {
         HandleDropping(); // for spawns
         HandleGarageDoorHidding(); // for spawns
         HandleHurt();
@@ -171,9 +178,6 @@ public class EnemyController : BaseCharacterController {
         }
     }
 
-    public void ActivateGameplay() {
-
-    }
 
     protected override void ReceiveDamage(int damage) {
         base.ReceiveDamage(damage);

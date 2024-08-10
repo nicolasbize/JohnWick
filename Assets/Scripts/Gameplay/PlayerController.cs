@@ -14,7 +14,7 @@ public class PlayerController : BaseCharacterController {
     private void Awake() {
         Instance = this;
     }
-
+    
     private List<string> comboAttackTriggers = new List<string>() {
         "Punch", "Punch", "PunchAlt", "Kick", "Roundhouse"
     };
@@ -34,6 +34,7 @@ public class PlayerController : BaseCharacterController {
         if (IsVulnerable(damageOrigin)) {
             Vector2 attackVector = damageOrigin.x < precisePosition.x ? Vector2.right : Vector2.left;
             ReceiveDamage(dmg);
+            animator.SetBool("IsJumping", false);
             if (hitType == Hit.Type.Knockdown || (CurrentHP <= 0)) {
                 animator.SetBool("IsFalling", true);
                 state = State.Falling;
@@ -41,10 +42,12 @@ public class PlayerController : BaseCharacterController {
                 dzHeight = 1f;
                 Camera.main.GetComponent<CameraFollow>().Shake(0.05f, 1);
                 GenerateSparkFX();
+                audioSource.PlayOneShot(hitAltSound);
             } else {
                 preciseVelocity = attackVector * (moveSpeed / 2f);
                 state = State.Hurt;
                 animator.SetTrigger("Hurt");
+                audioSource.PlayOneShot(hitSound);
             }
             UI.Instance.NotifyHeroHealthChange(this);
             BreakCombo();
@@ -98,7 +101,7 @@ public class PlayerController : BaseCharacterController {
             if (isAlignedWithPlayer && isInFrontOfPlayer && enemy.IsVulnerable(transform.position)) {
                 bool isPowerAttack = currentComboIndex == comboAttackTriggers.Count - 1;
                 Hit.Type hitType = isPowerAttack ? Hit.Type.PowerEject : Hit.Type.Normal;
-                if (!grounded) {
+                if (state == State.Jumping) { // jump kick always knocks down
                     hitType = Hit.Type.Knockdown;
                 }
                 int damage = isPowerAttack ? 2 : 4;
@@ -119,6 +122,7 @@ public class PlayerController : BaseCharacterController {
         } else {
             // don't reset combo but start over
             currentComboIndex = 0;
+            audioSource.PlayOneShot(missSound);
         }
     }
 
@@ -128,12 +132,16 @@ public class PlayerController : BaseCharacterController {
     }
 
     protected override void Update() {
+    }
+
+    protected override void FixedUpdate() {
         bool wasFacingLeft = IsFacingLeft;
-        HandleDropping();
-        HandleJumpInput();
+
+        HandleJumpingWithInput();
         // HandleBlockInput(); // blocking seems useless in this game, removing for now but keeping in the code.
-        HandleMoveInput();
-        HandleAttackInput();
+        HandleWalkingWithInput();
+        HandleAttackingWithInput();
+        HandleDropping();
         HandleFalling();
         HandleGrounded();
         HandleDying();
@@ -149,8 +157,7 @@ public class PlayerController : BaseCharacterController {
     }
 
     public void Respawn() {
-        state = State.Idle;
-        grounded = false;
+        state = State.Jumping;
         animator.SetBool("IsJumping", true);
         Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
         float midX = Mathf.FloorToInt((screenBoundaries.y - screenBoundaries.x) / 2f);
@@ -176,18 +183,19 @@ public class PlayerController : BaseCharacterController {
         SetTransformFromPrecisePosition();
     }
 
-    private void HandleJumpInput() {
-        if (CanJump() && Input.GetButton("Jump")) {
-            dzHeight = jumpForce;
-            grounded = false;
+    private void HandleJumpingWithInput() {
+        if (CanJump() && Input.GetButtonDown("Jump")) {
+            dzHeight = jumpForce * Time.deltaTime;
+            state = State.Jumping;
             animator.SetBool("IsJumping", true);
+            audioSource.PlayOneShot(missSound);
         }
 
-        if (!grounded) {
+        if (state == State.Jumping) {
             dzHeight -= gravity * Time.deltaTime;
             height += dzHeight;
+            Debug.Log(height);
             if (height < 0f) {
-                grounded = true;
                 state = State.Idle;
                 height = 0f;
                 animator.SetBool("IsJumping", false);
@@ -205,7 +213,7 @@ public class PlayerController : BaseCharacterController {
         animator.SetBool("IsBlocking", state == State.Blocking);
     }
 
-    private void HandleAttackInput() {
+    private void HandleAttackingWithInput() {
         if (CanAttack() && Input.GetButtonDown("Attack")) {
             // first check if there is something to pick up
             if (PickableItem != null && (!HasKnife && PickableItem.Type == Pickable.PickableType.Knife)) {
@@ -216,16 +224,18 @@ public class PlayerController : BaseCharacterController {
                 }
                 PickableItem.PickupItem();
             } else {
-                state = State.Attacking;
-                if (!grounded) {
+                statePriorToAttacking = state;
+                if (state == State.Jumping) {
                     currentComboIndex = 0;
                     animator.SetTrigger("AirKick");
                 } else {
                     if (HasKnife) {
                         animator.SetTrigger("PunchAlt");
                         ThrowKnife();
+                        // don't perform an attack if throwing the knife already
                     } else {
                         animator.SetTrigger(comboAttackTriggers[currentComboIndex]);
+                        state = State.Attacking;
                     }
                 }
 
@@ -245,22 +255,26 @@ public class PlayerController : BaseCharacterController {
         }
     }
 
-    private void HandleMoveInput() {
+    private void HandleWalkingWithInput() {
         if (CanMove()) {
-            preciseVelocity = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) * moveSpeed;
+            preciseVelocity = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized * moveSpeed;
             TryMoveTo(precisePosition + preciseVelocity * Time.deltaTime);
 
             if (preciseVelocity != Vector2.zero) {
-                state = State.Walking;
+                if (state != State.Jumping) { 
+                    state = State.Walking;
+                }
                 if (preciseVelocity.x != 0f) {
                     characterSprite.flipX = preciseVelocity.x < 0;
                     knifeTransform.GetComponent<SpriteRenderer>().flipX = characterSprite.flipX;
                     IsFacingLeft = characterSprite.flipX;
                 }
-            } else {
+                animator.SetBool("IsWalking", true);
+            } else if (state != State.Jumping) {
                 state = State.Idle;
+                animator.SetBool("IsWalking", false);
             }
-            animator.SetBool("IsWalking", preciseVelocity != Vector2.zero);
+
         }
     }
 
