@@ -32,7 +32,7 @@ public class PlayerController : BaseCharacterController {
 
     public override void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
-            Vector2 attackVector = damageOrigin.x < precisePosition.x ? Vector2.right : Vector2.left;
+            Vector2 attackVector = damageOrigin.x < PrecisePosition.x ? Vector2.right : Vector2.left;
             ReceiveDamage(dmg);
             animator.SetBool("IsJumping", false);
             if (hitType == Hit.Type.Knockdown || (CurrentHP <= 0)) {
@@ -63,8 +63,8 @@ public class PlayerController : BaseCharacterController {
         }
 
         if (canBlock && state == State.Blocking && (
-            (IsFacingLeft && damageOrigin.x < precisePosition.x) ||
-            (!IsFacingLeft && damageOrigin.x > precisePosition.x))) {
+            (IsFacingLeft && damageOrigin.x < PrecisePosition.x) ||
+            (!IsFacingLeft && damageOrigin.x > PrecisePosition.x))) {
             return false;
         }
         return true;
@@ -105,7 +105,7 @@ public class PlayerController : BaseCharacterController {
                     hitType = Hit.Type.Knockdown;
                 }
                 int damage = isPowerAttack ? 2 : 4;
-                enemy.ReceiveHit(precisePosition, damage, hitType);
+                enemy.ReceiveHit(PrecisePosition, damage, hitType);
                 hasHitEnemy = true;
             }
         }
@@ -158,24 +158,24 @@ public class PlayerController : BaseCharacterController {
         animator.SetBool("IsJumping", true);
         Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
         float midX = Mathf.FloorToInt((screenBoundaries.y - screenBoundaries.x) / 2f);
-        precisePosition = new Vector2(midX, 20);
+        PrecisePosition = new Vector2(midX, 20);
         height = 50;
         SetTransformFromPrecisePosition();
         CurrentHP = MaxHP;
         UI.Instance.NotifyHeroHealthChange(this);
         foreach (BaseCharacterController enemy in enemies) {
             if (enemy.state != State.WaitingForPlayer) {
-                enemy.ReceiveHit(precisePosition, 0, Hit.Type.Knockdown);
+                enemy.ReceiveHit(PrecisePosition, 0, Hit.Type.Knockdown);
             }
         }
     }
 
     private void RestrictScreenBoundaries() {
         Vector2 xBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
-        if (precisePosition.x < xBoundaries.x + 8) {
-            precisePosition.x = xBoundaries.x + 8;
-        } else if (precisePosition.x > xBoundaries.y - 8) {
-            precisePosition.x = xBoundaries.y - 8;
+        if (PrecisePosition.x < xBoundaries.x + 8) {
+            PrecisePosition = new Vector2(xBoundaries.x + 8, PrecisePosition.y);
+        } else if (PrecisePosition.x > xBoundaries.y - 8) {
+            PrecisePosition = new Vector2(xBoundaries.y - 8, PrecisePosition.y);
         }
         SetTransformFromPrecisePosition();
     }
@@ -247,14 +247,14 @@ public class PlayerController : BaseCharacterController {
         RaycastHit2D hit = Physics2D.Raycast(transform.position + Vector3.down * height, direction, attackReach, barrelMask);
         if (hit.collider != null && hit.collider.gameObject.GetComponent<Barrel>() != null) {
             Barrel barrel = hit.collider.gameObject.GetComponent<Barrel>();
-            barrel.Break(precisePosition);
+            barrel.Break(PrecisePosition);
         }
     }
 
     private void HandleWalkingWithInput() {
         if (CanMove()) {
             preciseVelocity = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized * moveSpeed;
-            TryMoveTo(precisePosition + preciseVelocity * Time.deltaTime);
+            TryMoveTo(PrecisePosition + preciseVelocity * Time.deltaTime);
 
             if (preciseVelocity != Vector2.zero) {
                 if (state != State.Jumping) { 

@@ -1,4 +1,5 @@
 using System;
+using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
 public abstract class BaseCharacterController : MonoBehaviour {
@@ -41,7 +42,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     protected float timeDyingStart = float.NegativeInfinity;
     protected float timeSinceGrounded = float.NegativeInfinity;
     protected float timeLastKnifeThrown = float.NegativeInfinity;
-    protected Vector2 precisePosition = Vector2.zero; // x axis goes from -32 to end of level, y goes from -32 to 0
+    public Vector2 PrecisePosition { get; protected set; } = Vector2.zero; // x axis goes from -32 to end of level, y goes from -32 to 0
     protected float height = 0f;
     protected float dzHeight = 0f;
     //protected bool grounded = true;
@@ -53,7 +54,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     protected virtual void Start() {
         CurrentHP = MaxHP;
         animator = GetComponent<Animator>();
-        precisePosition = new Vector2(transform.position.x, transform.position.y);
+        PrecisePosition = new Vector2(transform.position.x, transform.position.y);
         UpdateKnifeGameObject();
         audioSource = GetComponent<AudioSource>();
     }
@@ -94,21 +95,21 @@ public abstract class BaseCharacterController : MonoBehaviour {
     }
 
     protected void SetTransformFromPrecisePosition() {
-        transform.position = new Vector3(Mathf.FloorToInt(precisePosition.x), Mathf.FloorToInt(precisePosition.y + height), Mathf.FloorToInt(precisePosition.y));
-        shadowSprite.transform.position = new Vector3(Mathf.FloorToInt(precisePosition.x), Mathf.FloorToInt(precisePosition.y), Mathf.FloorToInt(precisePosition.y));
+        transform.position = new Vector3(Mathf.FloorToInt(PrecisePosition.x), Mathf.FloorToInt(PrecisePosition.y + height), Mathf.FloorToInt(PrecisePosition.y));
+        shadowSprite.transform.position = new Vector3(Mathf.FloorToInt(PrecisePosition.x), Mathf.FloorToInt(PrecisePosition.y), Mathf.FloorToInt(PrecisePosition.y));
     }
 
     protected void TryMoveTo(Vector2 newPosition) {
         // check on horiz and vert axis separately to prevent blocking on wall when going in diagonal
-        if (CanMoveTo(new Vector2(precisePosition.x, newPosition.y))) {
-            precisePosition = new Vector2(precisePosition.x, newPosition.y);
+        if (CanMoveTo(new Vector2(PrecisePosition.x, newPosition.y))) {
+            PrecisePosition = new Vector2(PrecisePosition.x, newPosition.y);
             SetTransformFromPrecisePosition();
         } else {
             preciseVelocity.y = 0;
         }
 
-        if (CanMoveTo(new Vector2(newPosition.x, precisePosition.y))) {
-            precisePosition = new Vector2(newPosition.x, precisePosition.y);
+        if (CanMoveTo(new Vector2(newPosition.x, PrecisePosition.y))) {
+            PrecisePosition = new Vector2(newPosition.x, PrecisePosition.y);
             SetTransformFromPrecisePosition();
         } else {
             preciseVelocity.x = 0;
@@ -145,7 +146,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
         if (state == State.Dropping) {
             dzHeight -= gravity * Time.deltaTime;
             height += dzHeight;
-            precisePosition += preciseVelocity * Time.deltaTime;
+            PrecisePosition += preciseVelocity * Time.deltaTime;
             SetTransformFromPrecisePosition();
             if (height < 0) {
                 state = State.Idle;
@@ -159,8 +160,9 @@ public abstract class BaseCharacterController : MonoBehaviour {
         if (state == State.Falling) {
             dzHeight -= gravity * Time.deltaTime;
             height += dzHeight;
-            precisePosition += preciseVelocity * Time.deltaTime;
-            TryMoveTo(precisePosition);
+            Vector2 newAttemptedPosition = PrecisePosition + preciseVelocity * Time.deltaTime;
+
+            TryMoveTo(newAttemptedPosition);
             if (height <= 0) {
                 state = State.Grounded;
                 height = 0f;

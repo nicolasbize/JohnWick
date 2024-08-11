@@ -41,11 +41,11 @@ public class EnemyController : BaseCharacterController {
             state = State.Idle; // only activate if waiting, might be on the ground due to knife strike
         } else if (initialPosition == InitialPosition.Behind) {
             state = State.Idle;
-            precisePosition = new Vector2(originalPosition.x, originalPosition.y);
+            PrecisePosition = new Vector2(originalPosition.x, originalPosition.y);
             transform.position = originalPosition;
         } else if (initialPosition == InitialPosition.Roof) {
             height = 50;
-            precisePosition = new Vector2(originalPosition.x, originalPosition.y - height);
+            PrecisePosition = new Vector2(originalPosition.x, originalPosition.y - height);
             SetTransformFromPrecisePosition();
             state = State.Dropping;
         } else if (initialPosition == InitialPosition.Garage) {
@@ -104,7 +104,7 @@ public class EnemyController : BaseCharacterController {
     public override void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
             ReceiveDamage(dmg);
-            Vector2 attackVector = damageOrigin.x < precisePosition.x ? Vector2.right : Vector2.left;
+            Vector2 attackVector = damageOrigin.x < PrecisePosition.x ? Vector2.right : Vector2.left;
             isInHittingStance = false; // knocks player out a bit
             if (HasKnife) {
                 HasKnife = false;
@@ -147,12 +147,12 @@ public class EnemyController : BaseCharacterController {
     }
 
     protected override void MaybeInductDamage() {
-        if (HasKnife && player.IsVulnerable(precisePosition)) {
+        if (HasKnife && player.IsVulnerable(PrecisePosition)) {
             ThrowKnife();
             timeLastKnifeThrown = Time.timeSinceLevelLoad;
         } else {
-            if (IsPlayerWithinReach() && player.IsVulnerable(precisePosition)) {
-                player.ReceiveHit(precisePosition, 1);
+            if (IsPlayerWithinReach() && player.IsVulnerable(PrecisePosition)) {
+                player.ReceiveHit(PrecisePosition, 1);
             }
         }
         isInHittingStance = false; // take a breather
@@ -185,7 +185,7 @@ public class EnemyController : BaseCharacterController {
             FacePlayer();
             if (HasKnife) {
                 Vector2 nextTargetDestination = GetKnifeThrowingPosition();
-                Vector2 direction = nextTargetDestination - precisePosition;
+                Vector2 direction = nextTargetDestination - PrecisePosition;
                 if (direction.magnitude < 2) {
                     isInHittingStance = true;
                     state = State.PreparingAttack;
@@ -216,14 +216,14 @@ public class EnemyController : BaseCharacterController {
     private void HandleHurt() {
         if (state == State.Hurt) {
             // carry momentum
-            precisePosition += preciseVelocity * Time.deltaTime;
+            PrecisePosition += preciseVelocity * Time.deltaTime;
             SetTransformFromPrecisePosition();
         }
     }
 
     private void HandleFlying() {
         if (state == State.Flying) {
-            precisePosition += preciseVelocity * Time.deltaTime;
+            PrecisePosition += preciseVelocity * Time.deltaTime;
             SetTransformFromPrecisePosition();
             Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
             height = 5f;
@@ -273,13 +273,12 @@ public class EnemyController : BaseCharacterController {
 
     private void WalkTowards(Vector2 targetDestination) {
         preciseVelocity = targetDestination * moveSpeed;
-        TryMoveTo(precisePosition + preciseVelocity * Time.deltaTime);
+        TryMoveTo(PrecisePosition + preciseVelocity * Time.deltaTime);
         if (preciseVelocity != Vector2.zero) {
             state = State.Walking;
         } else {
             state = State.Idle;
         }
-        
     }
 
     private bool IsPlayerWithinReach() {
@@ -293,7 +292,7 @@ public class EnemyController : BaseCharacterController {
         Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
         // find closest screen boundary
         float destX = screenBoundaries.x + buffer;
-        if (Mathf.Abs(precisePosition.x - screenBoundaries.x) > Mathf.Abs(precisePosition.x - screenBoundaries.y)) {
+        if (Mathf.Abs(PrecisePosition.x - screenBoundaries.x) > Mathf.Abs(PrecisePosition.x - screenBoundaries.y)) {
             destX = screenBoundaries.y - buffer;
         }
         return new Vector2(destX, player.transform.position.y);
@@ -311,7 +310,7 @@ public class EnemyController : BaseCharacterController {
         } else {
             target = new Vector2(player.transform.position.x - attackReach, player.transform.position.y);
         }
-        return (target - precisePosition).normalized;
+        return (target - PrecisePosition).normalized;
     }
 
     private void FacePlayer() {
