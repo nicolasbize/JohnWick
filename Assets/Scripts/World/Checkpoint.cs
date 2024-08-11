@@ -27,11 +27,18 @@ public class Checkpoint : MonoBehaviour
     public void Run() {
         if (boss != null) {
             // boss stage
+            boss.OnDeath += OnBossDeath;
             ((IBoss) boss).Activate();
+
         }
         for (int i=0; i<maxEnemiesAtOnce; i++) {
             TryActivateNewEnemy();
         }
+    }
+
+    private void OnBossDeath(object sender, EventArgs e) {
+        OnComplete?.Invoke(this, EventArgs.Empty);
+        isCompleted = true;
     }
 
     private void TryActivateNewEnemy() {

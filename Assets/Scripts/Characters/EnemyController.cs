@@ -11,7 +11,7 @@ public class EnemyController : BaseCharacterController {
 
     [SerializeField] private float flySpeed;
     [SerializeField] private Vector2 minMaxSecsBeforeHitting;
-    [SerializeField] private PlayerController player;
+    //[SerializeField] private PlayerController player;
     [SerializeField] private GarageDoor garageDoor;
     [field:SerializeField] public EnemySO EnemySO { get; private set; }
 
@@ -19,16 +19,19 @@ public class EnemyController : BaseCharacterController {
     private float waitDurationBeforeHit = 0f;
     private bool isInHittingStance = false;
     private Vector3 originalPosition;
+    private PlayerController player;
 
     protected override void Start() {
         base.Start();
         MaxHP = EnemySO.maxHealth;
         CurrentHP = MaxHP;
+        player = PlayerController.Instance;
         player.RegisterEnemy(this);
     }
 
     public void InitializeFromCheckpoint(Checkpoint checkpoint) {
         state = State.WaitingForPlayer;
+        animator.SetBool("IsWalking", false);
         if (!CheckForGarageInitialPosition()) {
             if (!CheckForRoofInitialPosition()) {
                 CheckForBehindPosition(checkpoint);

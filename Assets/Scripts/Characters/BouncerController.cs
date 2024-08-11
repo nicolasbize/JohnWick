@@ -6,7 +6,7 @@ public class BouncerController : BaseCharacterController, IBoss {
 
     public enum AttackType { SuperPunch, NormalAttack }
 
-    [SerializeField] private PlayerController player;
+    //[SerializeField] private PlayerController player;
     [SerializeField] private float minTimeToAttackAfterBlock;
     [SerializeField] private Vector2 minMaxSecsBeforeHitting;
     [SerializeField] private float superPunchPower;
@@ -24,10 +24,12 @@ public class BouncerController : BaseCharacterController, IBoss {
     private float timeSincePreparedToHit = float.NegativeInfinity;
     private float waitDurationBeforeHit = 0f;
     private bool isInHittingStance = false;
+    private PlayerController player;
 
     protected override void Start() {
         base.Start();
         CurrentHP = MaxHP;
+        player = PlayerController.Instance;
         player.RegisterEnemy(this);
         state = State.WaitingForPlayer;
         OnFinishDropping += OnFinishInitialDrop;

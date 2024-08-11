@@ -1,16 +1,20 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Level : MonoBehaviour
 {
-    [SerializeField] private CameraFollow mainCamera;
+    public event EventHandler OnLevelComplete;
+    
     [SerializeField] private List<Checkpoint> checkpoints;
 
     private Checkpoint nextCheckpoint = null;
     private Queue<Checkpoint> checkpointQueue = new Queue<Checkpoint>();
+    private CameraFollow mainCamera;
 
     private void Start() {
+        mainCamera = Camera.main.GetComponent<CameraFollow>();
         mainCamera.OnPositionChange += Camera_OnPositionChange;
         foreach(Checkpoint checkpoint in GetComponentsInChildren<Checkpoint>()) {
             checkpointQueue.Enqueue(checkpoint);
@@ -27,7 +31,7 @@ public class Level : MonoBehaviour
                 UI.Instance.NotifyGoGoGo();
             }
         } else {
-            Debug.Log("completed level");
+            OnLevelComplete?.Invoke(this, EventArgs.Empty);
         }
     }
 
