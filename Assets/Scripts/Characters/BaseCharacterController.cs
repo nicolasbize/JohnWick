@@ -33,6 +33,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     [SerializeField] protected AudioClip hitSound;
     [SerializeField] protected AudioClip hitAltSound;
     [SerializeField] protected AudioClip missSound;
+    [SerializeField] protected AudioClip eatFoodSound;
 
 
     public int CurrentHP { get; protected set; }
@@ -125,24 +126,26 @@ public abstract class BaseCharacterController : MonoBehaviour {
             if (this is PlayerController && destination.x > 294 && destination.y > 28 - (destination.x - 295)) return false;
         }
 
-        if (state == State.Dying) return true;
-        Vector3 targetedPosition = new Vector3(Mathf.FloorToInt(destination.x), Mathf.FloorToInt(destination.y), 0);
-        Vector2 direction = (targetedPosition - transform.position).normalized;
-        LayerMask worldMask = LayerMask.GetMask("World");
-        LayerMask enemyMask = LayerMask.GetMask("Enemy");
-        LayerMask barrelMask = LayerMask.GetMask("Barrel");
-        LayerMask mask;
-        if (this is EnemyController) {
-            mask = enemyMask; // only collide with other enemies
-        } else {
-            mask = worldMask | barrelMask;
-        }
-        RaycastHit2D hit = Physics2D.Raycast(transform.position + Vector3.down * height, direction, 3f, mask);
-        //Debug.DrawRay(transform.position + Vector3.down * Mathf.CeilToInt(height), direction, Color.red);
-        //if (hit.collider != null && hit.collider.gameObject != gameObject) {
-        //    Debug.Log(hit.collider);
+        return true;
+
+        //if (state == State.Dying) return true;
+        //Vector3 targetedPosition = new Vector3(Mathf.FloorToInt(destination.x), Mathf.FloorToInt(destination.y), 0);
+        //Vector2 direction = (targetedPosition - transform.position).normalized;
+        //LayerMask worldMask = LayerMask.GetMask("World");
+        //LayerMask enemyMask = LayerMask.GetMask("Enemy");
+        //LayerMask barrelMask = LayerMask.GetMask("Barrel");
+        //LayerMask mask;
+        //if (this is EnemyController) {
+        //    mask = enemyMask; // only collide with other enemies
+        //} else {
+        //    mask = worldMask | barrelMask;
         //}
-        return hit.collider == null || hit.collider.gameObject == gameObject;
+        //RaycastHit2D hit = Physics2D.Raycast(transform.position + Vector3.down * height, direction, 3f, mask);
+        ////Debug.DrawRay(transform.position + Vector3.down * Mathf.CeilToInt(height), direction, Color.red);
+        ////if (hit.collider != null && hit.collider.gameObject != gameObject) {
+        ////    Debug.Log(hit.collider);
+        ////}
+        //return hit.collider == null || hit.collider.gameObject == gameObject;
     }
 
     protected void HandleDropping() {

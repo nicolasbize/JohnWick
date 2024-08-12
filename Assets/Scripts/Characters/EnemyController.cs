@@ -287,7 +287,7 @@ public class EnemyController : BaseCharacterController {
     }
 
     private bool IsPlayerWithinReach() {
-        bool isYAligned = Mathf.Abs(player.transform.position.y - transform.position.y) < verticalMarginBetweenEnemyAndPlayer;
+        bool isYAligned = Mathf.Abs(player.transform.position.z - transform.position.z) < verticalMarginBetweenEnemyAndPlayer;
         bool isXAligned = Mathf.Abs(player.transform.position.x - transform.position.x) < attackReach + 1;
         return (isYAligned && isXAligned);
     }
@@ -300,7 +300,7 @@ public class EnemyController : BaseCharacterController {
         if (Mathf.Abs(PrecisePosition.x - screenBoundaries.x) > Mathf.Abs(PrecisePosition.x - screenBoundaries.y)) {
             destX = screenBoundaries.y - buffer;
         }
-        return new Vector2(destX, player.transform.position.y);
+        return new Vector2(destX, player.transform.position.z);
     }
 
     private Vector2 GetNextMovementDirection() {
@@ -311,9 +311,9 @@ public class EnemyController : BaseCharacterController {
         }
 
         if (transform.position.x > player.transform.position.x) {
-            target = new Vector2(player.transform.position.x + attackReach, player.transform.position.y);
+            target = new Vector2(player.transform.position.x + attackReach, player.transform.position.z);
         } else {
-            target = new Vector2(player.transform.position.x - attackReach, player.transform.position.y);
+            target = new Vector2(player.transform.position.x - attackReach, player.transform.position.z);
         }
         return (target - PrecisePosition).normalized;
     }

@@ -22,10 +22,12 @@ public class TransitionScreen : MonoBehaviour
 
     public void StartTransition() {
         animator.SetTrigger("HidePlayArea");
+        Debug.Log("hide");
     }
 
     public void FinishTransition() {
         animator.SetTrigger("RevealPlayArea");
+        Debug.Log("reveal");
     }
 
     public void OnScreenHiddenFrame() {

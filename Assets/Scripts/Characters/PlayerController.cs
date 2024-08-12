@@ -134,7 +134,7 @@ public class PlayerController : BaseCharacterController {
 
             // they need to be within distance in the right axis
             bool isAlignedWithPlayer = false;
-            bool isYAligned = Mathf.Abs(enemy.transform.position.y - transform.position.y) < verticalMarginBetweenEnemyAndPlayer;
+            bool isYAligned = Mathf.Abs(enemy.transform.position.z - transform.position.z) < verticalMarginBetweenEnemyAndPlayer;
             bool isXAligned = Mathf.Abs(enemy.transform.position.x - transform.position.x) < attackReach + 1;
             isAlignedWithPlayer = isYAligned && isXAligned;
             if (isAlignedWithPlayer && isInFrontOfPlayer && enemy.IsVulnerable(transform.position)) {
@@ -267,11 +267,15 @@ public class PlayerController : BaseCharacterController {
     private void HandleAttackingWithInput() {
         if (CanAttack() && Input.GetButtonDown("Attack")) {
             // first check if there is something to pick up
-            if (PickableItem != null && (!HasKnife && PickableItem.Type == Pickable.PickableType.Knife)) {
+            if (CanPickUpItemFromGround()) {
                 animator.SetTrigger("Pickup");
                 if (PickableItem.Type == Pickable.PickableType.Knife) {
                     HasKnife = true;
                     UpdateKnifeGameObject();
+                } else if (PickableItem.Type == Pickable.PickableType.Food) {
+                    CurrentHP = MaxHP;
+                    UI.Instance.NotifyHeroHealthChange(this);
+                    audioSource.PlayOneShot(eatFoodSound);
                 }
                 PickableItem.PickupItem();
             } else {
@@ -296,12 +300,19 @@ public class PlayerController : BaseCharacterController {
         }
     }
 
+    private bool CanPickUpItemFromGround() {
+        if (PickableItem == null) return false;
+        if (HasKnife && PickableItem.Type == Pickable.PickableType.Knife) return false;
+        if (PickableItem.Type == Pickable.PickableType.Food) return true;
+        return false;
+    }
+
     private void MaybeBreakBarrel() {
         LayerMask barrelMask = LayerMask.GetMask("Barrel");
         Vector3 direction = IsFacingLeft ? Vector3.left : Vector3.right;
         RaycastHit2D hit = Physics2D.Raycast(transform.position + Vector3.down * height, direction, attackReach, barrelMask);
-        if (hit.collider != null && hit.collider.gameObject.GetComponent<Barrel>() != null) {
-            Barrel barrel = hit.collider.gameObject.GetComponent<Barrel>();
+        if (hit.collider != null && hit.collider.gameObject.GetComponent<Breakable>() != null) {
+            Breakable barrel = hit.collider.gameObject.GetComponent<Breakable>();
             barrel.Break(PrecisePosition);
             audioSource.PlayOneShot(hitAltSound);
         }
@@ -331,7 +342,11 @@ public class PlayerController : BaseCharacterController {
     }
 
     private void HandleLevelTransition() {
+        animator.SetBool("IsFalling", false);
+        animator.SetBool("IsJumping", false);
         animator.SetBool("IsWalking", true);
+        height = 0;
+        SetTransformFromPrecisePosition();
         characterSprite.flipX = false;
         Vector2 distanceToNextPoint = transitionDestinations[currentTransitionDestinationIndex] - PrecisePosition;
         if (distanceToNextPoint.magnitude < 1) {

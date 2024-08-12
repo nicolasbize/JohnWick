@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4359547542037447201}
   - component: {fileID: 1269160063363969064}
   m_Layer: 9
-  m_Name: Pickable
+  m_Name: PickableKnife
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -156,7 +156,7 @@ GameObject:
   - component: {fileID: 8506164408912519983}
   - component: {fileID: 8724238437955593087}
   m_Layer: 9
-  m_Name: KnifeSprite
+  m_Name: PickableSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

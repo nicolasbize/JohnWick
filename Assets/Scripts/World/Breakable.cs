@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-public class Barrel : MonoBehaviour
+public class Breakable : MonoBehaviour
 {
-    [SerializeField] private Transform barrelSprite;
-    [SerializeField] private Transform brokenSprite;
-    [SerializeField] private Transform capSprite;
-    [SerializeField] private Pickable.PickableType spawns;
+    [SerializeField] private Transform cleanObjectSprite;
+    [SerializeField] private Transform brokenObjectSprite;
+    [SerializeField] private Transform bottomFixedSprite;
     [SerializeField] private Pickable pickablePrefab;
 
     private bool broken = false;
@@ -33,12 +32,12 @@ public class Barrel : MonoBehaviour
             dzHeight -= gravity * Time.deltaTime;
             height += dzHeight;
             precisePosition += velocity * Time.deltaTime;
-            brokenSprite.transform.position = new Vector3(Mathf.FloorToInt(precisePosition.x), Mathf.FloorToInt(precisePosition.y + height), Mathf.FloorToInt(precisePosition.y));
+            brokenObjectSprite.transform.position = new Vector3(Mathf.FloorToInt(precisePosition.x), Mathf.FloorToInt(precisePosition.y + height), Mathf.FloorToInt(precisePosition.y));
             transform.gameObject.layer = LayerMask.NameToLayer("Pickable");
             if (height <= 0 && nbBouncesLeft > 0) {
                 dzHeight = nbBouncesLeft / 2;
                 nbBouncesLeft -= 1;
-                brokenSprite.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, .5f + nbBouncesLeft * 0.2f);
+                brokenObjectSprite.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, .5f + nbBouncesLeft * 0.2f);
             } else if (height <= 0 && nbBouncesLeft <= 0) {
                 broken = false;
                 height = 0;
@@ -51,9 +50,9 @@ public class Barrel : MonoBehaviour
     public void Break(Vector2 hitPosition) {
         if (!broken) {
             broken = true;
-            barrelSprite.GetComponent<SpriteRenderer>().enabled = false;
-            capSprite.GetComponent<SpriteRenderer>().enabled = true;
-            brokenSprite.GetComponent<SpriteRenderer>().enabled = true;
+            cleanObjectSprite.GetComponent<SpriteRenderer>().enabled = false;
+            bottomFixedSprite.GetComponent<SpriteRenderer>().enabled = true;
+            brokenObjectSprite.GetComponent<SpriteRenderer>().enabled = true;
             velocity = new Vector2(transform.position.x - hitPosition.x, 0).normalized * intensity;
             Pickable pickable = Instantiate<Pickable>(pickablePrefab, transform.parent);
             pickable.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.y);

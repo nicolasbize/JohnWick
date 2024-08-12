@@ -30,13 +30,6 @@ public class World : MonoBehaviour
         PlayerController.Instance.ReturnControlsToPlayer();
     }
 
-    private void OnTransitionReadyToLoadLevel(object sender, EventArgs e) {
-        Camera.main.GetComponent<CameraFollow>().StartNewLevel();
-        PlayerController.Instance.StartNewLevel();
-        LoadLevel(currentLevel);
-        TransitionScreen.Instance.FinishTransition();
-    }
-
     private void OnCameraPositionChange(object sender, EventArgs e) {
         if (Camera.main.transform.position.x >= 320) {
             Camera.main.transform.position = new Vector3(320, 32, -10); // lock at end of level
@@ -67,5 +60,12 @@ public class World : MonoBehaviour
         } else {
             Debug.Log("complete game");
         }
+    }
+
+    private void OnTransitionReadyToLoadLevel(object sender, EventArgs e) {
+        Camera.main.GetComponent<CameraFollow>().StartNewLevel();
+        PlayerController.Instance.StartNewLevel();
+        LoadLevel(currentLevel);
+        TransitionScreen.Instance.FinishTransition();
     }
 }

@@ -56,6 +56,7 @@ public class BouncerController : BaseCharacterController, IBoss {
         if (!hasStartedEngaging) return false;
         if (isBlocking) return false;
         if (state == State.Flying) return false;
+        if (CurrentHP <= 0) return false;
         if (state == State.Hurt || state == State.Falling || state == State.Grounded) return false;
         return true;
     }
@@ -233,15 +234,15 @@ public class BouncerController : BaseCharacterController, IBoss {
         }
 
         if (transform.position.x > player.transform.position.x) {
-            target = new Vector2(player.transform.position.x + attackReach, player.transform.position.y);
+            target = new Vector2(player.transform.position.x + attackReach, player.transform.position.z);
         } else {
-            target = new Vector2(player.transform.position.x - attackReach, player.transform.position.y);
+            target = new Vector2(player.transform.position.x - attackReach, player.transform.position.z);
         }
         return (target - PrecisePosition).normalized;
     }
 
     private bool IsPlayerWithinReach() {
-        bool isYAligned = Mathf.Abs(player.transform.position.y - transform.position.y) < verticalMarginBetweenEnemyAndPlayer;
+        bool isYAligned = Mathf.Abs(player.transform.position.z - transform.position.z) < verticalMarginBetweenEnemyAndPlayer;
         bool isXAligned = Mathf.Abs(player.transform.position.x - transform.position.x) < attackReach + 1;
         return (isYAligned && isXAligned);
     }

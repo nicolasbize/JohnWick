@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 589692623516594814}
   - component: {fileID: 4162434911251939407}
   m_Layer: 10
-  m_Name: BrokenBarrelSprite
+  m_Name: BrokenObjectSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -73,7 +73,7 @@ SpriteRenderer:
   m_SortingLayerID: -899559445
   m_SortingLayer: 4
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 7f91fecd5ac27144a9bc8099871e70b5, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -81,7 +81,7 @@ SpriteRenderer:
   m_Size: {x: 32, y: 32}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &4542020243718379712
@@ -97,7 +97,7 @@ GameObject:
   - component: {fileID: 4508855066819479496}
   - component: {fileID: 3524469026353583134}
   m_Layer: 10
-  m_Name: Barrel
+  m_Name: Breakable
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -133,10 +133,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70464603422872c4895e417fcfd22402, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  barrelSprite: {fileID: 1069943643210829106}
-  brokenSprite: {fileID: 589692623516594814}
-  capSprite: {fileID: 3698718774209972797}
-  spawns: 0
+  cleanObjectSprite: {fileID: 1069943643210829106}
+  brokenObjectSprite: {fileID: 589692623516594814}
+  bottomFixedSprite: {fileID: 3698718774209972797}
   pickablePrefab: {fileID: 6911809719835533780, guid: f8a876390a6eeb54bb5e7653879895ba, type: 3}
 --- !u!50 &4508855066819479496
 Rigidbody2D:
@@ -221,7 +220,7 @@ GameObject:
   - component: {fileID: 1069943643210829106}
   - component: {fileID: 2027886902674865844}
   m_Layer: 10
-  m_Name: BarrelSprite
+  m_Name: CleanObjectSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -283,7 +282,7 @@ SpriteRenderer:
   m_SortingLayerID: -899559445
   m_SortingLayer: 4
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 0462250d109394644a98e4c824f90b7a, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -291,7 +290,7 @@ SpriteRenderer:
   m_Size: {x: 32, y: 32}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &9049673591149443041
@@ -305,7 +304,7 @@ GameObject:
   - component: {fileID: 3698718774209972797}
   - component: {fileID: 3330322963500009487}
   m_Layer: 10
-  m_Name: BarreilCapSprite
+  m_Name: BottomFixedSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -367,7 +366,7 @@ SpriteRenderer:
   m_SortingLayerID: -899559445
   m_SortingLayer: 4
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: d3514812219ffe7468213fbf34c7c223, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -375,6 +374,6 @@ SpriteRenderer:
   m_Size: {x: 32, y: 32}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
