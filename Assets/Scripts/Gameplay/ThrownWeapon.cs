@@ -1,10 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class Knife : MonoBehaviour
+public class ThrownWeapon : MonoBehaviour
 {
     [SerializeField] private int damage;
     [SerializeField] private float speed;
@@ -12,7 +8,7 @@ public class Knife : MonoBehaviour
     [SerializeField] private float height;
     [field:SerializeField] public Vector2 Direction { get; set; }
     [field:SerializeField] public BaseCharacterController Emitter { get; set; }
-    [SerializeField] private SpriteRenderer knifeSprite;
+    [SerializeField] private SpriteRenderer weaponSprite;
 
     private Vector2 position;
 
@@ -24,7 +20,7 @@ public class Knife : MonoBehaviour
 
     void Update()
     {
-        knifeSprite.flipX = Direction.x < 0;
+        weaponSprite.flipX = Direction.x < 0;
         position += speed * Direction * Time.deltaTime;
         transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y + height), Mathf.FloorToInt(position.y));
 

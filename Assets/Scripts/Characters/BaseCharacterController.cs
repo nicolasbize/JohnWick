@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
@@ -30,7 +31,9 @@ public abstract class BaseCharacterController : MonoBehaviour {
     [SerializeField] protected Transform gunTransform;
     [SerializeField] protected float gravity = 10f;
     [SerializeField] protected float verticalMarginBetweenEnemyAndPlayer;
-    [SerializeField] protected Knife knifePrefab; // knife that characters can throw
+    [SerializeField] protected ThrownWeapon thrownKnifePrefab; // knife that characters can throw
+    [SerializeField] protected ThrownWeapon thrownGunPrefab; // gun that characters can throw
+    [SerializeField] protected BulletShot bulletPrefab; // bullets that are shot
     [SerializeField] protected Pickable pickableKnifePrefab; // knife that the character can drop
     [SerializeField] protected Pickable pickableGunPrefab; // gun that the character can drop
     [SerializeField] protected Spark sparkPrefab;
@@ -38,6 +41,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     [SerializeField] protected AudioClip hitAltSound;
     [SerializeField] protected AudioClip missSound;
     [SerializeField] protected AudioClip eatFoodSound;
+    [SerializeField] protected AudioClip gunshotSound;
 
 
     public int CurrentHP { get; protected set; }
@@ -49,6 +53,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     protected float timeSinceGrounded = float.NegativeInfinity;
     protected float timeLastKnifeThrown = float.NegativeInfinity;
     protected float timeLastGunShot = float.NegativeInfinity;
+    protected int bulletsLeft = 3;
     public Vector2 PrecisePosition { get; protected set; } = Vector2.zero; // x axis goes from -32 to end of level, y goes from -32 to 0
     protected float height = 0f;
     protected float dzHeight = 0f;
@@ -101,8 +106,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     }
 
     protected void ThrowKnife() {
-        Knife knife = Instantiate(knifePrefab);
-        knife.transform.SetParent(transform.parent);
+        ThrownWeapon knife = Instantiate(thrownKnifePrefab, transform.parent);
         knife.Direction = IsFacingLeft ? Vector2.left : Vector2.right;
         knife.transform.position = transform.position + (IsFacingLeft ? Vector3.left : Vector3.right) * 8;
         knife.Emitter = this;
@@ -110,8 +114,63 @@ public abstract class BaseCharacterController : MonoBehaviour {
         knifeTransform.gameObject.SetActive(false);
     }
 
+    protected void ThrowGun() {
+        ThrownWeapon knife = Instantiate(thrownGunPrefab, transform.parent);
+        knife.Direction = IsFacingLeft ? Vector2.left : Vector2.right;
+        knife.transform.position = transform.position + (IsFacingLeft ? Vector3.left : Vector3.right) * 8;
+        knife.Emitter = this;
+        HasGun = false;
+        gunTransform.gameObject.SetActive(false);
+
+    }
+
     protected void ShootGun() {
-        Debug.Log("shoot gun");
+        float hMargin = (this is PlayerController) ? 20 : 24;
+        float vMargin = (this is PlayerController) ? 15 : 17;
+        BulletShot shot = Instantiate(bulletPrefab, transform.parent);
+        shot.transform.position = transform.position + (IsFacingLeft ? Vector3.left : Vector3.right) * hMargin; // size of gun
+        Vector3 startBulletTrail = shot.transform.position + Vector3.up * vMargin; // 17 height, compensate on Y axis
+        Vector3 endBulletTrail = Vector3.zero;
+        List<BaseCharacterController> possibleTargets = new List<BaseCharacterController>(GameObject.FindObjectsOfType<BaseCharacterController>());
+        Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
+        float shotLength = 0;
+        if (IsFacingLeft) {
+            shotLength = startBulletTrail.x - screenBoundaries.x;
+        } else {
+            shotLength = screenBoundaries.y - startBulletTrail.x;
+        }
+        BaseCharacterController target = GetShotTarget(shot.transform.position, IsFacingLeft ? Vector3.left : Vector3.right, 1, shotLength, possibleTargets);
+        if (target == null) {
+            endBulletTrail = new Vector3(IsFacingLeft ? screenBoundaries.x : screenBoundaries.y, startBulletTrail.y, startBulletTrail.z);
+        } else {
+            endBulletTrail = new Vector3(target.transform.position.x, startBulletTrail.y, startBulletTrail.z);
+        }
+        shot.SetUp(startBulletTrail, endBulletTrail);
+
+        // deal damage
+        if (target != null) {
+            int damage = 6;
+            if (this is PlayerController) { damage *= 2; }
+            target.ReceiveHit(PrecisePosition, damage, Hit.Type.Knockdown);
+        }
+        audioSource.PlayOneShot(gunshotSound);
+    }
+
+    private BaseCharacterController GetShotTarget(Vector3 startGroundPosition, Vector3 direction, int currentLength, float lengthLimit, List<BaseCharacterController> possibleTargets) {
+        if (currentLength >= lengthLimit) return null;
+        float buffer = 3;
+        bool headingLeft = direction == Vector3.left;
+        float rectXStart = headingLeft ? (startGroundPosition.x - currentLength) : startGroundPosition.x;
+        float rectYStart = startGroundPosition.z - buffer;
+        float rectWidth = currentLength;
+        float rectHeight = buffer * 2;
+        Rect rect = new Rect(rectXStart, rectYStart, rectWidth, rectHeight);
+        foreach(BaseCharacterController target in possibleTargets) {
+            if (target.IsVulnerable(startGroundPosition) && rect.Contains(new Vector2(target.transform.position.x, target.transform.position.z))) {
+                return target;
+            }
+        }
+        return GetShotTarget(startGroundPosition, direction, currentLength + 1, lengthLimit, possibleTargets);
     }
 
     protected void SetTransformFromPrecisePosition() {

@@ -341,6 +341,9 @@ public class EnemyController : BaseCharacterController {
             if (HasKnife) {
                 knifeTransform.GetComponent<SpriteRenderer>().flipX = characterSprite.flipX;
             }
+            if (HasGun) {
+                gunTransform.GetComponent<SpriteRenderer>().flipX = characterSprite.flipX;
+            }
             IsFacingLeft = characterSprite.flipX;
         }
     }

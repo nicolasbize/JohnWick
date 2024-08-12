@@ -6,7 +6,8 @@ public class PlayerController : BaseCharacterController {
 
     [SerializeField] private float jumpForce;
     [SerializeField] private float comboAttackMaxDuration; // s to perform combo
-
+    
+    public List<BaseCharacterController> Enemies { get; private set; }
     private bool isTransitioningLevel = false;
     private bool hasFinishedTransition = false;
     private bool hasCompletedLevel = false;
@@ -15,6 +16,10 @@ public class PlayerController : BaseCharacterController {
     private List<Vector2> transitionDestinations = new List<Vector2>() {
         new Vector2(300, 3), new Vector2(360, 3)
     };
+    private List<string> comboAttackTriggers = new List<string>() {
+        "Punch", "Punch", "PunchAlt", "Kick", "Roundhouse"
+    };
+    private int currentComboIndex = 0;
     private int currentTransitionDestinationIndex = 0;
 
     public Pickable PickableItem { get; set; }
@@ -23,6 +28,7 @@ public class PlayerController : BaseCharacterController {
 
     protected override void Awake() {
         base.Awake();
+        Enemies = new List<BaseCharacterController>();
         Instance = this;
     }
 
@@ -42,7 +48,7 @@ public class PlayerController : BaseCharacterController {
         animator.SetBool("IsWalking", false);
         height = 0;
         SetTransformFromPrecisePosition();
-        enemies.Clear();
+        Enemies.Clear();
         hasCompletedLevel = false;
     }
 
@@ -55,21 +61,15 @@ public class PlayerController : BaseCharacterController {
         isTransitioningLevel = true;
     }
 
-    private List<string> comboAttackTriggers = new List<string>() {
-        "Punch", "Punch", "PunchAlt", "Kick", "Roundhouse"
-    };
-    private int currentComboIndex = 0;
-    private List<BaseCharacterController> enemies = new List<BaseCharacterController>();
-
     public void RegisterEnemy(BaseCharacterController enemy) {
-        if (!enemies.Contains(enemy)) {
-            enemies.Add(enemy);
+        if (!Enemies.Contains(enemy)) {
+            Enemies.Add(enemy);
         }
     }
 
     public void UnregisterEnemy(BaseCharacterController enemy) {
-        if (enemies.Contains(enemy)) {
-            enemies.Remove(enemy);
+        if (Enemies.Contains(enemy)) {
+            Enemies.Remove(enemy);
         }
     }
 
@@ -127,7 +127,7 @@ public class PlayerController : BaseCharacterController {
     protected override void MaybeInductDamage(bool muteMissSounds = false) {
         bool hasHitEnemy = false;
         // get list of vulnerable enemies within distance.
-        foreach (BaseCharacterController enemy in enemies) {
+        foreach (BaseCharacterController enemy in Enemies) {
             // they need to be facing the direction of the hit
             bool isInFrontOfPlayer = false;
             if (IsFacingLeft && enemy.transform.position.x < transform.position.x) {
@@ -216,7 +216,7 @@ public class PlayerController : BaseCharacterController {
         SetTransformFromPrecisePosition();
         CurrentHP = MaxHP;
         UI.Instance.NotifyHeroHealthChange(this);
-        foreach (BaseCharacterController enemy in enemies) {
+        foreach (BaseCharacterController enemy in Enemies) {
             if (enemy.state != State.WaitingForPlayer) {
                 enemy.ReceiveHit(PrecisePosition, 0, Hit.Type.Knockdown);
             }
@@ -277,6 +277,10 @@ public class PlayerController : BaseCharacterController {
                 if (PickableItem.Type == Pickable.PickableType.Knife) {
                     HasKnife = true;
                     UpdateKnifeGameObject();
+                } else if (PickableItem.Type == Pickable.PickableType.Gun) {
+                    HasGun = true;
+                    bulletsLeft = 3;
+                    UpdateGunGameObject();
                 } else if (PickableItem.Type == Pickable.PickableType.Food) {
                     CurrentHP = MaxHP;
                     UI.Instance.NotifyHeroHealthChange(this);
@@ -293,6 +297,14 @@ public class PlayerController : BaseCharacterController {
                         animator.SetTrigger("PunchAlt");
                         ThrowKnife();
                         // don't perform an attack if throwing the knife already
+                    } else if (HasGun) {
+                        animator.SetTrigger("Punch");
+                        if (bulletsLeft > 0) {
+                            bulletsLeft -= 1;
+                            ShootGun();
+                        } else {
+                            ThrowGun();
+                        }
                     } else {
                         animator.SetTrigger(comboAttackTriggers[currentComboIndex]);
                         state = State.Attacking;
@@ -307,13 +319,14 @@ public class PlayerController : BaseCharacterController {
 
     private bool CanPickUpItemFromGround() {
         if (PickableItem == null) return false;
+        if (HasKnife || HasGun) return false;
         if (HasKnife && PickableItem.Type == Pickable.PickableType.Knife) return false;
-        if (PickableItem.Type == Pickable.PickableType.Food) return true;
-        return false;
+        if (HasGun && PickableItem.Type == Pickable.PickableType.Gun) return false;
+        return true;
     }
 
     private void MaybeBreakBarrel() {
-        LayerMask barrelMask = LayerMask.GetMask("Barrel");
+        LayerMask barrelMask = LayerMask.GetMask("Breakable");
         Vector3 direction = IsFacingLeft ? Vector3.left : Vector3.right;
         RaycastHit2D hit = Physics2D.Raycast(transform.position + Vector3.down * height, direction, attackReach, barrelMask);
         if (hit.collider != null && hit.collider.gameObject.GetComponent<Breakable>() != null) {
@@ -335,6 +348,7 @@ public class PlayerController : BaseCharacterController {
                 if (preciseVelocity.x != 0f) {
                     characterSprite.flipX = preciseVelocity.x < 0;
                     knifeTransform.GetComponent<SpriteRenderer>().flipX = characterSprite.flipX;
+                    gunTransform.GetComponent<SpriteRenderer>().flipX = characterSprite.flipX;
                     IsFacingLeft = characterSprite.flipX;
                 }
                 animator.SetBool("IsWalking", true);

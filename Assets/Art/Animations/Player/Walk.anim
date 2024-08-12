@@ -38,6 +38,27 @@ AnimationClip:
     classID: 212
     script: {fileID: 0}
     flags: 0
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: Infinity
+        outSlope: Infinity
+        tangentMode: 103
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: m_Enabled
+    path: GunSprite
+    classID: 212
+    script: {fileID: 0}
+    flags: 0
   m_PPtrCurves:
   - serializedVersion: 2
     curve:
@@ -85,6 +106,29 @@ AnimationClip:
     classID: 212
     script: {fileID: 0}
     flags: 2
+  - serializedVersion: 2
+    curve:
+    - time: 0
+      value: {fileID: -1621774231, guid: dea512d301ac2ef4aa5106a1b70355d3, type: 3}
+    - time: 0.083333336
+      value: {fileID: -1878169394, guid: dea512d301ac2ef4aa5106a1b70355d3, type: 3}
+    - time: 0.16666667
+      value: {fileID: 2115814100, guid: dea512d301ac2ef4aa5106a1b70355d3, type: 3}
+    - time: 0.25
+      value: {fileID: -1500042773, guid: dea512d301ac2ef4aa5106a1b70355d3, type: 3}
+    - time: 0.33333334
+      value: {fileID: -1986982775, guid: dea512d301ac2ef4aa5106a1b70355d3, type: 3}
+    - time: 0.41666666
+      value: {fileID: -366403386, guid: dea512d301ac2ef4aa5106a1b70355d3, type: 3}
+    - time: 0.5
+      value: {fileID: 1183654738, guid: dea512d301ac2ef4aa5106a1b70355d3, type: 3}
+    - time: 0.5833333
+      value: {fileID: 285966988, guid: dea512d301ac2ef4aa5106a1b70355d3, type: 3}
+    attribute: m_Sprite
+    path: GunSprite
+    classID: 212
+    script: {fileID: 0}
+    flags: 2
   m_SampleRate: 12
   m_WrapMode: 0
   m_Bounds:
@@ -94,6 +138,15 @@ AnimationClip:
     genericBindings:
     - serializedVersion: 2
       path: 3984182542
+      attribute: 3305885265
+      script: {fileID: 0}
+      typeID: 212
+      customType: 0
+      isPPtrCurve: 0
+      isIntCurve: 0
+      isSerializeReferenceCurve: 0
+    - serializedVersion: 2
+      path: 3769694503
       attribute: 3305885265
       script: {fileID: 0}
       typeID: 212
@@ -119,6 +172,15 @@ AnimationClip:
       isPPtrCurve: 1
       isIntCurve: 0
       isSerializeReferenceCurve: 0
+    - serializedVersion: 2
+      path: 3769694503
+      attribute: 0
+      script: {fileID: 0}
+      typeID: 212
+      customType: 23
+      isPPtrCurve: 1
+      isIntCurve: 0
+      isSerializeReferenceCurve: 0
     pptrCurveMapping:
     - {fileID: -196878793, guid: 4a7ce129be01d30409499f92a6a46e86, type: 3}
     - {fileID: 368669001, guid: 4a7ce129be01d30409499f92a6a46e86, type: 3}
@@ -136,6 +198,14 @@ AnimationClip:
     - {fileID: 867912693, guid: 7aedb1b30b99e7146a6e623b18902fb1, type: 3}
     - {fileID: 1466295150, guid: 7aedb1b30b99e7146a6e623b18902fb1, type: 3}
     - {fileID: -162370832, guid: 7aedb1b30b99e7146a6e623b18902fb1, type: 3}
+    - {fileID: -1621774231, guid: dea512d301ac2ef4aa5106a1b70355d3, type: 3}
+    - {fileID: -1878169394, guid: dea512d301ac2ef4aa5106a1b70355d3, type: 3}
+    - {fileID: 2115814100, guid: dea512d301ac2ef4aa5106a1b70355d3, type: 3}
+    - {fileID: -1500042773, guid: dea512d301ac2ef4aa5106a1b70355d3, type: 3}
+    - {fileID: -1986982775, guid: dea512d301ac2ef4aa5106a1b70355d3, type: 3}
+    - {fileID: -366403386, guid: dea512d301ac2ef4aa5106a1b70355d3, type: 3}
+    - {fileID: 1183654738, guid: dea512d301ac2ef4aa5106a1b70355d3, type: 3}
+    - {fileID: 285966988, guid: dea512d301ac2ef4aa5106a1b70355d3, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
@@ -175,6 +245,27 @@ AnimationClip:
       m_RotationOrder: 4
     attribute: m_Enabled
     path: KnifeSprite
+    classID: 212
+    script: {fileID: 0}
+    flags: 0
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: Infinity
+        outSlope: Infinity
+        tangentMode: 103
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: m_Enabled
+    path: GunSprite
     classID: 212
     script: {fileID: 0}
     flags: 0

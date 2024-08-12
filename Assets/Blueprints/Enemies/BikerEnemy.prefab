@@ -244,7 +244,9 @@ MonoBehaviour:
   gunTransform: {fileID: 6170936972820010946}
   gravity: 10
   verticalMarginBetweenEnemyAndPlayer: 4
-  knifePrefab: {fileID: 108443578691346250, guid: 0b40b998f539b6b4ba3c286736f5e081, type: 3}
+  thrownKnifePrefab: {fileID: 4824403491020556580, guid: cb0f5702f90b0aa48a8fcfd2d3d43c6a, type: 3}
+  thrownGunPrefab: {fileID: 5520326337920326713, guid: 48d64806135c3e04f9c00c4fdabc6256, type: 3}
+  bulletPrefab: {fileID: 4872141529519009010, guid: 55864b95ea4118f419d37ab0e79def35, type: 3}
   pickableKnifePrefab: {fileID: 6911809719835533780, guid: f8a876390a6eeb54bb5e7653879895ba, type: 3}
   pickableGunPrefab: {fileID: 5216701432650965002, guid: b1df808ac0e0e2446bfb1f0c812b02a3, type: 3}
   sparkPrefab: {fileID: 5678868446284842596, guid: a0b29e60691760b4bb48a4ab60cd1739, type: 3}
@@ -252,6 +254,7 @@ MonoBehaviour:
   hitAltSound: {fileID: 8300000, guid: 6bfba2b2a069af442ac5a10f21b36aad, type: 3}
   missSound: {fileID: 8300000, guid: e5f51d2c17182c04d85de18a16f87cd1, type: 3}
   eatFoodSound: {fileID: 8300000, guid: 283faac1d43a79248911578cd6f8f53f, type: 3}
+  gunshotSound: {fileID: 8300000, guid: fd14cc8459ac1f844b08948c8a9b9405, type: 3}
   flySpeed: 70
   minMaxSecsBeforeHitting: {x: 0.2, y: 1.5}
   garageDoor: {fileID: 0}

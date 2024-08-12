@@ -413,7 +413,7 @@ PrefabInstance:
     - target: {fileID: 1923661198946867605, guid: ba65db84b82fbe64dbb433ea692add8d, type: 3}
       propertyPath: pickablePrefab
       value: 
-      objectReference: {fileID: 6911809719835533780, guid: f8a876390a6eeb54bb5e7653879895ba, type: 3}
+      objectReference: {fileID: 7327701179229349178, guid: b4ab97adfc3769a4a97f322286c4c2e8, type: 3}
     - target: {fileID: 1993086505957487291, guid: ba65db84b82fbe64dbb433ea692add8d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 24
@@ -673,6 +673,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3399024812526411020, guid: 069851cbc16e90d49a691128e067f0b8, type: 3}
+      propertyPath: pickablePrefab
+      value: 
+      objectReference: {fileID: 5216701432650965002, guid: b1df808ac0e0e2446bfb1f0c812b02a3, type: 3}
     - target: {fileID: 8674948322937509443, guid: 069851cbc16e90d49a691128e067f0b8, type: 3}
       propertyPath: m_Name
       value: BreakableJukebox

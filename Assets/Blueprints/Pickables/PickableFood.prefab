@@ -24,6 +24,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: PickableFood
       objectReference: {fileID: 0}
+    - target: {fileID: 5628844397087162112, guid: f8a876390a6eeb54bb5e7653879895ba, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5982720784976138346, guid: f8a876390a6eeb54bb5e7653879895ba, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6911809719835533780, guid: f8a876390a6eeb54bb5e7653879895ba, type: 3}
       propertyPath: <Type>k__BackingField
       value: 2

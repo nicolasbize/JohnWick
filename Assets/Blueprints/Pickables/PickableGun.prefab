@@ -24,6 +24,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: PickableGun
       objectReference: {fileID: 0}
+    - target: {fileID: 5628844397087162112, guid: f8a876390a6eeb54bb5e7653879895ba, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6911809719835533780, guid: f8a876390a6eeb54bb5e7653879895ba, type: 3}
+      propertyPath: <Type>k__BackingField
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6911809719835533780, guid: f8a876390a6eeb54bb5e7653879895ba, type: 3}
+      propertyPath: <IsPickable>k__BackingField
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7437145215732146559, guid: f8a876390a6eeb54bb5e7653879895ba, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8506164408912519983, guid: f8a876390a6eeb54bb5e7653879895ba, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -3
+      objectReference: {fileID: 0}
     - target: {fileID: 8724238437955593087, guid: f8a876390a6eeb54bb5e7653879895ba, type: 3}
       propertyPath: m_Sprite
       value: 

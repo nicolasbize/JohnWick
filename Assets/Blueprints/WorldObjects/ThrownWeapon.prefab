@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 688099008159389518}
   - component: {fileID: 3892142688850214156}
   m_Layer: 8
-  m_Name: KnifeSprite
+  m_Name: WeaponSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -181,7 +181,7 @@ GameObject:
   - component: {fileID: 3492388778826918171}
   - component: {fileID: 4667219485774660312}
   m_Layer: 8
-  m_Name: Knife
+  m_Name: ThrownWeapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -216,13 +216,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c91bcda28985b254292fe3df31c59360, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 10
-  speed: 100
+  damage: 0
+  speed: 150
   zHitBuffer: 4
-  height: 0
+  height: 10
   <Direction>k__BackingField: {x: 0, y: 0}
   <Emitter>k__BackingField: {fileID: 0}
-  knifeSprite: {fileID: 3892142688850214156}
+  weaponSprite: {fileID: 3892142688850214156}
 --- !u!61 &3492388778826918171
 BoxCollider2D:
   m_ObjectHideFlags: 0
