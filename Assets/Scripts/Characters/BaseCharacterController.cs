@@ -110,8 +110,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
         knife.Direction = IsFacingLeft ? Vector2.left : Vector2.right;
         knife.transform.position = transform.position + (IsFacingLeft ? Vector3.left : Vector3.right) * 8;
         knife.Emitter = this;
-        HasKnife = false;
-        knifeTransform.gameObject.SetActive(false);
+        DropAllCarriedWeapons();
     }
 
     protected void ThrowGun() {
@@ -119,9 +118,14 @@ public abstract class BaseCharacterController : MonoBehaviour {
         knife.Direction = IsFacingLeft ? Vector2.left : Vector2.right;
         knife.transform.position = transform.position + (IsFacingLeft ? Vector3.left : Vector3.right) * 8;
         knife.Emitter = this;
-        HasGun = false;
-        gunTransform.gameObject.SetActive(false);
+        DropAllCarriedWeapons();
+    }
 
+    protected void DropAllCarriedWeapons() {
+        HasKnife = false;
+        HasGun = false;
+        knifeTransform.gameObject.SetActive(false);
+        gunTransform.gameObject.SetActive(false);
     }
 
     protected void ShootGun() {

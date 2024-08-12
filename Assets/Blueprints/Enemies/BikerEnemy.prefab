@@ -247,7 +247,7 @@ MonoBehaviour:
   thrownKnifePrefab: {fileID: 4824403491020556580, guid: cb0f5702f90b0aa48a8fcfd2d3d43c6a, type: 3}
   thrownGunPrefab: {fileID: 5520326337920326713, guid: 48d64806135c3e04f9c00c4fdabc6256, type: 3}
   bulletPrefab: {fileID: 4872141529519009010, guid: 55864b95ea4118f419d37ab0e79def35, type: 3}
-  pickableKnifePrefab: {fileID: 6911809719835533780, guid: f8a876390a6eeb54bb5e7653879895ba, type: 3}
+  pickableKnifePrefab: {fileID: 7327701179229349178, guid: b4ab97adfc3769a4a97f322286c4c2e8, type: 3}
   pickableGunPrefab: {fileID: 5216701432650965002, guid: b1df808ac0e0e2446bfb1f0c812b02a3, type: 3}
   sparkPrefab: {fileID: 5678868446284842596, guid: a0b29e60691760b4bb48a4ab60cd1739, type: 3}
   hitSound: {fileID: 8300000, guid: aa765145c85d354459fb21f51adab87f, type: 3}

@@ -86,6 +86,7 @@ public class PlayerController : BaseCharacterController {
                 dzHeight = 1f;
                 Camera.main.GetComponent<CameraFollow>().Shake(0.05f, 1);
                 GenerateSparkFX();
+                DropAllCarriedWeapons();
                 audioSource.PlayOneShot(hitAltSound);
             } else {
                 preciseVelocity = attackVector * (moveSpeed / 2f);
@@ -208,6 +209,7 @@ public class PlayerController : BaseCharacterController {
 
     public void Respawn() {
         state = State.Jumping;
+        DropAllCarriedWeapons();
         animator.SetBool("IsJumping", true);
         Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
         float midX = Mathf.FloorToInt((screenBoundaries.y - screenBoundaries.x) / 2f);
