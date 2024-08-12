@@ -17,6 +17,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1335151725134185513}
     - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
+      propertyPath: timeBetweenGunShot
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
       propertyPath: <MaxHP>k__BackingField
       value: 12
       objectReference: {fileID: 0}

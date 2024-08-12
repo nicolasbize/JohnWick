@@ -2264,15 +2264,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 776311642961518749, guid: ec368bcf2e700744ebd6b0726293f06e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.3
+      value: -20
       objectReference: {fileID: 0}
     - target: {fileID: 776311642961518749, guid: ec368bcf2e700744ebd6b0726293f06e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 20
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 776311642961518749, guid: ec368bcf2e700744ebd6b0726293f06e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 20
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 776311642961518749, guid: ec368bcf2e700744ebd6b0726293f06e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2308,10 +2308,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2323785191009764439, guid: ec368bcf2e700744ebd6b0726293f06e, type: 3}
       propertyPath: m_SpriteSortPoint
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5734042204317750788, guid: ec368bcf2e700744ebd6b0726293f06e, type: 3}
-      propertyPath: <HasGun>k__BackingField
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7369300865647574163, guid: ec368bcf2e700744ebd6b0726293f06e, type: 3}

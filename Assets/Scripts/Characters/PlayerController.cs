@@ -38,7 +38,7 @@ public class PlayerController : BaseCharacterController {
     }
 
     public void StartNewLevel() {
-        PrecisePosition = new Vector3(-10, 20, 20);
+        PrecisePosition = new Vector3(-20, 6, 6);
         preciseVelocity = Vector3.zero;
         CurrentHP = MaxHP;
         UI.Instance.NotifyHeroHealthChange(this);
