@@ -1,9 +1,11 @@
 using System;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class EnemyController : BaseCharacterController {
     
-    public enum Type { Biker, Goon, Punk, StreetBoss, Thug}
+    public enum Type { Biker, Goon, Punk, StreetBoss, Thug, LoneWolf, Ruffian, BarBoss}
 
     [SerializeField] private float flySpeed;
     [SerializeField] private Vector2 minMaxSecsBeforeHitting;
@@ -20,7 +22,6 @@ public class EnemyController : BaseCharacterController {
 
     protected override void Start() {
         base.Start();
-        MaxHP = EnemySO.maxHealth;
         CurrentHP = MaxHP;
         player = PlayerController.Instance;
         player.RegisterEnemy(this);
@@ -115,10 +116,12 @@ public class EnemyController : BaseCharacterController {
                 HasKnife = false;
                 hasMultipleKnives = false;
                 UpdateKnifeGameObject();
-                Pickable pickable = Instantiate(pickableKnifePrefab);
-                pickable.IsFalling = true;
-                pickable.transform.SetParent(transform.parent);
-                pickable.transform.position = transform.position + Vector3.down * 4;
+                DropPickable(pickableKnifePrefab);
+            }
+            if (HasGun) {
+                HasGun = false;
+                UpdateGunGameObject();
+                DropPickable(pickableGunPrefab);
             }
             if (hitType == Hit.Type.PowerEject) {
                 animator.SetBool("IsFlying", true);
@@ -143,6 +146,13 @@ public class EnemyController : BaseCharacterController {
         }
     }
 
+    private void DropPickable(Pickable prefab) {
+        Pickable pickable = Instantiate(prefab);
+        pickable.IsFalling = true;
+        pickable.transform.SetParent(transform.parent);
+        pickable.transform.position = transform.position + Vector3.down * 4;
+    }
+
     public override bool IsVulnerable(Vector2 damageOrigin, bool canBlock = true) {
         return state == State.Idle ||
                state == State.Walking ||
@@ -155,6 +165,9 @@ public class EnemyController : BaseCharacterController {
         if (HasKnife && player.IsVulnerable(PrecisePosition)) {
             ThrowKnife();
             timeLastKnifeThrown = Time.timeSinceLevelLoad;
+        } else if (HasGun && player.IsVulnerable(PrecisePosition)) {
+            ShootGun();
+            timeLastGunShot = Time.timeSinceLevelLoad;
         } else {
             if (IsPlayerWithinReach() && player.IsVulnerable(PrecisePosition)) {
                 player.ReceiveHit(PrecisePosition, 1);
@@ -188,10 +201,12 @@ public class EnemyController : BaseCharacterController {
     private void HandleMoving() {
         if (CanMove()) {
             FacePlayer();
-            if (HasKnife) {
-                Vector2 nextTargetDestination = GetKnifeThrowingPosition();
+            if (HasKnife || HasGun) {
+                Vector2 nextTargetDestination = GetRangeWeaponPosition();
                 Vector2 direction = nextTargetDestination - PrecisePosition;
                 if (direction.magnitude < 2) {
+                    // don't go full machine gun here
+                    if (HasGun && (Time.timeSinceLevelLoad - timeLastGunShot < timeBetweenGunShot)) return;
                     isInHittingStance = true;
                     state = State.PreparingAttack;
                     timeSincePreparedToHit = Time.timeSinceLevelLoad;
@@ -259,6 +274,8 @@ public class EnemyController : BaseCharacterController {
             state = State.Attacking;
             if (HasKnife) {
                 animator.SetTrigger("ThrowKnife");
+            } else if (HasGun) {
+                animator.SetTrigger("ShootGun");
             } else {
                 if (UnityEngine.Random.Range(0f, 1f) > 0.5f) {
                     animator.SetTrigger("Punch");
@@ -292,7 +309,7 @@ public class EnemyController : BaseCharacterController {
         return (isYAligned && isXAligned);
     }
 
-    private Vector2 GetKnifeThrowingPosition() {
+    private Vector2 GetRangeWeaponPosition() {
         float buffer = 6f;
         Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
         // find closest screen boundary

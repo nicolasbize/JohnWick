@@ -17,6 +17,9 @@ public class World : MonoBehaviour
 
     private void Awake() {
         Instance = this;
+        foreach (Transform existingLevel in levelParent) {
+            Destroy(existingLevel.gameObject);
+        }
     }
 
     private void Start() {

@@ -13,9 +13,11 @@ public abstract class BaseCharacterController : MonoBehaviour {
 
     [field: SerializeField] public int MaxHP { get; protected set; }
     [field: SerializeField] public bool HasKnife { get; protected set; }
+    [field: SerializeField] public bool HasGun { get; protected set; }
 
     [SerializeField] protected bool hasMultipleKnives;
     [SerializeField] protected float timeBetweenKnives;
+    [SerializeField] protected float timeBetweenGunShot;
     [SerializeField] protected float moveSpeed;
     [SerializeField] protected float attackReach;
     [SerializeField] protected float durationLyingDead;
@@ -25,10 +27,12 @@ public abstract class BaseCharacterController : MonoBehaviour {
     [SerializeField] protected SpriteRenderer characterSprite;
     [SerializeField] protected SpriteRenderer shadowSprite;
     [SerializeField] protected Transform knifeTransform;
+    [SerializeField] protected Transform gunTransform;
     [SerializeField] protected float gravity = 10f;
     [SerializeField] protected float verticalMarginBetweenEnemyAndPlayer;
-    [SerializeField] protected Knife knifePrefab;
-    [SerializeField] protected Pickable pickableKnifePrefab;
+    [SerializeField] protected Knife knifePrefab; // knife that characters can throw
+    [SerializeField] protected Pickable pickableKnifePrefab; // knife that the character can drop
+    [SerializeField] protected Pickable pickableGunPrefab; // gun that the character can drop
     [SerializeField] protected Spark sparkPrefab;
     [SerializeField] protected AudioClip hitSound;
     [SerializeField] protected AudioClip hitAltSound;
@@ -44,6 +48,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     protected float timeDyingStart = float.NegativeInfinity;
     protected float timeSinceGrounded = float.NegativeInfinity;
     protected float timeLastKnifeThrown = float.NegativeInfinity;
+    protected float timeLastGunShot = float.NegativeInfinity;
     public Vector2 PrecisePosition { get; protected set; } = Vector2.zero; // x axis goes from -32 to end of level, y goes from -32 to 0
     protected float height = 0f;
     protected float dzHeight = 0f;
@@ -53,17 +58,26 @@ public abstract class BaseCharacterController : MonoBehaviour {
     protected AudioSource audioSource;
     protected State statePriorToAttacking = State.Idle;
 
+    protected virtual void Awake() {
+        animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
+    }
+
     protected virtual void Start() {
         CurrentHP = MaxHP;
-        animator = GetComponent<Animator>();
         PrecisePosition = new Vector2(transform.position.x, transform.position.y);
         UpdateKnifeGameObject();
-        audioSource = GetComponent<AudioSource>();
+        UpdateGunGameObject();
     }
 
     protected void UpdateKnifeGameObject() {
         if (knifeTransform == null) return;
         knifeTransform.gameObject.SetActive(HasKnife);
+    }
+
+    protected void UpdateGunGameObject() {
+        if (gunTransform == null) return;
+        gunTransform.gameObject.SetActive(HasGun);
     }
 
     public bool IsFacingLeft { get; protected set; }
@@ -94,6 +108,10 @@ public abstract class BaseCharacterController : MonoBehaviour {
         knife.Emitter = this;
         HasKnife = false;
         knifeTransform.gameObject.SetActive(false);
+    }
+
+    protected void ShootGun() {
+        Debug.Log("shoot gun");
     }
 
     protected void SetTransformFromPrecisePosition() {

@@ -21,7 +21,8 @@ public class PlayerController : BaseCharacterController {
 
     public static PlayerController Instance;
 
-    private void Awake() {
+    protected override void Awake() {
+        base.Awake();
         Instance = this;
     }
 
@@ -61,11 +62,15 @@ public class PlayerController : BaseCharacterController {
     private List<BaseCharacterController> enemies = new List<BaseCharacterController>();
 
     public void RegisterEnemy(BaseCharacterController enemy) {
-        enemies.Add(enemy);
+        if (!enemies.Contains(enemy)) {
+            enemies.Add(enemy);
+        }
     }
 
     public void UnregisterEnemy(BaseCharacterController enemy) {
-        enemies.Remove(enemy);
+        if (enemies.Contains(enemy)) {
+            enemies.Remove(enemy);
+        }
     }
 
 

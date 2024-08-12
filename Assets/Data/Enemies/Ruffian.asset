@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e89fb7d7c926784185b14c72997b26f, type: 3}
+  m_Name: Ruffian
+  m_EditorClassIdentifier: 
+  enemyType: 6
+  avatarImage: {fileID: 2800000, guid: 17bfa89b71dbf4741852274ac2e5d858, type: 3}
+  isStageBoss: 0

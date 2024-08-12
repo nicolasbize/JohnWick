@@ -8,6 +8,5 @@ public class EnemySO : ScriptableObject
 {
     public EnemyController.Type enemyType;
     public Texture2D avatarImage;
-    public int maxHealth;
     public bool isStageBoss;
 }

@@ -25,10 +25,10 @@ public class UI : MonoBehaviour
 
     private void Awake() {
         Instance = this;
+        audioSource = GetComponent<AudioSource>();
     }
 
     private void Start() {
-        audioSource = GetComponent<AudioSource>();
         continueScreen.gameObject.SetActive(false);
         HideEnemyHealthbar();
         player.OnDeath += OnPlayerDeath;

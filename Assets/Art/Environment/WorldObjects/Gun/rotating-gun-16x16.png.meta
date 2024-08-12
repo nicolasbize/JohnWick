@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 6558a3838925fca4696e5f10dd917a42
+guid: 405eef24aa0413b4c83661279cf306aa
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -123,13 +123,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: biker_gun_48x48_0
+      name: rotating-gun-16x16_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 384
-        width: 48
-        height: 48
+        y: 0
+        width: 16
+        height: 16
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -137,20 +137,62 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 44f33ef816b19b347968d8b6a98da408
-      internalID: -651805996
+      spriteID: c93736106f29f2d418a15c7ee5d8dc38
+      internalID: -856855959
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: biker_gun_48x48_1
+      name: rotating-gun-16x16_1
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 0
+        width: 16
+        height: 16
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9837719b5a169d849b98f708d739523e
+      internalID: 1961851880
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rotating-gun-16x16_2
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 0
+        width: 16
+        height: 16
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2ecefe51eb6435a4fa531ceb530eb816
+      internalID: 1030587178
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rotating-gun-16x16_3
       rect:
         serializedVersion: 2
         x: 48
-        y: 384
-        width: 48
-        height: 48
+        y: 0
+        width: 16
+        height: 16
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -158,20 +200,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 11917594d4ad43e49ad6c4dab03e9bf1
-      internalID: -1856881490
+      spriteID: 521acc4c63e60bb4cbbaf64b9e725b8c
+      internalID: -702275582
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: biker_gun_48x48_2
+      name: rotating-gun-16x16_4
       rect:
         serializedVersion: 2
-        x: 96
-        y: 384
-        width: 48
-        height: 48
+        x: 64
+        y: 0
+        width: 16
+        height: 16
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -179,20 +221,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ee29355d3b5a1314bb72d93a289a4d1c
-      internalID: -1339536368
+      spriteID: cd3d9e56d2ed54a4d8e60caac3c08200
+      internalID: 1511918908
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: biker_gun_48x48_3
+      name: rotating-gun-16x16_5
       rect:
         serializedVersion: 2
-        x: 144
-        y: 384
-        width: 48
-        height: 48
+        x: 80
+        y: 0
+        width: 16
+        height: 16
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -200,134 +242,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b7b0324e321507f4bac95cb1c1303bcb
-      internalID: -894748665
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: biker_gun_48x48_4
-      rect:
-        serializedVersion: 2
-        x: 192
-        y: 384
-        width: 48
-        height: 48
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 43555c28aefd8eb4ea77a679d5d3dbad
-      internalID: 5775397
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: biker_gun_48x48_5
-      rect:
-        serializedVersion: 2
-        x: 240
-        y: 384
-        width: 48
-        height: 48
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 3ef58dcc8e8dd9f47828b355918ab49c
-      internalID: -598174003
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: biker_gun_48x48_6
-      rect:
-        serializedVersion: 2
-        x: 288
-        y: 384
-        width: 48
-        height: 48
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 2bb95b9083a948f43991795492178c6c
-      internalID: -1070967572
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: biker_gun_48x48_7
-      rect:
-        serializedVersion: 2
-        x: 336
-        y: 384
-        width: 48
-        height: 48
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 2c090702578fdf045989271030679d29
-      internalID: 1446767229
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: biker_gun_48x48_8
-      rect:
-        serializedVersion: 2
-        x: 48
-        y: 336
-        width: 48
-        height: 48
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 6aaa702bba800f144a595b4f2632de79
-      internalID: 1741490435
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: biker_gun_48x48_9
-      rect:
-        serializedVersion: 2
-        x: 96
-        y: 336
-        width: 48
-        height: 48
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ad68c229848045349a23955eb98b6759
-      internalID: 624603364
+      spriteID: 9933ba8abdd9acb44825f46dd7e2656b
+      internalID: 711213031
       vertices: []
       indices: 
       edges: []
@@ -343,16 +259,12 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      biker_gun_48x48_0: -651805996
-      biker_gun_48x48_1: -1856881490
-      biker_gun_48x48_2: -1339536368
-      biker_gun_48x48_3: -894748665
-      biker_gun_48x48_4: 5775397
-      biker_gun_48x48_5: -598174003
-      biker_gun_48x48_6: -1070967572
-      biker_gun_48x48_7: 1446767229
-      biker_gun_48x48_8: 1741490435
-      biker_gun_48x48_9: 624603364
+      rotating-gun-16x16_0: -856855959
+      rotating-gun-16x16_1: 1961851880
+      rotating-gun-16x16_2: 1030587178
+      rotating-gun-16x16_3: -702275582
+      rotating-gun-16x16_4: 1511918908
+      rotating-gun-16x16_5: 711213031
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
