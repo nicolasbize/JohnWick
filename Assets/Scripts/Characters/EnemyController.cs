@@ -1,9 +1,5 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEngine.EventSystems.EventTrigger;
-using Random = UnityEngine.Random;
 
 public class EnemyController : BaseCharacterController {
     
@@ -14,6 +10,7 @@ public class EnemyController : BaseCharacterController {
     //[SerializeField] private PlayerController player;
     [SerializeField] private GarageDoor garageDoor;
     [field:SerializeField] public EnemySO EnemySO { get; private set; }
+    [field: SerializeField] public bool IsActivatedForCheckpoint { get; private set; }
 
     private float timeSincePreparedToHit = float.NegativeInfinity;
     private float waitDurationBeforeHit = 0f;
@@ -40,21 +37,26 @@ public class EnemyController : BaseCharacterController {
     }
 
     public void ActivateFromCheckpoint() {
+        if (IsActivatedForCheckpoint) return;
         if (initialPosition == InitialPosition.Street && state == State.WaitingForPlayer) {
             state = State.Idle; // only activate if waiting, might be on the ground due to knife strike
+            IsActivatedForCheckpoint = true;
         } else if (initialPosition == InitialPosition.Behind) {
             state = State.Idle;
             PrecisePosition = new Vector2(originalPosition.x, originalPosition.y);
             transform.position = originalPosition;
+            IsActivatedForCheckpoint = true;
         } else if (initialPosition == InitialPosition.Roof) {
             height = 50;
             PrecisePosition = new Vector2(originalPosition.x, originalPosition.y - height);
             SetTransformFromPrecisePosition();
             state = State.Dropping;
+            IsActivatedForCheckpoint = true;
         } else if (initialPosition == InitialPosition.Garage) {
             if (garageDoor != null && !garageDoor.IsOpened) {
                 // only change state if the door isn't opened already
                 state = State.WaitingForDoor;
+                IsActivatedForCheckpoint = true;
             }
         }
     }
@@ -149,7 +151,7 @@ public class EnemyController : BaseCharacterController {
                (state == State.WaitingForPlayer && initialPosition == InitialPosition.Street);
     }
 
-    protected override void MaybeInductDamage() {
+    protected override void MaybeInductDamage(bool muteMissSounds = false) {
         if (HasKnife && player.IsVulnerable(PrecisePosition)) {
             ThrowKnife();
             timeLastKnifeThrown = Time.timeSinceLevelLoad;

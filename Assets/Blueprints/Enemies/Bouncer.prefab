@@ -132,7 +132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64add91c707c9d0418e20be92df99098, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <MaxHP>k__BackingField: 34
+  <MaxHP>k__BackingField: 2
   <HasKnife>k__BackingField: 0
   hasMultipleKnives: 0
   timeBetweenKnives: 0
@@ -153,7 +153,6 @@ MonoBehaviour:
   hitSound: {fileID: 8300000, guid: aa765145c85d354459fb21f51adab87f, type: 3}
   hitAltSound: {fileID: 8300000, guid: 6bfba2b2a069af442ac5a10f21b36aad, type: 3}
   missSound: {fileID: 8300000, guid: e5f51d2c17182c04d85de18a16f87cd1, type: 3}
-  player: {fileID: 0}
   minTimeToAttackAfterBlock: 2
   minMaxSecsBeforeHitting: {x: 0.3, y: 0.6}
   superPunchPower: 100

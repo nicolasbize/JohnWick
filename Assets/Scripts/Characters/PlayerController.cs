@@ -7,6 +7,16 @@ public class PlayerController : BaseCharacterController {
     [SerializeField] private float jumpForce;
     [SerializeField] private float comboAttackMaxDuration; // s to perform combo
 
+    private bool isTransitioningLevel = false;
+    private bool hasFinishedTransition = false;
+    private bool hasCompletedLevel = false;
+    private bool isAirKicking = false;
+
+    private List<Vector2> transitionDestinations = new List<Vector2>() {
+        new Vector2(300, 3), new Vector2(360, 3)
+    };
+    private int currentTransitionDestinationIndex = 0;
+
     public Pickable PickableItem { get; set; }
 
     public static PlayerController Instance;
@@ -14,7 +24,36 @@ public class PlayerController : BaseCharacterController {
     private void Awake() {
         Instance = this;
     }
-    
+
+    protected override void Start() {
+        base.Start();
+        World.Instance.OnLevelTransitionStart += OnLevelTransitionStart;
+    }
+
+    public void StartNewLevel() {
+        PrecisePosition = new Vector3(-10, 20, 20);
+        preciseVelocity = Vector3.zero;
+        CurrentHP = MaxHP;
+        UI.Instance.NotifyHeroHealthChange(this);
+        hasFinishedTransition = false;
+        isTransitioningLevel = false;
+        state = State.Idle;
+        animator.SetBool("IsWalking", false);
+        height = 0;
+        SetTransformFromPrecisePosition();
+        enemies.Clear();
+        hasCompletedLevel = false;
+    }
+
+    public void ReturnControlsToPlayer() {
+        isTransitioningLevel = false;
+    }
+
+    private void OnLevelTransitionStart(object sender, EventArgs e) {
+        currentTransitionDestinationIndex = 0;
+        isTransitioningLevel = true;
+    }
+
     private List<string> comboAttackTriggers = new List<string>() {
         "Punch", "Punch", "PunchAlt", "Kick", "Roundhouse"
     };
@@ -80,7 +119,7 @@ public class PlayerController : BaseCharacterController {
         state = State.Idle;
     }
 
-    protected override void MaybeInductDamage() {
+    protected override void MaybeInductDamage(bool muteMissSounds = false) {
         bool hasHitEnemy = false;
         // get list of vulnerable enemies within distance.
         foreach (BaseCharacterController enemy in enemies) {
@@ -122,7 +161,9 @@ public class PlayerController : BaseCharacterController {
         } else {
             // don't reset combo but start over
             currentComboIndex = 0;
-            audioSource.PlayOneShot(missSound);
+            if (!muteMissSounds) {
+                audioSource.PlayOneShot(missSound);
+            }
         }
     }
 
@@ -132,24 +173,31 @@ public class PlayerController : BaseCharacterController {
     }
 
     protected override void FixedUpdate() {
-        bool wasFacingLeft = IsFacingLeft;
+        if (hasCompletedLevel) return;
+        if (isTransitioningLevel && !hasFinishedTransition) {
+            HandleLevelTransition();
+        } else {
+            bool wasFacingLeft = IsFacingLeft;
 
-        HandleJumpingWithInput();
-        // HandleBlockInput(); // blocking seems useless in this game, removing for now but keeping in the code.
-        HandleWalkingWithInput();
-        HandleAttackingWithInput();
-        HandleDropping();
-        HandleFalling();
-        HandleGrounded();
-        HandleDying();
+            HandleJumpingWithInput();
+            // HandleBlockInput(); // blocking seems useless in this game, removing for now but keeping in the code.
+            HandleWalkingWithInput();
+            HandleAttackingWithInput();
+            HandleAirKicks();
+            HandleDropping();
+            HandleFalling();
+            HandleGrounded();
+            HandleDying();
 
-        if (IsFacingLeft != wasFacingLeft) {
-            NotifyChangeDirection();
-        }
-        RestrictScreenBoundaries();
+            if (IsFacingLeft != wasFacingLeft) {
+                NotifyChangeDirection();
+            }
 
-        if (Time.timeSinceLevelLoad - timeLastAttack > comboAttackMaxDuration) {
-            BreakCombo();
+            RestrictScreenBoundaries();
+
+            if (Time.timeSinceLevelLoad - timeLastAttack > comboAttackMaxDuration) {
+                BreakCombo();
+            }
         }
     }
 
@@ -180,6 +228,12 @@ public class PlayerController : BaseCharacterController {
         SetTransformFromPrecisePosition();
     }
 
+    private void HandleAirKicks() {
+        if (state == State.Jumping && isAirKicking) {
+            MaybeInductDamage(true);
+        }
+    }
+
     private void HandleJumpingWithInput() {
         if (CanJump() && Input.GetButtonDown("Jump")) {
             dzHeight = jumpForce * Time.deltaTime;
@@ -195,6 +249,7 @@ public class PlayerController : BaseCharacterController {
                 state = State.Idle;
                 height = 0f;
                 animator.SetBool("IsJumping", false);
+                isAirKicking = false;
             }
         }
     }
@@ -222,8 +277,8 @@ public class PlayerController : BaseCharacterController {
             } else {
                 statePriorToAttacking = state;
                 if (state == State.Jumping) {
-                    currentComboIndex = 0;
                     animator.SetTrigger("AirKick");
+                    isAirKicking = true;
                 } else {
                     if (HasKnife) {
                         animator.SetTrigger("PunchAlt");
@@ -248,6 +303,7 @@ public class PlayerController : BaseCharacterController {
         if (hit.collider != null && hit.collider.gameObject.GetComponent<Barrel>() != null) {
             Barrel barrel = hit.collider.gameObject.GetComponent<Barrel>();
             barrel.Break(PrecisePosition);
+            audioSource.PlayOneShot(hitAltSound);
         }
     }
 
@@ -271,6 +327,27 @@ public class PlayerController : BaseCharacterController {
                 animator.SetBool("IsWalking", false);
             }
 
+        }
+    }
+
+    private void HandleLevelTransition() {
+        animator.SetBool("IsWalking", true);
+        characterSprite.flipX = false;
+        Vector2 distanceToNextPoint = transitionDestinations[currentTransitionDestinationIndex] - PrecisePosition;
+        if (distanceToNextPoint.magnitude < 1) {
+            if (currentTransitionDestinationIndex < transitionDestinations.Count - 1) {
+                currentTransitionDestinationIndex += 1;
+            } else {
+                if (!hasCompletedLevel) {
+                    World.Instance.CompleteLevel();
+                    hasCompletedLevel = true;
+                }
+                isTransitioningLevel = false;
+                hasFinishedTransition = true; // wait for World to reload player in next stage
+            }
+        } else {
+            preciseVelocity = distanceToNextPoint.normalized * moveSpeed;
+            TryMoveTo(PrecisePosition + preciseVelocity * Time.deltaTime, true);
         }
     }
 

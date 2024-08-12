@@ -13,6 +13,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
 
     [field: SerializeField] public int MaxHP { get; protected set; }
     [field: SerializeField] public bool HasKnife { get; protected set; }
+
     [SerializeField] protected bool hasMultipleKnives;
     [SerializeField] protected float timeBetweenKnives;
     [SerializeField] protected float moveSpeed;
@@ -68,7 +69,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
 
     public abstract void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal);
     public abstract bool IsVulnerable(Vector2 damageOrigin, bool canBlock = true);
-    protected abstract void MaybeInductDamage();
+    protected abstract void MaybeInductDamage(bool muteMissSounds = false);
     protected abstract void FixedUpdate();
 
     public void OnAttackAnimationEndFrameEvent() {
@@ -99,16 +100,16 @@ public abstract class BaseCharacterController : MonoBehaviour {
         shadowSprite.transform.position = new Vector3(Mathf.FloorToInt(PrecisePosition.x), Mathf.FloorToInt(PrecisePosition.y), Mathf.FloorToInt(PrecisePosition.y));
     }
 
-    protected void TryMoveTo(Vector2 newPosition) {
+    protected void TryMoveTo(Vector2 newPosition, bool ignoreWalls = false) {
         // check on horiz and vert axis separately to prevent blocking on wall when going in diagonal
-        if (CanMoveTo(new Vector2(PrecisePosition.x, newPosition.y))) {
+        if (CanMoveTo(new Vector2(PrecisePosition.x, newPosition.y), ignoreWalls)) {
             PrecisePosition = new Vector2(PrecisePosition.x, newPosition.y);
             SetTransformFromPrecisePosition();
         } else {
             preciseVelocity.y = 0;
         }
 
-        if (CanMoveTo(new Vector2(newPosition.x, PrecisePosition.y))) {
+        if (CanMoveTo(new Vector2(newPosition.x, PrecisePosition.y), ignoreWalls)) {
             PrecisePosition = new Vector2(newPosition.x, PrecisePosition.y);
             SetTransformFromPrecisePosition();
         } else {
@@ -116,11 +117,13 @@ public abstract class BaseCharacterController : MonoBehaviour {
         }
     }
 
-    protected bool CanMoveTo(Vector2 destination) {
-        // hardcoded limits because I can't get proper sliding/collision in unity :(
-        if (this is PlayerController && destination.y > 30) return false;
-        if (this is PlayerController && destination.y < 2) return false;
-        if (this is PlayerController && destination.x > 294 && destination.y > 28 - (destination.x - 295)) return false;
+    protected bool CanMoveTo(Vector2 destination, bool ignoreWalls = false) {
+        if (!ignoreWalls) {
+            // hardcoded limits because I can't get proper sliding/collision in unity :(
+            if (this is PlayerController && destination.y > 30) return false;
+            if (this is PlayerController && destination.y < 2) return false;
+            if (this is PlayerController && destination.x > 294 && destination.y > 28 - (destination.x - 295)) return false;
+        }
 
         if (state == State.Dying) return true;
         Vector3 targetedPosition = new Vector3(Mathf.FloorToInt(destination.x), Mathf.FloorToInt(destination.y), 0);
@@ -203,7 +206,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
                     characterSprite.enabled = false;
                 } else {
                     characterSprite.enabled = true;
-                    characterSprite.color = new Color(1f, 1f, 1f, 1f - progress);
+                    //characterSprite.color = new Color(1f, 1f, 1f, 1f - progress); // fade to transparent when dying, not too NES like though
                 }
             }
         }

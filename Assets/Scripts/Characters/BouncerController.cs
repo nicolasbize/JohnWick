@@ -56,6 +56,7 @@ public class BouncerController : BaseCharacterController, IBoss {
         if (!hasStartedEngaging) return false;
         if (isBlocking) return false;
         if (state == State.Flying) return false;
+        if (state == State.Hurt || state == State.Falling || state == State.Grounded) return false;
         return true;
     }
 
@@ -111,7 +112,7 @@ public class BouncerController : BaseCharacterController, IBoss {
         }
     }
 
-    protected override void MaybeInductDamage() {
+    protected override void MaybeInductDamage(bool muteMissSounds = false) {
         if (IsPlayerWithinReach() && player.IsVulnerable(PrecisePosition)) {
             player.ReceiveHit(PrecisePosition, 3, Hit.Type.Knockdown);
         }

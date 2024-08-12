@@ -145,8 +145,8 @@ MonoBehaviour:
   timeBetweenKnives: 0
   moveSpeed: 10
   attackReach: 15
-  durationLyingDead: 1
-  durationGrounded: 1.5
+  durationLyingDead: 0.7
+  durationGrounded: 1
   durationInvincibleAfterGettingUp: 0
   isDisappearWhenDying: 1
   characterSprite: {fileID: 606705804587000774}
@@ -162,9 +162,9 @@ MonoBehaviour:
   missSound: {fileID: 8300000, guid: e5f51d2c17182c04d85de18a16f87cd1, type: 3}
   flySpeed: 70
   minMaxSecsBeforeHitting: {x: 0.2, y: 1.5}
-  player: {fileID: 0}
   garageDoor: {fileID: 0}
   <EnemySO>k__BackingField: {fileID: 11400000, guid: b42eafa3a270e5a48bba1d1286b95125, type: 2}
+  <IsActivatedForCheckpoint>k__BackingField: 0
 --- !u!95 &4996358437077790443
 Animator:
   serializedVersion: 5

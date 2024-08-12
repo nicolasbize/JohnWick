@@ -1,14 +1,11 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Level : MonoBehaviour
 {
-    public event EventHandler OnLevelComplete;
+    public event EventHandler OnStartTransition;
     
-    [SerializeField] private List<Checkpoint> checkpoints;
-
     private Checkpoint nextCheckpoint = null;
     private Queue<Checkpoint> checkpointQueue = new Queue<Checkpoint>();
     private CameraFollow mainCamera;
@@ -27,11 +24,15 @@ public class Level : MonoBehaviour
             nextCheckpoint = checkpointQueue.Dequeue();
             nextCheckpoint.OnComplete += OnCompleteCheckpoint;
             mainCamera.Unlock();
-            if (flashGoIndicator) {
-                UI.Instance.NotifyGoGoGo();
+            if (nextCheckpoint.IsTransitionCheckpoint) {
+                OnStartTransition?.Invoke(this, EventArgs.Empty);
+            } else {
+                if (flashGoIndicator) {
+                    UI.Instance.NotifyGoGoGo();
+                }
             }
         } else {
-            OnLevelComplete?.Invoke(this, EventArgs.Empty);
+            nextCheckpoint = null;
         }
     }
 
@@ -52,11 +53,4 @@ public class Level : MonoBehaviour
     }
 
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (nextCheckpoint == null) {
-            nextCheckpoint = new Checkpoint();
-        }
-    }
 }

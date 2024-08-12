@@ -26,6 +26,12 @@ public class CameraFollow : MonoBehaviour
         Unlock();
     }
 
+    public void StartNewLevel() {
+        realPosition = new Vector3(0, 32, -10);
+        transform.position = realPosition;
+        Unlock();
+    }
+
     public void LockInPlace() {
         IsLocked = true;
     }

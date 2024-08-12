@@ -44,7 +44,8 @@ public class UI : MonoBehaviour
     private void OnContinueGame(object sender, System.EventArgs e) {
         MaybeIncreaseHighScore();
         continueScreen.gameObject.SetActive(false);
-        score.SetValue(0);
+        // remove 100 points from current score
+        score.SetValue(Mathf.Max(0, score.GetValue() - 100));
         player.Respawn();
     }
 
