@@ -4,7 +4,7 @@ using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
 public abstract class BaseCharacterController : MonoBehaviour {
-    public enum State { Idle, Walking, PreparingAttack, Attacking, Blocking, Hurt, Flying, Falling, Grounded, Dropping, WaitingForDoor, Dying, Dead, WaitingForPlayer, Jumping }
+    public enum State { Idle, Walking, PreparingAttack, Attacking, Blocking, Hurt, Flying, Falling, Grounded, Dropping, WaitingForDoor, Dying, Dead, WaitingForPlayer, Jumping, Summersalting }
     public enum InitialPosition { Behind, Garage, Roof, Street }
 
     public event EventHandler OnDirectionChange;
@@ -99,7 +99,10 @@ public abstract class BaseCharacterController : MonoBehaviour {
 
     public void OnInvincibilityAnimationFrameEnd() {
         state = State.Idle;
+        DoWorkAfterHurtComplete();
     }
+
+    protected virtual void DoWorkAfterHurtComplete() { }
 
     public void OnAttackFrameEvent() {
         MaybeInductDamage();
@@ -202,9 +205,18 @@ public abstract class BaseCharacterController : MonoBehaviour {
     protected bool CanMoveTo(Vector2 destination, bool ignoreWalls = false) {
         if (!ignoreWalls) {
             // hardcoded limits because I can't get proper sliding/collision in unity :(
+            // this is pretty horrible
             if (this is PlayerController && destination.y > 30) return false;
             if (this is PlayerController && destination.y < 2) return false;
-            if (this is PlayerController && destination.x > 294 && destination.y > 28 - (destination.x - 295)) return false;
+            if (this is PlayerController && World.Instance.CurrentLevelIndex == 0 && destination.x > 294 && destination.y > 28 - (destination.x - 295)) return false;
+            if (this is PlayerController && World.Instance.CurrentLevelIndex == 0) { //todo: swap this back to 1 when levels are both loaded
+                // check if the boss is registered, might be super slow let's see.
+                ButcherController boss = (ButcherController)((PlayerController)this).Enemies.Find(e => e is ButcherController);
+                if (boss != null && !boss.HasStartedEngaging) {
+                    Rect barRect = new Rect(240f, 15f, 160, 60);
+                    if (barRect.Contains(destination)) return false;
+                }
+            }
         }
 
         return true;

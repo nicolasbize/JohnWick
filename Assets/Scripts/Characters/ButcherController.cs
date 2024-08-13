@@ -1,29 +1,25 @@
-using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
-public class BouncerController : BaseCharacterController, IBoss {
+public class ButcherController : BaseCharacterController, IBoss {
+    public enum AttackType { NormalAttack, FlyKick, SummerSalt }
 
-    public enum AttackType { SuperPunch, NormalAttack }
-
-    [SerializeField] private float minTimeToAttackAfterBlock;
     [SerializeField] private Vector2 minMaxSecsBeforeHitting;
-    [SerializeField] private float superPunchPower;
-
-    private float timeSinceLanded = float.NegativeInfinity;
-    private float durationLanding = 1f;
-    private bool isDoingInitialDrop = true;
-    private bool hasStartedEngaging = false;
+    [SerializeField] private float flyKickPower;
+    [SerializeField] private float summersaltDuration;
     [field: SerializeField] public EnemySO EnemySO { get; private set; }
-    private int hitsReceivedBeforeBlocking = 0;
-    private AttackType nextAttackType = AttackType.NormalAttack;
-    private float timeSinceStartBlock = float.NegativeInfinity;
-    private bool isBlocking = false; // can be on top of walk / idle states
 
+    private bool isDoingEntrance = true;
+    public bool HasStartedEngaging { get; private set; } = false;
+    private int hitsReceivedBeforeAttacking = 0;
+    private AttackType nextAttackType = AttackType.NormalAttack;
+    private float timeSinceStartSummersalt = float.NegativeInfinity;
     private float timeSincePreparedToHit = float.NegativeInfinity;
     private float waitDurationBeforeHit = 0f;
     private bool isInHittingStance = false;
     private PlayerController player;
+    private bool isFlyKicking = false;
 
     protected override void Start() {
         base.Start();
@@ -31,79 +27,73 @@ public class BouncerController : BaseCharacterController, IBoss {
         player = PlayerController.Instance;
         player.RegisterEnemy(this);
         state = State.WaitingForPlayer;
-        OnFinishDropping += OnFinishInitialDrop;
+        state = State.Idle;
     }
 
     public void Activate() {
-        height = 54;
-        PrecisePosition = transform.position + Vector3.down * height;
-        SetTransformFromPrecisePosition();
-        state = State.Dropping;
-        animator.SetBool("IsDropping", true);
-    }
-
-    private void OnFinishInitialDrop(object sender, EventArgs e) {
-        animator.SetBool("IsDropping", false);
-        Camera.main.GetComponent<CameraFollow>().Shake(0.05f, 3);
-        player.ReceiveHit(PrecisePosition, 0, Hit.Type.Knockdown);
-        timeSinceLanded = Time.timeSinceLevelLoad;
-        isDoingInitialDrop = false;
-        UI.Instance.SetBossMode(this, EnemySO.enemyType);
+        Debug.Log("activating boss");
+        // summersalt / destroy bar
+        isDoingEntrance = false;
+        HasStartedEngaging = true;
     }
 
     public override bool IsVulnerable(Vector2 damageOrigin, bool canBlock = true) {
-        if (!hasStartedEngaging) return false;
-        if (isBlocking) return false;
-        if (state == State.Flying) return false;
+        if (isFlyKicking) return false;
+        if (!HasStartedEngaging) return false;
         if (CurrentHP <= 0) return false;
-        if (state == State.Hurt || state == State.Falling || state == State.Grounded) return false;
+        if (state == State.PreparingAttack && nextAttackType == AttackType.SummerSalt) return false;
+        if (state == State.Summersalting || state == State.Hurt || state == State.Falling || state == State.Grounded) return false;
         return true;
     }
 
     public override void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
-            if (hitsReceivedBeforeBlocking > 1) {
-                isBlocking = true;
-                animator.SetBool("IsBlocking", true);
-                nextAttackType = Random.Range(0, 1) > 0.5f ? AttackType.NormalAttack : AttackType.SuperPunch;
-                timeSinceStartBlock = Time.timeSinceLevelLoad;
-                audioSource.PlayOneShot(hitAltSound);
+            ReceiveDamage(Mathf.Max(dmg - 2, 0)); // 2 armor
+            Vector2 attackVector = damageOrigin.x < PrecisePosition.x ? Vector2.right : Vector2.left;
+            if (CurrentHP > 0) {
+                state = State.Hurt;
+                animator.SetTrigger("Hurt");
+                audioSource.PlayOneShot(hitSound);
+                hitsReceivedBeforeAttacking += 1;
             } else {
-                ReceiveDamage(Math.Max(dmg - 1, 0));
-                Vector2 attackVector = damageOrigin.x < PrecisePosition.x ? Vector2.right : Vector2.left;
-                if (CurrentHP > 0) {
-                    state = State.Hurt;
-                    animator.SetTrigger("Hurt");
-                    audioSource.PlayOneShot(hitSound);
-                    hitsReceivedBeforeBlocking += 1;
-                } else {
-                    animator.SetBool("IsFalling", true);
-                    state = State.Falling;
-                    preciseVelocity = attackVector * (moveSpeed / 4f);
-                    dzHeight = 2f;
-                    Camera.main.GetComponent<CameraFollow>().Shake(0.35f, 2);
-                    GenerateSparkFX();
-                    audioSource.PlayOneShot(hitAltSound);
-                }
+                animator.SetBool("IsFalling", true);
+                state = State.Falling;
+                preciseVelocity = attackVector * (moveSpeed / 4f);
+                dzHeight = 2f;
+                Camera.main.GetComponent<CameraFollow>().Shake(0.35f, 2);
+                GenerateSparkFX();
+                audioSource.PlayOneShot(hitAltSound);
             }
             isInHittingStance = false;
+
         }
     }
+
+    protected override void DoWorkAfterHurtComplete() {
+        if (hitsReceivedBeforeAttacking >= 3) {
+            nextAttackType = AttackType.SummerSalt;
+            isInHittingStance = true;
+            state = State.PreparingAttack;
+            timeSincePreparedToHit = Time.timeSinceLevelLoad;
+            waitDurationBeforeHit = 1f;
+            animator.SetBool("IsSummersalting", true);
+            animator.SetTrigger("StartSummersalt");
+        }
+    }
+
     protected override void ReceiveDamage(int damage) {
         base.ReceiveDamage(damage);
         UI.Instance.NotifyEnemyHealthChange(this, EnemySO.enemyType);
     }
 
     protected override void FixedUpdate() {
-        if (isDoingInitialDrop) {
-            HandleDropping();
-        } else if (!hasStartedEngaging) {
-            if (Time.timeSinceLevelLoad - timeSinceLanded > durationLanding) {
-                animator.SetTrigger("GetUp");
-                hasStartedEngaging = true;
-            }
+        if (isDoingEntrance) {
+            //HandleEntrance();
+        } else if (!HasStartedEngaging) {
+            // not sure we need to do anything here?
         } else {
             HandleMoving();
+            HandleSummersalting();
             HandleAttack();
             HandleFlying();
             HandleDying();
@@ -116,7 +106,6 @@ public class BouncerController : BaseCharacterController, IBoss {
         if (IsPlayerWithinReach() && player.IsVulnerable(PrecisePosition)) {
             player.ReceiveHit(PrecisePosition, 3, Hit.Type.Knockdown);
         }
-
     }
 
     private void HandleMoving() {
@@ -130,14 +119,14 @@ public class BouncerController : BaseCharacterController, IBoss {
                 if (isPlayerTooFar) {
                     WalkTowards(nextTargetDestination);
                     isInHittingStance = false;
-                } else if (!isPlayerTooFar && !isInHittingStance) {
+                } else if (!isPlayerTooFar && state != State.PreparingAttack) {
                     isInHittingStance = true;
                     state = State.PreparingAttack;
                     timeSincePreparedToHit = Time.timeSinceLevelLoad;
                     waitDurationBeforeHit = Random.Range(minMaxSecsBeforeHitting.x, minMaxSecsBeforeHitting.y);
                 }
-            } else if (nextAttackType == AttackType.SuperPunch) {
-                Vector2 nextTargetDestination = GetDirectionTowardsSuperPunch();
+            } else if (nextAttackType == AttackType.FlyKick) {
+                Vector2 nextTargetDestination = GetDirectionTowardsFlyKick();
                 Vector2 direction = nextTargetDestination - PrecisePosition;
                 if (direction.magnitude < 2) {
                     isInHittingStance = true;
@@ -153,7 +142,27 @@ public class BouncerController : BaseCharacterController, IBoss {
         }
     }
 
-    private Vector2 GetDirectionTowardsSuperPunch() {
+    private void HandleSummersalting() {
+        if (state == State.Summersalting) {
+            if (Time.timeSinceLevelLoad - timeSinceStartSummersalt > summersaltDuration) {
+                animator.SetBool("IsSummersalting", false);
+                hitsReceivedBeforeAttacking = 0;
+                state = State.Idle;
+                PickNextRandomAttack();
+            } else {
+                Vector2 targetDestination = (player.transform.position - transform.position).normalized;
+                preciseVelocity = targetDestination * moveSpeed * 1.5f;
+                TryMoveTo(PrecisePosition + preciseVelocity * Time.deltaTime);
+                DamagePlayerOnPath();
+            }
+        }
+    }
+
+    private void PickNextRandomAttack() {
+        nextAttackType = Random.Range(0f, 1f) > 0.5f ? AttackType.NormalAttack : AttackType.FlyKick;
+    }
+
+    private Vector2 GetDirectionTowardsFlyKick() {
         float buffer = 6f;
         Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
         // find closest screen boundary
@@ -167,26 +176,21 @@ public class BouncerController : BaseCharacterController, IBoss {
     private void HandleAttack() {
         if (state == State.PreparingAttack &&
             (Time.timeSinceLevelLoad - timeSincePreparedToHit > waitDurationBeforeHit)) {
-            
-            isBlocking = false;
-            hitsReceivedBeforeBlocking = 0;
+
             if (nextAttackType == AttackType.NormalAttack) {
-                animator.SetBool("IsBlocking", false);
                 state = State.Attacking;
-                if (Random.Range(0f, 1f) > 0.5f) {
-                    animator.SetTrigger("Punch");
-                } else {
-                    animator.SetTrigger("Kick");
-                }
-            } else {
-                animator.SetBool("IsBlocking", false);
-                animator.SetBool("IsSpecialAttack", true);
+                animator.SetTrigger("Punch");
+                PickNextRandomAttack();
+            } else if (nextAttackType == AttackType.FlyKick) {
+                animator.SetBool("IsFlyKicking", true);
                 state = State.Flying;
                 audioSource.PlayOneShot(missSound);
-                preciseVelocity = (IsFacingLeft ? Vector2.left : Vector2.right) * superPunchPower;
+                preciseVelocity = (IsFacingLeft ? Vector2.left : Vector2.right) * flyKickPower;
+            } else if (nextAttackType == AttackType.SummerSalt) {
+                state = State.Summersalting;
+                timeSinceStartSummersalt = Time.timeSinceLevelLoad;
             }
             isInHittingStance = false;
-
         }
     }
 
@@ -200,27 +204,31 @@ public class BouncerController : BaseCharacterController, IBoss {
         }
     }
 
-
     private void HandleFlying() {
         if (state == State.Flying) {
             PrecisePosition += preciseVelocity * Time.deltaTime;
             SetTransformFromPrecisePosition();
             Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
-            if ((transform.position.x < screenBoundaries.x + 8) ||
-                (transform.position.x > screenBoundaries.y - 16)) {
-                animator.SetBool("IsSpecialAttack", false);
+            if ((IsFacingLeft && transform.position.x < screenBoundaries.x + 8) ||
+                (!IsFacingLeft && transform.position.x > screenBoundaries.y - 8)) {
+                animator.SetBool("IsFlyKicking", false);
                 state = State.Idle;
                 Camera.main.GetComponent<CameraFollow>().Shake(0.05f, 2);
                 nextAttackType = AttackType.NormalAttack;
                 audioSource.PlayOneShot(hitAltSound);
+                nextAttackType = AttackType.NormalAttack;
             }
 
-            // check if we're enountering the player
-            float margin = verticalMarginBetweenEnemyAndPlayer;
-            Rect rect = new Rect(PrecisePosition.x - margin, PrecisePosition.y - margin, margin * 2, margin * 2);
-            if (rect.Contains(player.PrecisePosition)) {
-                MaybeInductDamage();
-            }
+            DamagePlayerOnPath();
+        }
+    }
+
+    private void DamagePlayerOnPath() {
+        // check if we're enountering the player
+        float margin = verticalMarginBetweenEnemyAndPlayer;
+        Rect rect = new Rect(PrecisePosition.x - margin, PrecisePosition.y - margin, margin * 2, margin * 2);
+        if (rect.Contains(player.PrecisePosition)) {
+            MaybeInductDamage();
         }
     }
 
@@ -245,8 +253,6 @@ public class BouncerController : BaseCharacterController, IBoss {
         return (isYAligned && isXAligned);
     }
 
-
-
     private void FacePlayer() {
         if (player != null) {
             characterSprite.flipX = player.transform.position.x < transform.position.x;
@@ -254,4 +260,3 @@ public class BouncerController : BaseCharacterController, IBoss {
         }
     }
 }
-

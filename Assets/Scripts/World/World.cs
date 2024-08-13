@@ -11,7 +11,7 @@ public class World : MonoBehaviour
     [SerializeField] private List<Level> levels;
     [SerializeField] private Transform levelParent;
 
-    private int currentLevel = 0;
+    public int CurrentLevelIndex { get; private set;} = 0;
 
     public static World Instance;
 
@@ -23,7 +23,7 @@ public class World : MonoBehaviour
     }
 
     private void Start() {
-        LoadLevel(currentLevel);
+        LoadLevel(CurrentLevelIndex);
         Camera.main.GetComponent<CameraFollow>().OnPositionChange += OnCameraPositionChange;
         TransitionScreen.Instance.OnReadyToLoadContent += OnTransitionReadyToLoadLevel;
         TransitionScreen.Instance.OnReadyToPlay += OnTransitionReadyToPlay;
@@ -57,8 +57,8 @@ public class World : MonoBehaviour
     public void CompleteLevel() {
         // show high score for level
         Debug.Log("level cleared - score");
-        if (currentLevel < levels.Count -1 ) {
-            currentLevel += 1;
+        if (CurrentLevelIndex < levels.Count -1 ) {
+            CurrentLevelIndex += 1;
             TransitionScreen.Instance.StartTransition();
         } else {
             Debug.Log("complete game");
@@ -68,7 +68,7 @@ public class World : MonoBehaviour
     private void OnTransitionReadyToLoadLevel(object sender, EventArgs e) {
         Camera.main.GetComponent<CameraFollow>().StartNewLevel();
         PlayerController.Instance.StartNewLevel();
-        LoadLevel(currentLevel);
+        LoadLevel(CurrentLevelIndex);
         TransitionScreen.Instance.FinishTransition();
     }
 }
