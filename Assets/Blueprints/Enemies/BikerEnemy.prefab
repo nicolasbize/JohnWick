@@ -227,10 +227,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <MaxHP>k__BackingField: 14
-  <HasKnife>k__BackingField: 0
+  <HasKnife>k__BackingField: 1
   <HasGun>k__BackingField: 0
-  hasMultipleKnives: 0
-  timeBetweenKnives: 2
+  hasMultipleKnives: 1
+  timeBetweenKnives: 1
   timeBetweenGunShot: 1.5
   moveSpeed: 10
   attackReach: 15
@@ -256,6 +256,7 @@ MonoBehaviour:
   eatFoodSound: {fileID: 8300000, guid: 283faac1d43a79248911578cd6f8f53f, type: 3}
   gunshotSound: {fileID: 8300000, guid: fd14cc8459ac1f844b08948c8a9b9405, type: 3}
   flySpeed: 70
+  pointsScored: 20
   minMaxSecsBeforeHitting: {x: 0.2, y: 1.5}
   garageDoor: {fileID: 0}
   <EnemySO>k__BackingField: {fileID: 11400000, guid: b42eafa3a270e5a48bba1d1286b95125, type: 2}

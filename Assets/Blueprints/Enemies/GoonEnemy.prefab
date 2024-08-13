@@ -17,6 +17,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
+      propertyPath: pointsScored
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
       propertyPath: characterSprite
       value: 
       objectReference: {fileID: 1820710585319719091}

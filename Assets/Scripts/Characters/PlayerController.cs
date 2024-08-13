@@ -38,7 +38,7 @@ public class PlayerController : BaseCharacterController {
     }
 
     public void StartNewLevel() {
-        PrecisePosition = new Vector3(-20, 6, 6);
+        PrecisePosition = new Vector3(-40, 6, 6);
         preciseVelocity = Vector3.zero;
         CurrentHP = MaxHP;
         UI.Instance.NotifyHeroHealthChange(this);
@@ -79,7 +79,7 @@ public class PlayerController : BaseCharacterController {
             Vector2 attackVector = damageOrigin.x < PrecisePosition.x ? Vector2.right : Vector2.left;
             ReceiveDamage(dmg);
             animator.SetBool("IsJumping", false);
-            if (hitType == Hit.Type.Knockdown || (CurrentHP <= 0)) {
+            if (hitType == Hit.Type.Knockdown || (CurrentHP <= 0) || height > 0) {
                 animator.SetBool("IsFalling", true);
                 state = State.Falling;
                 preciseVelocity = attackVector * 50f;
@@ -321,6 +321,7 @@ public class PlayerController : BaseCharacterController {
 
     private bool CanPickUpItemFromGround() {
         if (PickableItem == null) return false;
+        if (PickableItem.Type == Pickable.PickableType.Food) return true;
         if (HasKnife || HasGun) return false;
         if (HasKnife && PickableItem.Type == Pickable.PickableType.Knife) return false;
         if (HasGun && PickableItem.Type == Pickable.PickableType.Gun) return false;

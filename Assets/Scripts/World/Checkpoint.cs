@@ -16,15 +16,9 @@ public class Checkpoint : MonoBehaviour
     private bool isCompleted = false;
     private bool hasNotifiedCompletion = false;
 
-    //private Queue<EnemyController> enemiesLeft;
-    //private List<EnemyController> activeEnemies;
-
     private void Start()
     {
-        //enemiesLeft = new Queue<EnemyController>();
-        //activeEnemies = new List<EnemyController>();
         foreach (EnemyController enemy in GetComponentsInChildren<EnemyController>()) {
-            //enemiesLeft.Enqueue(enemy);
             enemy.InitializeFromCheckpoint(this);
         }
     }
@@ -36,9 +30,6 @@ public class Checkpoint : MonoBehaviour
             boss.OnDeath += OnBossDeath;
             ((IBoss) boss).Activate();
         }
-        //for (int i=0; i<maxEnemiesAtOnce; i++) {
-        //    TryActivateNewEnemy();
-        //}
     }
 
     private void Update() {
@@ -67,26 +58,5 @@ public class Checkpoint : MonoBehaviour
         isCompleted = true;
     }
 
-    //private void TryActivateNewEnemy() {
-    //    if (activeEnemies.Count < maxEnemiesAtOnce && enemiesLeft.Count > 0) {
-    //        EnemyController enemy = enemiesLeft.Dequeue();
-    //        enemy.OnDying += OnEnemyDying;
-    //        enemy.OnDeath += OnEnemyDeath;
-    //        enemy.ActivateFromCheckpoint();
-    //        activeEnemies.Add(enemy);
-    //    }
-    //}
-
-    //private void OnEnemyDying(object sender, EventArgs e) {
-    //    activeEnemies.Remove((EnemyController)sender);
-    //    TryActivateNewEnemy();
-    //}
-
-    //private void OnEnemyDeath(object sender, System.EventArgs e) {
-    //    if (activeEnemies.Count == 0 && !isCompleted) {
-    //        OnComplete?.Invoke(this, EventArgs.Empty);
-    //        isCompleted = true;
-    //    }
-    //}
 
 }

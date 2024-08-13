@@ -14,12 +14,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
       propertyPath: moveSpeed
-      value: 14
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
+      propertyPath: pointsScored
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
       propertyPath: characterSprite
       value: 
       objectReference: {fileID: 8263524357648388278}
+    - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
+      propertyPath: hasMultipleKnives
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
       propertyPath: <MaxHP>k__BackingField
       value: 20
@@ -32,6 +40,10 @@ PrefabInstance:
       propertyPath: <EnemySO>k__BackingField
       value: 
       objectReference: {fileID: 11400000, guid: eaef51caf13a9e146bacc2a175430493, type: 2}
+    - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
+      propertyPath: <HasKnife>k__BackingField
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4466389612217876976, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
       propertyPath: m_Name
       value: LoneWolfEnemy

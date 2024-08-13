@@ -13,9 +13,21 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
+      propertyPath: moveSpeed
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
+      propertyPath: pointsScored
+      value: 32
+      objectReference: {fileID: 0}
+    - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
       propertyPath: characterSprite
       value: 
       objectReference: {fileID: 1335151725134185513}
+    - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
+      propertyPath: hasMultipleKnives
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
       propertyPath: timeBetweenGunShot
       value: 0.3
@@ -32,6 +44,10 @@ PrefabInstance:
       propertyPath: <EnemySO>k__BackingField
       value: 
       objectReference: {fileID: 11400000, guid: 3fc4c7031564c784ea70429d97f1843c, type: 2}
+    - target: {fileID: 3359217256364679209, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
+      propertyPath: <HasKnife>k__BackingField
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3472025449050970054, guid: 5d2ce0274b4e1b045b343115f3e0629c, type: 3}
       propertyPath: m_IsActive
       value: 1

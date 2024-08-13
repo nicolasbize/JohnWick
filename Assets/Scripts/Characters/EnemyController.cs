@@ -8,6 +8,7 @@ public class EnemyController : BaseCharacterController {
     public enum Type { Biker, Goon, Punk, StreetBoss, Thug, LoneWolf, Ruffian, BarBoss}
 
     [SerializeField] private float flySpeed;
+    [SerializeField] private int pointsScored;
     [SerializeField] private Vector2 minMaxSecsBeforeHitting;
     //[SerializeField] private PlayerController player;
     [SerializeField] private GarageDoor garageDoor;
@@ -104,6 +105,7 @@ public class EnemyController : BaseCharacterController {
         if (player != null) {
             player.UnregisterEnemy(this);
         }
+        UI.Instance.AddScore(pointsScored);
         Destroy(gameObject);
     }
 
