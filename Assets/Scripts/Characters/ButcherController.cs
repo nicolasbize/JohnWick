@@ -8,6 +8,8 @@ public class ButcherController : BaseCharacterController, IBoss {
     [SerializeField] private Vector2 minMaxSecsBeforeHitting;
     [SerializeField] private float flyKickPower;
     [SerializeField] private float summersaltDuration;
+    [SerializeField] private Breakable breakableBar;
+    [SerializeField] private AudioClip gruntSound;
     [field: SerializeField] public EnemySO EnemySO { get; private set; }
 
     private bool isDoingEntrance = true;
@@ -31,10 +33,11 @@ public class ButcherController : BaseCharacterController, IBoss {
     }
 
     public void Activate() {
-        Debug.Log("activating boss");
         // summersalt / destroy bar
         isDoingEntrance = false;
+        breakableBar.Break(PrecisePosition);
         HasStartedEngaging = true;
+        StartSummersalt();
     }
 
     public override bool IsVulnerable(Vector2 damageOrigin, bool canBlock = true) {
@@ -62,7 +65,7 @@ public class ButcherController : BaseCharacterController, IBoss {
                 dzHeight = 2f;
                 Camera.main.GetComponent<CameraFollow>().Shake(0.35f, 2);
                 GenerateSparkFX();
-                audioSource.PlayOneShot(hitAltSound);
+                audioSource.PlayOneShot(gruntSound);
             }
             isInHittingStance = false;
 
@@ -71,15 +74,20 @@ public class ButcherController : BaseCharacterController, IBoss {
 
     protected override void DoWorkAfterHurtComplete() {
         if (hitsReceivedBeforeAttacking >= 3) {
-            nextAttackType = AttackType.SummerSalt;
-            isInHittingStance = true;
-            state = State.PreparingAttack;
-            timeSincePreparedToHit = Time.timeSinceLevelLoad;
-            waitDurationBeforeHit = 1f;
-            animator.SetBool("IsSummersalting", true);
-            animator.SetTrigger("StartSummersalt");
+            StartSummersalt();
         }
     }
+
+    private void StartSummersalt() {
+        nextAttackType = AttackType.SummerSalt;
+        isInHittingStance = true;
+        state = State.PreparingAttack;
+        timeSincePreparedToHit = Time.timeSinceLevelLoad;
+        waitDurationBeforeHit = 1f;
+        animator.SetBool("IsSummersalting", true);
+        animator.SetTrigger("StartSummersalt");
+    }
+
 
     protected override void ReceiveDamage(int damage) {
         base.ReceiveDamage(damage);
@@ -88,7 +96,7 @@ public class ButcherController : BaseCharacterController, IBoss {
 
     protected override void FixedUpdate() {
         if (isDoingEntrance) {
-            //HandleEntrance();
+            HandleEntrance();
         } else if (!HasStartedEngaging) {
             // not sure we need to do anything here?
         } else {
@@ -100,12 +108,17 @@ public class ButcherController : BaseCharacterController, IBoss {
             HandleFalling();
             HandleGrounded();
         }
+        FixIncorrectState();
     }
 
     protected override void MaybeInductDamage(bool muteMissSounds = false) {
         if (IsPlayerWithinReach() && player.IsVulnerable(PrecisePosition)) {
             player.ReceiveHit(PrecisePosition, 3, Hit.Type.Knockdown);
         }
+    }
+
+    private void HandleEntrance() {
+
     }
 
     private void HandleMoving() {
@@ -146,6 +159,7 @@ public class ButcherController : BaseCharacterController, IBoss {
         if (state == State.Summersalting) {
             if (Time.timeSinceLevelLoad - timeSinceStartSummersalt > summersaltDuration) {
                 animator.SetBool("IsSummersalting", false);
+                HasStartedEngaging = true;
                 hitsReceivedBeforeAttacking = 0;
                 state = State.Idle;
                 PickNextRandomAttack();

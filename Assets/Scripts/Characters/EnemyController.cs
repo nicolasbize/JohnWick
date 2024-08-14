@@ -192,6 +192,7 @@ public class EnemyController : BaseCharacterController {
             HandleAttack();
             CheckForKnifeRespawn();
         }
+        FixIncorrectState();
     }
 
 

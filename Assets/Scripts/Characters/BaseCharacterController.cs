@@ -209,7 +209,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
             if (this is PlayerController && destination.y > 30) return false;
             if (this is PlayerController && destination.y < 2) return false;
             if (this is PlayerController && World.Instance.CurrentLevelIndex == 0 && destination.x > 294 && destination.y > 28 - (destination.x - 295)) return false;
-            if (this is PlayerController && World.Instance.CurrentLevelIndex == 0) { //todo: swap this back to 1 when levels are both loaded
+            if (this is PlayerController && World.Instance.CurrentLevelIndex == 1) { //todo: swap this back to 1 when levels are both loaded
                 // check if the boss is registered, might be super slow let's see.
                 ButcherController boss = (ButcherController)((PlayerController)this).Enemies.Find(e => e is ButcherController);
                 if (boss != null && !boss.HasStartedEngaging) {
@@ -219,26 +219,30 @@ public abstract class BaseCharacterController : MonoBehaviour {
             }
         }
 
+        if (this is PlayerController) {
+            Vector3 targetedPosition = new Vector3(Mathf.FloorToInt(destination.x), Mathf.FloorToInt(destination.y), 0);
+            Vector2 direction = (targetedPosition - transform.position).normalized;
+            LayerMask mask = LayerMask.GetMask("Breakable");
+            RaycastHit2D hit = Physics2D.Raycast(transform.position + Vector3.down * height, direction, 3f, mask);
+            if (hit.collider != null) return false;
+        }
+        
         return true;
 
-        //if (state == State.Dying) return true;
-        //Vector3 targetedPosition = new Vector3(Mathf.FloorToInt(destination.x), Mathf.FloorToInt(destination.y), 0);
-        //Vector2 direction = (targetedPosition - transform.position).normalized;
-        //LayerMask worldMask = LayerMask.GetMask("World");
-        //LayerMask enemyMask = LayerMask.GetMask("Enemy");
-        //LayerMask barrelMask = LayerMask.GetMask("Barrel");
-        //LayerMask mask;
-        //if (this is EnemyController) {
-        //    mask = enemyMask; // only collide with other enemies
-        //} else {
-        //    mask = worldMask | barrelMask;
-        //}
-        //RaycastHit2D hit = Physics2D.Raycast(transform.position + Vector3.down * height, direction, 3f, mask);
-        ////Debug.DrawRay(transform.position + Vector3.down * Mathf.CeilToInt(height), direction, Color.red);
-        ////if (hit.collider != null && hit.collider.gameObject != gameObject) {
-        ////    Debug.Log(hit.collider);
-        ////}
-        //return hit.collider == null || hit.collider.gameObject == gameObject;
+
+    }
+
+    protected void FixIncorrectState() {
+        // sometimes we can get in these weird anim states that don't correlate with character states.
+        // call this method to fix it
+        AnimatorClipInfo[] animatorInfo = this.animator.GetCurrentAnimatorClipInfo(0);
+        if (animatorInfo.Length > 0) {
+            string currentAnimation = animatorInfo[0].clip.name;
+            if (currentAnimation == "Fall" && (state != State.Falling && state != State.Grounded)) {
+                Debug.Log("fixed incorrect Falling state, was " + state);
+                state = State.Falling;
+            }
+        }
     }
 
     protected void HandleDropping() {
@@ -326,7 +330,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
         spark.transform.position = new Vector3(transform.position.x, transform.position.y + 12, 0);
     }
 
-    protected bool CanAttack() {
+    protected virtual bool CanAttack() {
         return state == State.Idle || state == State.Walking || state == State.Jumping;
     }
 

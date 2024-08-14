@@ -52,6 +52,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: BreakableBar
       objectReference: {fileID: 0}
+    - target: {fileID: 7512048019359404943, guid: aed02cd59a3e4ef468804ad793475b0c, type: 3}
+      propertyPath: pickablePrefab
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 7591606529288992929, guid: aed02cd59a3e4ef468804ad793475b0c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

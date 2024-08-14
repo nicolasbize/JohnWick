@@ -54,8 +54,10 @@ public class Breakable : MonoBehaviour
             bottomFixedSprite.GetComponent<SpriteRenderer>().enabled = true;
             brokenObjectSprite.GetComponent<SpriteRenderer>().enabled = true;
             velocity = new Vector2(transform.position.x - hitPosition.x, 0).normalized * intensity;
-            Pickable pickable = Instantiate<Pickable>(pickablePrefab, transform.parent);
-            pickable.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.y);
+            if (pickablePrefab != null) {
+                Pickable pickable = Instantiate<Pickable>(pickablePrefab, transform.parent);
+                pickable.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.y);
+            }
         }
     }
 }

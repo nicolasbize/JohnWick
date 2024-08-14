@@ -1,14 +1,19 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Level : MonoBehaviour
 {
     public event EventHandler OnStartTransition;
-    
+
+    [SerializeField] private AudioClip levelMusic;
+
     private Checkpoint nextCheckpoint = null;
     private Queue<Checkpoint> checkpointQueue = new Queue<Checkpoint>();
     private CameraFollow mainCamera;
+    private AudioSource audioSource;
+    private bool isFadingOutMusic = false;
 
     private void Start() {
         mainCamera = Camera.main.GetComponent<CameraFollow>();
@@ -16,6 +21,9 @@ public class Level : MonoBehaviour
         foreach(Checkpoint checkpoint in GetComponentsInChildren<Checkpoint>()) {
             checkpointQueue.Enqueue(checkpoint);
         }
+        audioSource = GetComponent<AudioSource>();
+        audioSource.clip = levelMusic;
+        audioSource.Play();
         ActivateNextCheckpoint(false);
     }
 
@@ -33,7 +41,19 @@ public class Level : MonoBehaviour
             }
         } else {
             nextCheckpoint = null;
+            FadeOutMusic(2, 0);
         }
+    }
+
+    public IEnumerator FadeOutMusic(float duration, float targetVolume) {
+        float currentTime = 0;
+        float start = audioSource.volume;
+        while (currentTime < duration) {
+            currentTime += Time.deltaTime;
+            audioSource.volume = Mathf.Lerp(start, targetVolume, currentTime / duration);
+            yield return null;
+        }
+        yield break;
     }
 
     private void OnCompleteCheckpoint(object sender, System.EventArgs e) {

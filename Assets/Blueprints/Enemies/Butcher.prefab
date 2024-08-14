@@ -169,7 +169,7 @@ MonoBehaviour:
   shadowSprite: {fileID: 6803759860754442363}
   knifeTransform: {fileID: 0}
   gunTransform: {fileID: 0}
-  gravity: 10
+  gravity: 4
   verticalMarginBetweenEnemyAndPlayer: 6
   thrownKnifePrefab: {fileID: 0}
   thrownGunPrefab: {fileID: 0}
@@ -185,6 +185,8 @@ MonoBehaviour:
   minMaxSecsBeforeHitting: {x: 0.5, y: 1}
   flyKickPower: 100
   summersaltDuration: 0.5
+  breakableBar: {fileID: 0}
+  gruntSound: {fileID: 8300000, guid: a1c01f5859a02ba4dae16340f1290add, type: 3}
   <EnemySO>k__BackingField: {fileID: 11400000, guid: 916e6afc9dd843f41a4fac36b46af2c4, type: 2}
 --- !u!82 &4174640093849827705
 AudioSource:

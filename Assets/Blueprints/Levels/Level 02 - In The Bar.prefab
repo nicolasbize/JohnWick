@@ -490,6 +490,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Butcher
       objectReference: {fileID: 0}
+    - target: {fileID: 8870292393117114517, guid: 875a6ac7c17c67845b5b6e8508f97981, type: 3}
+      propertyPath: breakableBar
+      value: 
+      objectReference: {fileID: 1726048886216202480}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -500,6 +504,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6194392384257501134, guid: 875a6ac7c17c67845b5b6e8508f97981, type: 3}
   m_PrefabInstance: {fileID: 356400625151759189}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &9217649721911129024 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8870292393117114517, guid: 875a6ac7c17c67845b5b6e8508f97981, type: 3}
+  m_PrefabInstance: {fileID: 356400625151759189}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d8b10fd7f64d64bbfe793d3d7f488e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &518254281740141745
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1128,6 +1143,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 811181253990790471, guid: ba4b7185133a4e446ac3f80440fafbc9, type: 3}
   m_PrefabInstance: {fileID: 2138971681260422809}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1726048886216202480 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 746206898227109481, guid: ba4b7185133a4e446ac3f80440fafbc9, type: 3}
+  m_PrefabInstance: {fileID: 2138971681260422809}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70464603422872c4895e417fcfd22402, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2201141220375333878
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1448,19 +1474,23 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 609781915005355062, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 782630349312854814, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
+      propertyPath: boss
+      value: 
+      objectReference: {fileID: 9217649721911129024}
     - target: {fileID: 782630349312854814, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
       propertyPath: <CameraLockTargetX>k__BackingField
       value: 286
       objectReference: {fileID: 0}
     - target: {fileID: 851402242040165462, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1155026842334879234, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4643080324596093225, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1516,8 +1546,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6160093828161736140, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8968172692976266877, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
+      propertyPath: levelMusic
+      value: 
+      objectReference: {fileID: 8300000, guid: 1db5512d23b4e3b4392a071a4f9f4a39, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:

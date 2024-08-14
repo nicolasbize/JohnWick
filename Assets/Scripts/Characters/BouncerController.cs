@@ -9,6 +9,7 @@ public class BouncerController : BaseCharacterController, IBoss {
     [SerializeField] private float minTimeToAttackAfterBlock;
     [SerializeField] private Vector2 minMaxSecsBeforeHitting;
     [SerializeField] private float superPunchPower;
+    [SerializeField] private AudioClip gruntSound;
 
     private float timeSinceLanded = float.NegativeInfinity;
     private float durationLanding = 1f;
@@ -83,7 +84,7 @@ public class BouncerController : BaseCharacterController, IBoss {
                     dzHeight = 2f;
                     Camera.main.GetComponent<CameraFollow>().Shake(0.35f, 2);
                     GenerateSparkFX();
-                    audioSource.PlayOneShot(hitAltSound);
+                    audioSource.PlayOneShot(gruntSound);
                 }
             }
             isInHittingStance = false;
@@ -110,6 +111,7 @@ public class BouncerController : BaseCharacterController, IBoss {
             HandleFalling();
             HandleGrounded();
         }
+        FixIncorrectState();
     }
 
     protected override void MaybeInductDamage(bool muteMissSounds = false) {

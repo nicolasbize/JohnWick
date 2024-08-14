@@ -12,6 +12,8 @@ public class PlayerController : BaseCharacterController {
     private bool hasFinishedTransition = false;
     private bool hasCompletedLevel = false;
     private bool isAirKicking = false;
+    private float timeSinceLanded = float.NegativeInfinity;
+    private float durationBetweenJumps = 0.3f;
 
     private List<Vector2> transitionDestinations = new List<Vector2>() {
         new Vector2(300, 3), new Vector2(360, 3)
@@ -178,6 +180,18 @@ public class PlayerController : BaseCharacterController {
         ComboIndicator.Instance.ResetCombo();
     }
 
+    private bool isAttackPressed = false;
+    private bool isJumpPressed = false;
+
+    private void Update() {
+        if (Input.GetButtonDown("Jump") && (Time.timeSinceLevelLoad - timeSinceLanded > durationBetweenJumps)) {
+            isJumpPressed = true;
+        }
+        if (Input.GetButtonDown("Attack")) {
+            isAttackPressed = true;
+        }
+    }
+
     protected override void FixedUpdate() {
         if (hasCompletedLevel) return;
         if (isTransitioningLevel && !hasFinishedTransition) {
@@ -204,6 +218,8 @@ public class PlayerController : BaseCharacterController {
             if (Time.timeSinceLevelLoad - timeLastAttack > comboAttackMaxDuration) {
                 BreakCombo();
             }
+
+            FixIncorrectState();
         }
     }
 
@@ -242,11 +258,12 @@ public class PlayerController : BaseCharacterController {
     }
 
     private void HandleJumpingWithInput() {
-        if (CanJump() && Input.GetButtonDown("Jump")) {
+        if (CanJump() && isJumpPressed && (Time.timeSinceLevelLoad - timeSinceLanded > durationBetweenJumps)) {
             dzHeight = jumpForce * Time.deltaTime;
             state = State.Jumping;
             animator.SetBool("IsJumping", true);
             audioSource.PlayOneShot(missSound);
+            isJumpPressed = false;
         }
 
         if (state == State.Jumping) {
@@ -257,6 +274,7 @@ public class PlayerController : BaseCharacterController {
                 height = 0f;
                 animator.SetBool("IsJumping", false);
                 isAirKicking = false;
+                timeSinceLanded = Time.timeSinceLevelLoad;
             }
         }
     }
@@ -272,7 +290,8 @@ public class PlayerController : BaseCharacterController {
     }
 
     private void HandleAttackingWithInput() {
-        if (CanAttack() && Input.GetButtonDown("Attack")) {
+        if (CanAttack() && isAttackPressed) {
+            isAttackPressed = false;
             // first check if there is something to pick up
             if (CanPickUpItemFromGround()) {
                 animator.SetTrigger("Pickup");
@@ -337,6 +356,10 @@ public class PlayerController : BaseCharacterController {
             barrel.Break(PrecisePosition);
             audioSource.PlayOneShot(hitAltSound);
         }
+    }
+
+    protected override bool CanAttack() {
+        return state == State.Idle || state == State.Walking || state == State.Jumping;
     }
 
     private void HandleWalkingWithInput() {
