@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
 public abstract class BaseCharacterController : MonoBehaviour {
@@ -232,18 +231,6 @@ public abstract class BaseCharacterController : MonoBehaviour {
 
     }
 
-    protected void FixIncorrectState() {
-        // sometimes we can get in these weird anim states that don't correlate with character states.
-        // call this method to fix it
-        AnimatorClipInfo[] animatorInfo = this.animator.GetCurrentAnimatorClipInfo(0);
-        if (animatorInfo.Length > 0) {
-            string currentAnimation = animatorInfo[0].clip.name;
-            if (currentAnimation == "Fall" && (state != State.Falling && state != State.Grounded)) {
-                Debug.Log("fixed incorrect Falling state, was " + state);
-                state = State.Falling;
-            }
-        }
-    }
 
     protected void HandleDropping() {
         if (state == State.Dropping) {

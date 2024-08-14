@@ -5,11 +5,13 @@ using UnityEngine;
 
 public class ComboIndicator : MonoBehaviour
 {
-    [SerializeField] Transform multiplierIndicator;
-    [SerializeField] Counter comboIndicator;
-    [SerializeField] Counter scoreIndicator;
+    [SerializeField] private Transform multiplierIndicator;
+    [SerializeField] private Counter comboIndicator;
+    [SerializeField] private Counter scoreIndicator;
+    [SerializeField] private float comboAttackMaxDuration; // s to perform combo
 
     private int currentComboMultiplier = 0;
+    private float timeSinceLastComboIncrease = float.NegativeInfinity;
 
     public static ComboIndicator Instance;
 
@@ -19,6 +21,12 @@ public class ComboIndicator : MonoBehaviour
 
     private void Start() {
         RefreshCounter();
+    }
+
+    private void Update() {
+        if (currentComboMultiplier > 0 && (Time.timeSinceLevelLoad - timeSinceLastComboIncrease > comboAttackMaxDuration)) {
+            ResetCombo();
+        }
     }
 
     public void ResetCombo() {
@@ -31,6 +39,7 @@ public class ComboIndicator : MonoBehaviour
     }
 
     public void IncreaseCombo() {
+        timeSinceLastComboIncrease = Time.timeSinceLevelLoad;
         currentComboMultiplier += 1;
         RefreshCounter();
     }

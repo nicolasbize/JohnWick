@@ -373,6 +373,7 @@ MonoBehaviour:
   multiplierIndicator: {fileID: 1376166980}
   comboIndicator: {fileID: 92457563}
   scoreIndicator: {fileID: 1265158783}
+  comboAttackMaxDuration: 3
 --- !u!1001 &195933282
 PrefabInstance:
   m_ObjectHideFlags: 0

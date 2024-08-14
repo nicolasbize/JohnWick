@@ -5,7 +5,6 @@ using UnityEngine;
 public class PlayerController : BaseCharacterController {
 
     [SerializeField] private float jumpForce;
-    [SerializeField] private float comboAttackMaxDuration; // s to perform combo
     
     public List<BaseCharacterController> Enemies { get; private set; }
     private bool isTransitioningLevel = false;
@@ -123,7 +122,6 @@ public class PlayerController : BaseCharacterController {
     }
 
     private void Sprite_OnAttackAnimationComplete(object sender, System.EventArgs e) {
-        timeLastAttack = Time.timeSinceLevelLoad;
         state = State.Idle;
     }
 
@@ -156,18 +154,12 @@ public class PlayerController : BaseCharacterController {
                 hasHitEnemy = true;
             }
         }
-        
+
         // increment combo
         if (hasHitEnemy) {
-            if (Time.timeSinceLevelLoad - timeLastAttack < comboAttackMaxDuration) {
-                currentComboIndex = (currentComboIndex + 1) % comboAttackTriggers.Count;
-                ComboIndicator.Instance.IncreaseCombo();
-            } else {
-                BreakCombo();
-            }
-            timeLastAttack = Time.timeSinceLevelLoad;
+            currentComboIndex = (currentComboIndex + 1) % comboAttackTriggers.Count;
         } else {
-            // don't reset combo but start over
+            // start combo motion over
             currentComboIndex = 0;
             if (!muteMissSounds) {
                 audioSource.PlayOneShot(missSound);
@@ -215,11 +207,20 @@ public class PlayerController : BaseCharacterController {
 
             RestrictScreenBoundaries();
 
-            if (Time.timeSinceLevelLoad - timeLastAttack > comboAttackMaxDuration) {
-                BreakCombo();
-            }
-
             FixIncorrectState();
+        }
+    }
+
+    protected void FixIncorrectState() {
+        // sometimes we can get in these weird anim states that don't correlate with character states.
+        // call this method to fix it
+        AnimatorClipInfo[] animatorInfo = this.animator.GetCurrentAnimatorClipInfo(0);
+        if (animatorInfo.Length > 0) {
+            string currentAnimation = animatorInfo[0].clip.name;
+            if (currentAnimation == "Fall" && (state != State.Falling && state != State.Grounded)) {
+                Debug.Log("fixed incorrect Falling state, was " + state);
+                state = State.Falling;
+            }
         }
     }
 

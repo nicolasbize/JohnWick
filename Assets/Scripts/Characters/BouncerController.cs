@@ -63,6 +63,7 @@ public class BouncerController : BaseCharacterController, IBoss {
 
     public override void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
+            ComboIndicator.Instance.IncreaseCombo();
             if (hitsReceivedBeforeBlocking > 1) {
                 isBlocking = true;
                 animator.SetBool("IsBlocking", true);
@@ -111,7 +112,6 @@ public class BouncerController : BaseCharacterController, IBoss {
             HandleFalling();
             HandleGrounded();
         }
-        FixIncorrectState();
     }
 
     protected override void MaybeInductDamage(bool muteMissSounds = false) {

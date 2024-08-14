@@ -1,7 +1,5 @@
 using System;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class EnemyController : BaseCharacterController {
     
@@ -112,6 +110,7 @@ public class EnemyController : BaseCharacterController {
     public override void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
             ReceiveDamage(dmg);
+            ComboIndicator.Instance.IncreaseCombo();
             Vector2 attackVector = damageOrigin.x < PrecisePosition.x ? Vector2.right : Vector2.left;
             isInHittingStance = false; // knocks player out a bit
             if (HasKnife) {
@@ -192,7 +191,6 @@ public class EnemyController : BaseCharacterController {
             HandleAttack();
             CheckForKnifeRespawn();
         }
-        FixIncorrectState();
     }
 
 
