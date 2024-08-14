@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor.Search;
 using UnityEngine;
 
 public class MainMenu : MonoBehaviour
@@ -9,13 +10,29 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private SplashScreen splashScreen;
     [SerializeField] private List<TextMeshProUGUI> menuOptions;
     [SerializeField] private Credits creditsScreen;
+    [SerializeField] private Options optionsScreen;
+    [SerializeField] private AudioClip moveMenuSound;
+    [SerializeField] private AudioClip selectSound;
 
     private int currentMenuSelectionIndex = 0;
     private bool inMainMenu = false;
     private bool isVerticalMovementDetected = false;
+    private AudioSource audioSource;
+
+    public static MainMenu Instance;
 
     private void Awake() {
         splashScreen.OnFinishSplash += OnFinishSplashScreen;
+        audioSource = GetComponent<AudioSource>();
+        Instance = this;
+    }
+
+    public void PlayMenuMovementSound() {
+        audioSource.PlayOneShot(moveMenuSound);
+    }
+
+    public void PlayMenuSelectSound() {
+        audioSource.PlayOneShot(selectSound);
     }
 
     private void OnFinishSplashScreen(object sender, System.EventArgs e) {
@@ -28,7 +45,14 @@ public class MainMenu : MonoBehaviour
         splashScreen.gameObject.SetActive(!skipSplash);
         creditsScreen.OnDismiss += OnCreditsDismiss;
         creditsScreen.gameObject.SetActive(false);
+        optionsScreen.gameObject.SetActive(false);
+        optionsScreen.OnDismiss += OnOptionsDismiss;
         RefreshSelection();
+    }
+
+    private void OnOptionsDismiss(object sender, System.EventArgs e) {
+        optionsScreen.gameObject.SetActive(false);
+        inMainMenu = true;
     }
 
     private void OnCreditsDismiss(object sender, System.EventArgs e) {
@@ -40,13 +64,25 @@ public class MainMenu : MonoBehaviour
         throw new System.NotImplementedException();
     }
 
-    private void RefreshSelection() {
-        ColorUtility.TryParseHtmlString("#59594E", out Color unselectedColor);
-        ColorUtility.TryParseHtmlString("#D2D27C", out Color selectedColor);
-        foreach (TextMeshProUGUI menuOption in menuOptions) {
-            menuOption.color = unselectedColor;
+    public Color UnselectedColor {
+        get {
+            ColorUtility.TryParseHtmlString("#59594E", out Color unselectedColor);
+            return unselectedColor;
         }
-        menuOptions[currentMenuSelectionIndex].color = selectedColor;
+    }
+
+    public Color SelectedColor {
+        get {
+            ColorUtility.TryParseHtmlString("#D2D27C", out Color unselectedColor);
+            return unselectedColor;
+        }
+    }
+
+    private void RefreshSelection() {
+        foreach (TextMeshProUGUI menuOption in menuOptions) {
+            menuOption.color = UnselectedColor;
+        }
+        menuOptions[currentMenuSelectionIndex].color = SelectedColor;
     }
 
     private void Update() {
@@ -58,6 +94,7 @@ public class MainMenu : MonoBehaviour
                 if (currentMenuSelectionIndex < 0) {
                     currentMenuSelectionIndex = menuOptions.Count - 1;
                 }
+                PlayMenuMovementSound();
                 RefreshSelection();
             } else if (!isVerticalMovementDetected && upDownMovement < 0) {
                 currentMenuSelectionIndex += 1;
@@ -65,12 +102,14 @@ public class MainMenu : MonoBehaviour
                 if (currentMenuSelectionIndex > menuOptions.Count - 1) {
                     currentMenuSelectionIndex = 0;
                 }
+                PlayMenuMovementSound();
                 RefreshSelection();
             } else if (upDownMovement == 0) {
                 isVerticalMovementDetected = false;
             }
 
             if (IsSelectionMade()) {
+                PlayMenuSelectSound();
                 EnterSelection();
             }
         }
@@ -83,14 +122,19 @@ public class MainMenu : MonoBehaviour
             // Play the Intro
             // Play the game
         } else if (currentMenuSelectionIndex == 1) {
-            // Show Options
+            ShowOptions();
         } else {
             ShowCredits();
         }
     }
 
-    private bool IsSelectionMade() {
+    public bool IsSelectionMade() {
         return Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetButtonDown("Attack");
+    }
+
+    private void ShowOptions() {
+        optionsScreen.gameObject.SetActive(true);
+        optionsScreen.RefreshOptions();
     }
 
     private void ShowCredits() {

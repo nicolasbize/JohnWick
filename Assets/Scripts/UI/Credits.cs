@@ -1,26 +1,66 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Credits : MonoBehaviour
 {
 
     public event EventHandler OnDismiss;
-    private Animator animator;
+
+    [SerializeField] private RectTransform creditsContainer;
+    [SerializeField] private int startPositionY;
+    [SerializeField] private int endPositionY;
+    [SerializeField] private float durationRoll;
+
+    private float preciseY;
+    private bool isStarted = false;
+    private bool isActivated = false;
+    private bool isRolling = false;
+    private float timeSinceStartedRolling = float.NegativeInfinity;
 
     private void Start() {
-        animator = GetComponent<Animator>();
+        isStarted = true;
+        if (isActivated) {
+            StartRolling();
+        }
     }
 
     public void Activate() {
-        animator.SetBool("IsRolling", true);
+        if (isStarted) {
+            StartRolling();
+        } else {
+            isActivated = true;
+        }
     }
 
+    private void StartRolling() {
+        ResetPosition();
+        timeSinceStartedRolling = Time.timeSinceLevelLoad;
+        isRolling = true;
+    }
+
+    private void ResetPosition() {
+        SetYPosition(startPositionY);
+    }
+
+    private void SetYPosition(float y) {
+        creditsContainer.anchoredPosition = new Vector3(0, Mathf.FloorToInt(y), 0);
+    }
+
+
     private void Update() {
-        animator.SetBool("IsRolling", false);
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetButtonDown("Attack")) {
+        if (MainMenu.Instance.IsSelectionMade()) {
+            isRolling = false;
+            MainMenu.Instance.PlayMenuSelectSound();
             OnDismiss?.Invoke(this, EventArgs.Empty);
+        }
+
+        if (isRolling) {
+            float progress = (Time.timeSinceLevelLoad - timeSinceStartedRolling) / durationRoll;
+            if (progress >= 1) {
+                progress = 1f;
+            }
+            preciseY = Mathf.Lerp(startPositionY, endPositionY, progress);
+            SetYPosition(preciseY);
         }
     }
 

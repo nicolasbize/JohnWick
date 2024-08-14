@@ -65,7 +65,7 @@ public class SplashScreen : MonoBehaviour
 
     private bool IsInputSkipped() {
         if (currentStep == Step.UIStable) {
-            return Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetButtonDown("Attack");
+            return MainMenu.Instance.IsSelectionMade();
         }
         return false;
     }
