@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SplashScreen : MonoBehaviour
+public class SplashScreen : MenuScreen
 {
     public event EventHandler OnFinishSplash;
 
@@ -65,7 +65,7 @@ public class SplashScreen : MonoBehaviour
 
     private bool IsInputSkipped() {
         if (currentStep == Step.UIStable) {
-            return MainMenu.Instance.IsSelectionMade();
+            return IsSelectionMade();
         }
         return false;
     }

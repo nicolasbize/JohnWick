@@ -1532,6 +1532,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5014788365500926874, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
+      propertyPath: OutputAudioMixerGroup
+      value: 
+      objectReference: {fileID: -9110640611469930388, guid: 5a82ce26fec1c77429ccdbd6ccc19824, type: 2}
     - target: {fileID: 5348538412328126231, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -1549,9 +1553,17 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8968172692976266877, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
+      propertyPath: melody
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8968172692976266877, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
       propertyPath: levelMusic
       value: 
       objectReference: {fileID: 8300000, guid: 1db5512d23b4e3b4392a071a4f9f4a39, type: 3}
+    - target: {fileID: 8968172692976266877, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
+      propertyPath: isFinalLevel
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:

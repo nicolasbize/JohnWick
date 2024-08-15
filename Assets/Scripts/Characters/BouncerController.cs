@@ -9,7 +9,6 @@ public class BouncerController : BaseCharacterController, IBoss {
     [SerializeField] private float minTimeToAttackAfterBlock;
     [SerializeField] private Vector2 minMaxSecsBeforeHitting;
     [SerializeField] private float superPunchPower;
-    [SerializeField] private AudioClip gruntSound;
 
     private float timeSinceLanded = float.NegativeInfinity;
     private float durationLanding = 1f;
@@ -69,14 +68,14 @@ public class BouncerController : BaseCharacterController, IBoss {
                 animator.SetBool("IsBlocking", true);
                 nextAttackType = Random.Range(0, 1) > 0.5f ? AttackType.NormalAttack : AttackType.SuperPunch;
                 timeSinceStartBlock = Time.timeSinceLevelLoad;
-                audioSource.PlayOneShot(hitAltSound);
+                SoundManager.Instance.Play(SoundManager.SoundType.HitAlt);
             } else {
                 ReceiveDamage(Math.Max(dmg - 1, 0));
                 Vector2 attackVector = damageOrigin.x < PrecisePosition.x ? Vector2.right : Vector2.left;
                 if (CurrentHP > 0) {
                     state = State.Hurt;
                     animator.SetTrigger("Hurt");
-                    audioSource.PlayOneShot(hitSound);
+                    SoundManager.Instance.Play(SoundManager.SoundType.Hit);
                     hitsReceivedBeforeBlocking += 1;
                 } else {
                     animator.SetBool("IsFalling", true);
@@ -85,7 +84,7 @@ public class BouncerController : BaseCharacterController, IBoss {
                     dzHeight = 2f;
                     Camera.main.GetComponent<CameraFollow>().Shake(0.35f, 2);
                     GenerateSparkFX();
-                    audioSource.PlayOneShot(gruntSound);
+                    SoundManager.Instance.Play(SoundManager.SoundType.Grunt);
                 }
             }
             isInHittingStance = false;
@@ -184,7 +183,7 @@ public class BouncerController : BaseCharacterController, IBoss {
                 animator.SetBool("IsBlocking", false);
                 animator.SetBool("IsSpecialAttack", true);
                 state = State.Flying;
-                audioSource.PlayOneShot(missSound);
+                SoundManager.Instance.Play(SoundManager.SoundType.MissJump);
                 preciseVelocity = (IsFacingLeft ? Vector2.left : Vector2.right) * superPunchPower;
             }
             isInHittingStance = false;
@@ -214,7 +213,7 @@ public class BouncerController : BaseCharacterController, IBoss {
                 state = State.Idle;
                 Camera.main.GetComponent<CameraFollow>().Shake(0.05f, 2);
                 nextAttackType = AttackType.NormalAttack;
-                audioSource.PlayOneShot(hitAltSound);
+                SoundManager.Instance.Play(SoundManager.SoundType.HitAlt);
             }
 
             // check if we're enountering the player

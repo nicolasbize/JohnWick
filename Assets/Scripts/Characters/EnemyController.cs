@@ -129,7 +129,7 @@ public class EnemyController : BaseCharacterController {
                 state = State.Flying;
                 preciseVelocity = attackVector * flySpeed;
                 GenerateSparkFX();
-                audioSource.PlayOneShot(hitAltSound);
+                SoundManager.Instance.Play(SoundManager.SoundType.HitAlt);
             } else if (hitType == Hit.Type.Knockdown || (CurrentHP <= 0)) {
                 animator.SetBool("IsFalling", true);
                 state = State.Falling;
@@ -137,12 +137,12 @@ public class EnemyController : BaseCharacterController {
                 dzHeight = 2f;
                 Camera.main.GetComponent<CameraFollow>().Shake(0.05f, 1);
                 GenerateSparkFX();
-                audioSource.PlayOneShot(hitAltSound);
+                SoundManager.Instance.Play(SoundManager.SoundType.HitAlt);
             } else {
                 preciseVelocity = attackVector * moveSpeed * 2;
                 state = State.Hurt;
                 animator.SetTrigger("Hurt");
-                audioSource.PlayOneShot(hitSound);
+                SoundManager.Instance.Play(SoundManager.SoundType.Hit);
             }
         }
     }
@@ -295,6 +295,12 @@ public class EnemyController : BaseCharacterController {
     }
 
     private void WalkTowards(Vector2 targetDestination) {
+        Vector2 xBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
+        float fasterInPositionSpeed = moveSpeed;
+        float buffer = 8f;
+        if (PrecisePosition.x < (xBoundaries.x + buffer) || PrecisePosition.x > (xBoundaries.y - buffer)) {
+            fasterInPositionSpeed *= 2; // get them in the screen faster
+        }
         preciseVelocity = targetDestination * moveSpeed;
         TryMoveTo(PrecisePosition + preciseVelocity * Time.deltaTime);
         if (preciseVelocity != Vector2.zero) {

@@ -27,11 +27,11 @@ public class RangePicker : MonoBehaviour, IActivable {
         }
         for (int i = 0; i < Value; i++) {
             Transform fullTick = Instantiate(fullTickPrefab, transform);
-            fullTick.GetComponent<RawImage>().color = isActivated ? MainMenu.Instance.SelectedColor : MainMenu.Instance.UnselectedColor;
+            fullTick.GetComponent<RawImage>().color = isActivated ? ColorHelper.SelectedColor : ColorHelper.UnselectedColor;
         }
         for (int i = 0; i < maxValue - Value; i++) {
             Transform emptyTick = Instantiate(emptyTickPrefab, transform);
-            emptyTick.GetComponent<RawImage>().color = isActivated ? MainMenu.Instance.SelectedColor : MainMenu.Instance.UnselectedColor;
+            emptyTick.GetComponent<RawImage>().color = isActivated ? ColorHelper.SelectedColor : ColorHelper.UnselectedColor;
         }
     }
 
@@ -45,11 +45,15 @@ public class RangePicker : MonoBehaviour, IActivable {
         RefreshPicker();
     }
 
+    public void SetValue(int value) {
+        Value = value;
+        RefreshPicker();
+    }
 
     private void Update()
     {
         if (isActivated) {
-            float leftRightMovement = Input.GetAxisRaw("Horizontal");
+            float leftRightMovement = Input.GetAxisRaw(InputHelper.AXIS_HORIZONTAL);
             if (!isHorizontalMovementDetected && leftRightMovement < 0) {
                 int prevValue = Value;
                 Value -= 1;

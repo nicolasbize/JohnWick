@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UI : MonoBehaviour
@@ -12,20 +13,18 @@ public class UI : MonoBehaviour
     [SerializeField] private Animator goIndicatorAnimator;
     [SerializeField] private PlayerController player;
     [SerializeField] private Continue continueScreen;
+    [SerializeField] private Options optionsScreen;
+    [SerializeField] private ScoreScreen scoreScreen;
     [SerializeField] private Counter score;
-    [SerializeField] private AudioClip gogogoSound;
-
-    private int highscore = 0;
 
     private float timeSinceLastHealthRefresh = float.NegativeInfinity;
-    private AudioSource audioSource;
     private bool isBossMode = false;
+    private bool isGameOver = false;
 
     public static UI Instance;
 
     private void Awake() {
         Instance = this;
-        audioSource = GetComponent<AudioSource>();
     }
 
     private void Start() {
@@ -34,30 +33,41 @@ public class UI : MonoBehaviour
         player.OnDeath += OnPlayerDeath;
         continueScreen.OnContinue += OnContinueGame;
         continueScreen.OnGameOver += OnGameOver;
+        scoreScreen.OnDismiss += OnDismissScore;
         goIndicatorAnimator.gameObject.SetActive(false);
+        optionsScreen.OnDismiss += OnOptionsDismiss;
+        score.SetValue(PlayerPrefs.GetInt(PrefsHelper.SCORE, 0));
+    }
+
+    private void OnOptionsDismiss(object sender, System.EventArgs e) {
+        optionsScreen.gameObject.SetActive(false);
+        Time.timeScale = 1f;
+    }
+
+    private void OnDismissScore(object sender, System.EventArgs e) {
+        if (isGameOver) {
+            // Fade out music
+            SceneManager.LoadScene(SceneHelper.MENU_SCENE, LoadSceneMode.Single);
+        }
     }
 
     private void OnGameOver(object sender, System.EventArgs e) {
-        MaybeIncreaseHighScore();
+        continueScreen.gameObject.SetActive(false);
+        PlayerPrefs.SetInt(PrefsHelper.SCORE, score.GetValue());
+        PlayerPrefs.SetInt(PrefsHelper.HEALTH, 0);
+        scoreScreen.gameObject.SetActive(true);
+        isGameOver = true;
     }
 
     private void OnContinueGame(object sender, System.EventArgs e) {
-        MaybeIncreaseHighScore();
         continueScreen.gameObject.SetActive(false);
-        // remove 300 points from current score
-        score.SetValue(Mathf.Max(0, score.GetValue() - 300));
+        // substract 1000 pts for each death
+        score.SetValue(Mathf.Max(0, score.GetValue() - 1000));
         player.Respawn();
     }
 
     public void AddScore(int value) {
         score.Add(value);
-    }
-
-    private void MaybeIncreaseHighScore() {
-        int currentScore = score.GetValue();
-        if (currentScore > highscore) {
-            highscore = currentScore;
-        }
     }
 
     private void OnPlayerDeath(object sender, System.EventArgs e) {
@@ -69,6 +79,12 @@ public class UI : MonoBehaviour
         if (enemyAvatar.gameObject.activeSelf && 
             (Time.timeSinceLevelLoad - timeSinceLastHealthRefresh > durationHealthDisplayed)) {
             HideEnemyHealthbar();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            Time.timeScale = 0f;
+            optionsScreen.gameObject.SetActive(true);
+            optionsScreen.RefreshOptions();
         }
     }
 
@@ -99,7 +115,7 @@ public class UI : MonoBehaviour
     public void NotifyGoGoGo() {
         goIndicatorAnimator.gameObject.SetActive(true);
         goIndicatorAnimator.SetTrigger("Flash");
-        audioSource.PlayOneShot(gogogoSound);
+        SoundManager.Instance.Play(SoundManager.SoundType.Gogogo);
     }
 
     private void HideEnemyHealthbar() {

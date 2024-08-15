@@ -218,7 +218,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 0
   speed: 150
-  zHitBuffer: 4
+  zHitBuffer: 6
   height: 10
   <Direction>k__BackingField: {x: 0, y: 0}
   <Emitter>k__BackingField: {fileID: 0}

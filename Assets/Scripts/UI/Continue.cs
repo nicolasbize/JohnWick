@@ -52,7 +52,6 @@ public class Continue : MonoBehaviour
     }
 
     private bool IsActionButtonPressed() {
-        return Input.GetButtonDown("Attack") || Input.GetButtonDown("Jump");
-        //return Input.GetButtonDown("Attack") || Input.GetButtonDown("Block") || Input.GetButtonDown("Jump"); // commented because blocking is out
+        return Input.GetButtonDown(InputHelper.BTN_ATTACK) || Input.GetButtonDown(InputHelper.BTN_JUMP);
     }
 }

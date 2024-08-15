@@ -6,14 +6,14 @@ using UnityEngine;
 public class Level : MonoBehaviour
 {
     public event EventHandler OnStartTransition;
+    public event EventHandler OnFinishLastLevel;
 
-    [SerializeField] private AudioClip levelMusic;
+    [SerializeField] private MusicManager.Melody melody;
+    [SerializeField] private bool isFinalLevel;
 
     private Checkpoint nextCheckpoint = null;
     private Queue<Checkpoint> checkpointQueue = new Queue<Checkpoint>();
     private CameraFollow mainCamera;
-    private AudioSource audioSource;
-    private bool isFadingOutMusic = false;
 
     private void Start() {
         mainCamera = Camera.main.GetComponent<CameraFollow>();
@@ -21,10 +21,15 @@ public class Level : MonoBehaviour
         foreach(Checkpoint checkpoint in GetComponentsInChildren<Checkpoint>()) {
             checkpointQueue.Enqueue(checkpoint);
         }
-        audioSource = GetComponent<AudioSource>();
-        audioSource.clip = levelMusic;
-        audioSource.Play();
+        MusicManager.Instance.OnFadeOut += OnMusicFadeOutComplete;
+        MusicManager.Instance.Play(melody);
         ActivateNextCheckpoint(false);
+    }
+
+    private void OnMusicFadeOutComplete(object sender, MusicManager.OnFadeEventArgs e) {
+        if (isFinalLevel && e.musicFaded == melody) {
+            OnFinishLastLevel?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     private void ActivateNextCheckpoint(bool flashGoIndicator = true) {
@@ -41,19 +46,8 @@ public class Level : MonoBehaviour
             }
         } else {
             nextCheckpoint = null;
-            FadeOutMusic(2, 0);
+            MusicManager.Instance.Stop();
         }
-    }
-
-    public IEnumerator FadeOutMusic(float duration, float targetVolume) {
-        float currentTime = 0;
-        float start = audioSource.volume;
-        while (currentTime < duration) {
-            currentTime += Time.deltaTime;
-            audioSource.volume = Mathf.Lerp(start, targetVolume, currentTime / duration);
-            yield return null;
-        }
-        yield break;
     }
 
     private void OnCompleteCheckpoint(object sender, System.EventArgs e) {

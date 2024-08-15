@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class Credits : MonoBehaviour
+public class Credits : MenuScreen
 {
 
     public event EventHandler OnDismiss;
@@ -48,9 +48,9 @@ public class Credits : MonoBehaviour
 
 
     private void Update() {
-        if (MainMenu.Instance.IsSelectionMade()) {
+        if (IsSelectionMade()) {
             isRolling = false;
-            MainMenu.Instance.PlayMenuSelectSound();
+            SoundManager.Instance.PlayMenuSelect();
             OnDismiss?.Invoke(this, EventArgs.Empty);
         }
 

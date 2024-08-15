@@ -88,12 +88,12 @@ public class PlayerController : BaseCharacterController {
                 Camera.main.GetComponent<CameraFollow>().Shake(0.05f, 1);
                 GenerateSparkFX();
                 DropAllCarriedWeapons();
-                audioSource.PlayOneShot(hitAltSound);
+                SoundManager.Instance.Play(SoundManager.SoundType.HitAlt);
             } else {
                 preciseVelocity = attackVector * (moveSpeed / 2f);
                 state = State.Hurt;
                 animator.SetTrigger("Hurt");
-                audioSource.PlayOneShot(hitSound);
+                SoundManager.Instance.Play(SoundManager.SoundType.Hit);
             }
             UI.Instance.NotifyHeroHealthChange(this);
             BreakCombo();
@@ -162,7 +162,7 @@ public class PlayerController : BaseCharacterController {
             // start combo motion over
             currentComboIndex = 0;
             if (!muteMissSounds) {
-                audioSource.PlayOneShot(missSound);
+                SoundManager.Instance.Play(SoundManager.SoundType.MissJump);
             }
         }
     }
@@ -176,10 +176,10 @@ public class PlayerController : BaseCharacterController {
     private bool isJumpPressed = false;
 
     private void Update() {
-        if (Input.GetButtonDown("Jump") && (Time.timeSinceLevelLoad - timeSinceLanded > durationBetweenJumps)) {
+        if (Input.GetButtonDown(InputHelper.BTN_JUMP) && (Time.timeSinceLevelLoad - timeSinceLanded > durationBetweenJumps)) {
             isJumpPressed = true;
         }
-        if (Input.GetButtonDown("Attack")) {
+        if (Input.GetButtonDown(InputHelper.BTN_ATTACK)) {
             isAttackPressed = true;
         }
     }
@@ -243,11 +243,12 @@ public class PlayerController : BaseCharacterController {
     }
 
     private void RestrictScreenBoundaries() {
+        float buffer = 10f;
         Vector2 xBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
-        if (PrecisePosition.x < xBoundaries.x + 8) {
-            PrecisePosition = new Vector2(xBoundaries.x + 8, PrecisePosition.y);
-        } else if (PrecisePosition.x > xBoundaries.y - 8) {
-            PrecisePosition = new Vector2(xBoundaries.y - 8, PrecisePosition.y);
+        if (PrecisePosition.x < xBoundaries.x + buffer) {
+            PrecisePosition = new Vector2(xBoundaries.x + buffer, PrecisePosition.y);
+        } else if (PrecisePosition.x > xBoundaries.y - buffer) {
+            PrecisePosition = new Vector2(xBoundaries.y - buffer, PrecisePosition.y);
         }
         SetTransformFromPrecisePosition();
     }
@@ -263,7 +264,7 @@ public class PlayerController : BaseCharacterController {
             dzHeight = jumpForce * Time.deltaTime;
             state = State.Jumping;
             animator.SetBool("IsJumping", true);
-            audioSource.PlayOneShot(missSound);
+            SoundManager.Instance.Play(SoundManager.SoundType.MissJump);
             isJumpPressed = false;
         }
 
@@ -306,7 +307,7 @@ public class PlayerController : BaseCharacterController {
                 } else if (PickableItem.Type == Pickable.PickableType.Food) {
                     CurrentHP = MaxHP;
                     UI.Instance.NotifyHeroHealthChange(this);
-                    audioSource.PlayOneShot(eatFoodSound);
+                    SoundManager.Instance.Play(SoundManager.SoundType.EatFood);
                 }
                 PickableItem.PickupItem();
             } else {
@@ -355,7 +356,7 @@ public class PlayerController : BaseCharacterController {
         if (hit.collider != null && hit.collider.gameObject.GetComponent<Breakable>() != null) {
             Breakable barrel = hit.collider.gameObject.GetComponent<Breakable>();
             barrel.Break(PrecisePosition);
-            audioSource.PlayOneShot(hitAltSound);
+            SoundManager.Instance.Play(SoundManager.SoundType.HitAlt);
         }
     }
 
@@ -365,7 +366,7 @@ public class PlayerController : BaseCharacterController {
 
     private void HandleWalkingWithInput() {
         if (CanMove()) {
-            preciseVelocity = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized * moveSpeed;
+            preciseVelocity = new Vector2(Input.GetAxisRaw(InputHelper.AXIS_HORIZONTAL), Input.GetAxisRaw(InputHelper.AXIS_VERTICAL)).normalized * moveSpeed;
             TryMoveTo(PrecisePosition + preciseVelocity * Time.deltaTime);
 
             if (preciseVelocity != Vector2.zero) {

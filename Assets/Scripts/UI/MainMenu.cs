@@ -3,51 +3,82 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEditor.Search;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class MainMenu : MonoBehaviour
+public class MainMenu : MenuScreen
 {
     [SerializeField] private bool skipSplash;
+    [SerializeField] private bool skipIntro;
     [SerializeField] private SplashScreen splashScreen;
     [SerializeField] private List<TextMeshProUGUI> menuOptions;
     [SerializeField] private Credits creditsScreen;
     [SerializeField] private Options optionsScreen;
-    [SerializeField] private AudioClip moveMenuSound;
-    [SerializeField] private AudioClip selectSound;
+    [SerializeField] private SplashScreen introScreen;
+    [SerializeField] private SplashScreen outroScreen;
+    [SerializeField] private ScoreScreen scoreScreen;
 
     private int currentMenuSelectionIndex = 0;
     private bool inMainMenu = false;
     private bool isVerticalMovementDetected = false;
-    private AudioSource audioSource;
-
-    public static MainMenu Instance;
 
     private void Awake() {
         splashScreen.OnFinishSplash += OnFinishSplashScreen;
-        audioSource = GetComponent<AudioSource>();
-        Instance = this;
+        introScreen.OnFinishSplash += OnFinishIntro;
+        creditsScreen.OnDismiss += OnCreditsDismiss;
+        optionsScreen.OnDismiss += OnOptionsDismiss;
+        scoreScreen.OnDismiss += OnScoreScreenDismiss;
+        outroScreen.OnFinishSplash += OnFinishOutro;
+        MusicManager.Instance.OnFadeOut += OnMusicFadeOut;
     }
 
-    public void PlayMenuMovementSound() {
-        audioSource.PlayOneShot(moveMenuSound);
+    private void OnMusicFadeOut(object sender, MusicManager.OnFadeEventArgs e) {
+        if (e.musicFaded == MusicManager.Melody.IntroOutro) {
+            SceneManager.LoadScene(SceneHelper.GAME_SCENE, LoadSceneMode.Single);
+        }
     }
 
-    public void PlayMenuSelectSound() {
-        audioSource.PlayOneShot(selectSound);
+    private void OnFinishOutro(object sender, System.EventArgs e) {
+        outroScreen.gameObject.SetActive(false);
+        ShowCredits();
+    }
+
+    private void Start() {
+
+        creditsScreen.gameObject.SetActive(false);
+        optionsScreen.gameObject.SetActive(false);
+        introScreen.gameObject.SetActive(false);
+        outroScreen.gameObject.SetActive(false);
+        scoreScreen.gameObject.SetActive(false);
+
+        bool isMenuMusicPlayed = true;
+        if (PlayerPrefs.HasKey(PrefsHelper.GAME_OVER)) {
+            inMainMenu = false;
+            outroScreen.gameObject.SetActive(true);
+            isMenuMusicPlayed = false;
+        } else {
+            inMainMenu = skipSplash;
+            splashScreen.gameObject.SetActive(!skipSplash);
+        }
+        if (isMenuMusicPlayed) {
+            MusicManager.Instance.Play(MusicManager.Melody.MainMenu);
+        } else {
+            MusicManager.Instance.Play(MusicManager.Melody.IntroOutro);
+        }
+        RefreshSelection();
+    }
+
+    private void OnScoreScreenDismiss(object sender, System.EventArgs e) {
+        scoreScreen.gameObject.SetActive(false);
+        ShowCredits();
+    }
+
+    private void OnFinishIntro(object sender, System.EventArgs e) {
+        MusicManager.Instance.Stop();
     }
 
     private void OnFinishSplashScreen(object sender, System.EventArgs e) {
         splashScreen.gameObject.SetActive(false);
         inMainMenu = true;
-    }
-
-    private void Start() {
-        inMainMenu = skipSplash;
-        splashScreen.gameObject.SetActive(!skipSplash);
-        creditsScreen.OnDismiss += OnCreditsDismiss;
-        creditsScreen.gameObject.SetActive(false);
-        optionsScreen.gameObject.SetActive(false);
-        optionsScreen.OnDismiss += OnOptionsDismiss;
-        RefreshSelection();
     }
 
     private void OnOptionsDismiss(object sender, System.EventArgs e) {
@@ -57,44 +88,30 @@ public class MainMenu : MonoBehaviour
 
     private void OnCreditsDismiss(object sender, System.EventArgs e) {
         creditsScreen.gameObject.SetActive(false);
-        inMainMenu = true;
-    }
-
-    private void SplashScreen_OnFinishSplash(object sender, System.EventArgs e) {
-        throw new System.NotImplementedException();
-    }
-
-    public Color UnselectedColor {
-        get {
-            ColorUtility.TryParseHtmlString("#59594E", out Color unselectedColor);
-            return unselectedColor;
-        }
-    }
-
-    public Color SelectedColor {
-        get {
-            ColorUtility.TryParseHtmlString("#D2D27C", out Color unselectedColor);
-            return unselectedColor;
+        if (PlayerPrefs.HasKey(PrefsHelper.GAME_OVER)) {
+            scoreScreen.gameObject.SetActive(true);
+        } else {
+            inMainMenu = true;
         }
     }
 
     private void RefreshSelection() {
         foreach (TextMeshProUGUI menuOption in menuOptions) {
-            menuOption.color = UnselectedColor;
+            menuOption.color = ColorHelper.UnselectedColor;
         }
-        menuOptions[currentMenuSelectionIndex].color = SelectedColor;
+        menuOptions[currentMenuSelectionIndex].color = ColorHelper.SelectedColor;
     }
 
     private void Update() {
         if (inMainMenu) {
-            float upDownMovement = Input.GetAxisRaw("Vertical");
+            float upDownMovement = Input.GetAxisRaw(InputHelper.AXIS_VERTICAL);
             if (!isVerticalMovementDetected && upDownMovement > 0) {
                 currentMenuSelectionIndex -= 1;
                 isVerticalMovementDetected = true;
                 if (currentMenuSelectionIndex < 0) {
                     currentMenuSelectionIndex = menuOptions.Count - 1;
                 }
-                PlayMenuMovementSound();
+                SoundManager.Instance.PlayMenuMove();
                 RefreshSelection();
             } else if (!isVerticalMovementDetected && upDownMovement < 0) {
                 currentMenuSelectionIndex += 1;
@@ -102,14 +119,14 @@ public class MainMenu : MonoBehaviour
                 if (currentMenuSelectionIndex > menuOptions.Count - 1) {
                     currentMenuSelectionIndex = 0;
                 }
-                PlayMenuMovementSound();
+                SoundManager.Instance.PlayMenuMove();
                 RefreshSelection();
             } else if (upDownMovement == 0) {
                 isVerticalMovementDetected = false;
             }
 
             if (IsSelectionMade()) {
-                PlayMenuSelectSound();
+                SoundManager.Instance.PlayMenuSelect();
                 EnterSelection();
             }
         }
@@ -118,9 +135,7 @@ public class MainMenu : MonoBehaviour
     private void EnterSelection() {
         inMainMenu = false;
         if (currentMenuSelectionIndex == 0) {
-            // Fade to black
-            // Play the Intro
-            // Play the game
+            ShowIntro();
         } else if (currentMenuSelectionIndex == 1) {
             ShowOptions();
         } else {
@@ -128,9 +143,7 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    public bool IsSelectionMade() {
-        return Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetButtonDown("Attack");
-    }
+
 
     private void ShowOptions() {
         optionsScreen.gameObject.SetActive(true);
@@ -140,6 +153,16 @@ public class MainMenu : MonoBehaviour
     private void ShowCredits() {
         creditsScreen.gameObject.SetActive(true);
         creditsScreen.Activate();
+    }
+
+    private void ShowIntro() {
+        PlayerPrefs.DeleteKey(PrefsHelper.GAME_OVER);
+        if (!skipIntro) {
+            MusicManager.Instance.Play(MusicManager.Melody.IntroOutro);
+            introScreen.gameObject.SetActive(true);
+        } else {
+            SceneManager.LoadScene(SceneHelper.GAME_SCENE, LoadSceneMode.Single);
+        }
     }
 
 }

@@ -9,7 +9,6 @@ public class ButcherController : BaseCharacterController, IBoss {
     [SerializeField] private float flyKickPower;
     [SerializeField] private float summersaltDuration;
     [SerializeField] private Breakable breakableBar;
-    [SerializeField] private AudioClip gruntSound;
     [field: SerializeField] public EnemySO EnemySO { get; private set; }
 
     private bool isDoingEntrance = true;
@@ -19,7 +18,6 @@ public class ButcherController : BaseCharacterController, IBoss {
     private float timeSinceStartSummersalt = float.NegativeInfinity;
     private float timeSincePreparedToHit = float.NegativeInfinity;
     private float waitDurationBeforeHit = 0f;
-    private bool isInHittingStance = false;
     private PlayerController player;
     private bool isFlyKicking = false;
 
@@ -41,7 +39,7 @@ public class ButcherController : BaseCharacterController, IBoss {
     }
 
     public override bool IsVulnerable(Vector2 damageOrigin, bool canBlock = true) {
-        if (isFlyKicking) return false;
+        if (isFlyKicking || state == State.Flying) return false;
         if (!HasStartedEngaging) return false;
         if (CurrentHP <= 0) return false;
         if (state == State.PreparingAttack && nextAttackType == AttackType.SummerSalt) return false;
@@ -57,7 +55,7 @@ public class ButcherController : BaseCharacterController, IBoss {
             if (CurrentHP > 0) {
                 state = State.Hurt;
                 animator.SetTrigger("Hurt");
-                audioSource.PlayOneShot(hitSound);
+                SoundManager.Instance.Play(SoundManager.SoundType.Hit);
                 hitsReceivedBeforeAttacking += 1;
             } else {
                 animator.SetBool("IsFalling", true);
@@ -66,9 +64,8 @@ public class ButcherController : BaseCharacterController, IBoss {
                 dzHeight = 2f;
                 Camera.main.GetComponent<CameraFollow>().Shake(0.35f, 2);
                 GenerateSparkFX();
-                audioSource.PlayOneShot(gruntSound);
+                SoundManager.Instance.Play(SoundManager.SoundType.Grunt);
             }
-            isInHittingStance = false;
 
         }
     }
@@ -81,7 +78,6 @@ public class ButcherController : BaseCharacterController, IBoss {
 
     private void StartSummersalt() {
         nextAttackType = AttackType.SummerSalt;
-        isInHittingStance = true;
         state = State.PreparingAttack;
         timeSincePreparedToHit = Time.timeSinceLevelLoad;
         waitDurationBeforeHit = 1f;
@@ -147,9 +143,7 @@ public class ButcherController : BaseCharacterController, IBoss {
                 animator.SetBool("IsWalking", isPlayerTooFar);
                 if (isPlayerTooFar) {
                     WalkTowards(nextTargetDestination);
-                    isInHittingStance = false;
                 } else if (!isPlayerTooFar && state != State.PreparingAttack) {
-                    isInHittingStance = true;
                     state = State.PreparingAttack;
                     timeSincePreparedToHit = Time.timeSinceLevelLoad;
                     waitDurationBeforeHit = Random.Range(minMaxSecsBeforeHitting.x, minMaxSecsBeforeHitting.y);
@@ -158,7 +152,6 @@ public class ButcherController : BaseCharacterController, IBoss {
                 Vector2 nextTargetDestination = GetDirectionTowardsFlyKick();
                 Vector2 direction = nextTargetDestination - PrecisePosition;
                 if (direction.magnitude < 2) {
-                    isInHittingStance = true;
                     state = State.PreparingAttack;
                     timeSincePreparedToHit = Time.timeSinceLevelLoad;
                     waitDurationBeforeHit = Random.Range(minMaxSecsBeforeHitting.x, minMaxSecsBeforeHitting.y);
@@ -214,13 +207,12 @@ public class ButcherController : BaseCharacterController, IBoss {
             } else if (nextAttackType == AttackType.FlyKick) {
                 animator.SetBool("IsFlyKicking", true);
                 state = State.Flying;
-                audioSource.PlayOneShot(missSound);
+                SoundManager.Instance.Play(SoundManager.SoundType.MissJump);
                 preciseVelocity = (IsFacingLeft ? Vector2.left : Vector2.right) * flyKickPower;
             } else if (nextAttackType == AttackType.SummerSalt) {
                 state = State.Summersalting;
                 timeSinceStartSummersalt = Time.timeSinceLevelLoad;
             }
-            isInHittingStance = false;
         }
     }
 
@@ -245,7 +237,7 @@ public class ButcherController : BaseCharacterController, IBoss {
                 state = State.Idle;
                 Camera.main.GetComponent<CameraFollow>().Shake(0.05f, 2);
                 nextAttackType = AttackType.NormalAttack;
-                audioSource.PlayOneShot(hitAltSound);
+                SoundManager.Instance.Play(SoundManager.SoundType.HitAlt);
                 nextAttackType = AttackType.NormalAttack;
             }
 

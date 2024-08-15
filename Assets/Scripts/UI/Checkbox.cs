@@ -1,8 +1,9 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.Rendering.DebugUI;
 
-public class Checkbox : MonoBehaviour, IActivable
+public class Checkbox : MenuScreen, IActivable
 {
     public event EventHandler OnValueChange;
 
@@ -18,7 +19,7 @@ public class Checkbox : MonoBehaviour, IActivable
 
     private void Update() {
         if (isActivated) {
-            if (MainMenu.Instance.IsSelectionMade()) {
+            if (IsSelectionMade()) {
                 IsSelected = !IsSelected;
                 RefreshCheckbox();
                 OnValueChange?.Invoke(this, EventArgs.Empty);
@@ -26,9 +27,14 @@ public class Checkbox : MonoBehaviour, IActivable
         }
     }
 
+    public void SetValue(bool selected) {
+        IsSelected = selected;
+        RefreshCheckbox();
+    }
+
     private void RefreshCheckbox() {
-        checkboxOn.GetComponent<RawImage>().color = isActivated ? MainMenu.Instance.SelectedColor : MainMenu.Instance.UnselectedColor;
-        checkboxOff.GetComponent<RawImage>().color = isActivated ? MainMenu.Instance.SelectedColor : MainMenu.Instance.UnselectedColor;
+        checkboxOn.GetComponent<RawImage>().color = isActivated ? ColorHelper.SelectedColor : ColorHelper.UnselectedColor;
+        checkboxOff.GetComponent<RawImage>().color = isActivated ? ColorHelper.SelectedColor : ColorHelper.UnselectedColor;
         checkboxOn.gameObject.SetActive(IsSelected);
         checkboxOff.gameObject.SetActive(!IsSelected);
     }

@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class World : MonoBehaviour
 {
@@ -10,6 +12,8 @@ public class World : MonoBehaviour
 
     [SerializeField] private List<Level> levels;
     [SerializeField] private Transform levelParent;
+    [SerializeField] private ScoreScreen scoreScreen;
+    [SerializeField] private Counter currentScore;
 
     public int CurrentLevelIndex { get; private set;} = 0;
 
@@ -20,6 +24,13 @@ public class World : MonoBehaviour
         foreach (Transform existingLevel in levelParent) {
             Destroy(existingLevel.gameObject);
         }
+        scoreScreen.OnDismiss += OnScoreDismiss;
+    }
+
+    private void OnScoreDismiss(object sender, EventArgs e) {
+        if (PlayerController.Instance.CurrentHP > 0) {
+            GoToNextLevel();
+        }
     }
 
     private void Start() {
@@ -27,6 +38,10 @@ public class World : MonoBehaviour
         Camera.main.GetComponent<CameraFollow>().OnPositionChange += OnCameraPositionChange;
         TransitionScreen.Instance.OnReadyToLoadContent += OnTransitionReadyToLoadLevel;
         TransitionScreen.Instance.OnReadyToPlay += OnTransitionReadyToPlay;
+    }
+
+    private void Update() {
+        
     }
 
     private void OnTransitionReadyToPlay(object sender, EventArgs e) {
@@ -47,6 +62,14 @@ public class World : MonoBehaviour
         Level level = Instantiate(levels[levelIndex], levelParent);
         level.transform.position = Vector3.zero;
         level.OnStartTransition += OnStartTransitionLevel;
+        level.OnFinishLastLevel += OnFinishLastLevel;
+    }
+
+    private void OnFinishLastLevel(object sender, EventArgs e) {
+        PlayerPrefs.SetInt(PrefsHelper.SCORE, currentScore.GetValue());
+        PlayerPrefs.SetInt(PrefsHelper.HEALTH, PlayerController.Instance.CurrentHP);
+        PlayerPrefs.SetInt(PrefsHelper.GAME_OVER, 1);
+        SceneManager.LoadScene(SceneHelper.MENU_SCENE, LoadSceneMode.Single);
     }
 
     private void OnStartTransitionLevel(object sender, EventArgs e) {
@@ -66,6 +89,14 @@ public class World : MonoBehaviour
     }
 
     private void OnTransitionReadyToLoadLevel(object sender, EventArgs e) {
+        PlayerPrefs.SetInt(PrefsHelper.SCORE, currentScore.GetValue());
+        PlayerPrefs.SetInt(PrefsHelper.HEALTH, PlayerController.Instance.CurrentHP);
+        scoreScreen.gameObject.SetActive(true);
+
+    }
+
+    private void GoToNextLevel() {
+        scoreScreen.gameObject.SetActive(false);
         Camera.main.GetComponent<CameraFollow>().StartNewLevel();
         PlayerController.Instance.StartNewLevel();
         LoadLevel(CurrentLevelIndex);

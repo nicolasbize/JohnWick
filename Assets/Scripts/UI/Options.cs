@@ -32,11 +32,12 @@ public class Options : MonoBehaviour
     }
 
     private void OnShakeValueChange(object sender, EventArgs e) {
-        MainMenu.Instance.PlayMenuSelectSound();
+        SoundManager.Instance.PlayMenuSelect();
 
         if (shakeCheckbox.IsSelected) {
             canvasShake.Shake(0.1f, 2);
         }
+        PlayerPrefs.SetInt(PrefsHelper.CAMERA_SHAKE, shakeCheckbox.IsSelected ? 1 : 0);
     }
 
     private void OnSoundVolumeValueChange(object sender, EventArgs e) {
@@ -46,7 +47,8 @@ public class Options : MonoBehaviour
         } else {
             soundMixer.audioMixer.SetFloat("Volume-SFX", 20.0f * Mathf.Log10(percentValue));
         }
-        MainMenu.Instance.PlayMenuMovementSound();
+        PlayerPrefs.SetInt(PrefsHelper.SFX_VOLUME, soundRangePicker.Value);
+        SoundManager.Instance.PlayMenuMove();
     }
 
     private void OnMusicVolumeChange(object sender, EventArgs e) {
@@ -56,22 +58,26 @@ public class Options : MonoBehaviour
         } else {
             musicMixer.audioMixer.SetFloat("Volume-Music", 20.0f * Mathf.Log10(percentValue));
         }
-        MainMenu.Instance.PlayMenuMovementSound();
+        PlayerPrefs.SetInt(PrefsHelper.MUSIC_VOLUME, soundRangePicker.Value);
+        SoundManager.Instance.PlayMenuMove();
     }
 
     private void Start() {
+        if (!PlayerPrefs.HasKey(PrefsHelper.CAMERA_SHAKE)) {
+            PlayerPrefs.SetInt(PrefsHelper.CAMERA_SHAKE, 1);
+        }
         RefreshOptions();
     }
 
     private void Update() {
-        float upDownMovement = Input.GetAxisRaw("Vertical");
+        float upDownMovement = Input.GetAxisRaw(InputHelper.AXIS_VERTICAL);
         if (!isVerticalMovementDetected && upDownMovement > 0) {
             currentSelectionIndex -= 1;
             isVerticalMovementDetected = true;
             if (currentSelectionIndex < 0) {
                 currentSelectionIndex = menuOptions.Count - 1;
             }
-            MainMenu.Instance.PlayMenuMovementSound();
+            SoundManager.Instance.PlayMenuMove();
             RefreshOptions();
         } else if (!isVerticalMovementDetected && upDownMovement < 0) {
             currentSelectionIndex += 1;
@@ -79,25 +85,32 @@ public class Options : MonoBehaviour
             if (currentSelectionIndex > menuOptions.Count - 1) {
                 currentSelectionIndex = 0;
             }
-            MainMenu.Instance.PlayMenuMovementSound();
+            SoundManager.Instance.PlayMenuMove();
             RefreshOptions();
         } else if (upDownMovement == 0) {
             isVerticalMovementDetected = false;
         }
 
-        if ((currentSelectionIndex == menuOptions.Count - 1) && MainMenu.Instance.IsSelectionMade()) {
+        if ((currentSelectionIndex == menuOptions.Count - 1) && IsSelectionMade()) {
             currentSelectionIndex = 0;
-            MainMenu.Instance.PlayMenuSelectSound();
+            SoundManager.Instance.PlayMenuSelect();
             OnDismiss?.Invoke(this, EventArgs.Empty);
         }
     }
 
+    private bool IsSelectionMade() {
+        return Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetButtonDown(InputHelper.BTN_ATTACK);
+    }
+
     public void RefreshOptions() {
+        musicRangePicker.SetValue(PlayerPrefs.GetInt(PrefsHelper.MUSIC_VOLUME, 4));
+        soundRangePicker.SetValue(PlayerPrefs.GetInt(PrefsHelper.SFX_VOLUME, 4));
+        shakeCheckbox.SetValue(PlayerPrefs.GetInt(PrefsHelper.CAMERA_SHAKE, 1) == 1);
         for (int i=0; i<menuOptions.Count; i++) {
             if (currentSelectionIndex == i) {
-                menuOptions[i].color = MainMenu.Instance.SelectedColor;
+                menuOptions[i].color = ColorHelper.SelectedColor;
             } else {
-                menuOptions[i].color = MainMenu.Instance.UnselectedColor;
+                menuOptions[i].color = ColorHelper.UnselectedColor;
             }
         }
 

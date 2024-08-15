@@ -3637,6 +3637,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5014788365500926874, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
+      propertyPath: OutputAudioMixerGroup
+      value: 
+      objectReference: {fileID: -9110640611469930388, guid: 5a82ce26fec1c77429ccdbd6ccc19824, type: 2}
     - target: {fileID: 5730291167310267754, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
       propertyPath: m_Name
       value: Level 01 - In The Streets
@@ -3648,6 +3652,10 @@ PrefabInstance:
     - target: {fileID: 6489381640541253371, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
       propertyPath: boss
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8968172692976266877, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
+      propertyPath: melody
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8968172692976266877, guid: 45f32ec2302c0274eb3460c90c3ff758, type: 3}
       propertyPath: levelMusic

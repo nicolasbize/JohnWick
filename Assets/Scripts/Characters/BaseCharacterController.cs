@@ -36,12 +36,6 @@ public abstract class BaseCharacterController : MonoBehaviour {
     [SerializeField] protected Pickable pickableKnifePrefab; // knife that the character can drop
     [SerializeField] protected Pickable pickableGunPrefab; // gun that the character can drop
     [SerializeField] protected Spark sparkPrefab;
-    [SerializeField] protected AudioClip hitSound;
-    [SerializeField] protected AudioClip hitAltSound;
-    [SerializeField] protected AudioClip missSound;
-    [SerializeField] protected AudioClip eatFoodSound;
-    [SerializeField] protected AudioClip gunshotSound;
-
 
     public int CurrentHP { get; protected set; }
     public State state { get; protected set; } = State.Idle;
@@ -64,7 +58,6 @@ public abstract class BaseCharacterController : MonoBehaviour {
 
     protected virtual void Awake() {
         animator = GetComponent<Animator>();
-        audioSource = GetComponent<AudioSource>();
     }
 
     protected virtual void Start() {
@@ -159,12 +152,12 @@ public abstract class BaseCharacterController : MonoBehaviour {
             if (this is PlayerController) { damage *= 2; }
             target.ReceiveHit(PrecisePosition, damage, Hit.Type.Knockdown);
         }
-        audioSource.PlayOneShot(gunshotSound);
+        SoundManager.Instance.Play(SoundManager.SoundType.Gunshot);
     }
 
     private BaseCharacterController GetShotTarget(Vector3 startGroundPosition, Vector3 direction, int currentLength, float lengthLimit, List<BaseCharacterController> possibleTargets) {
         if (currentLength >= lengthLimit) return null;
-        float buffer = 3;
+        float buffer = 5;
         bool headingLeft = direction == Vector3.left;
         float rectXStart = headingLeft ? (startGroundPosition.x - currentLength) : startGroundPosition.x;
         float rectYStart = startGroundPosition.z - buffer;
@@ -218,13 +211,13 @@ public abstract class BaseCharacterController : MonoBehaviour {
             }
         }
 
-        if (this is PlayerController) {
-            Vector3 targetedPosition = new Vector3(Mathf.FloorToInt(destination.x), Mathf.FloorToInt(destination.y), 0);
-            Vector2 direction = (targetedPosition - transform.position).normalized;
-            LayerMask mask = LayerMask.GetMask("Breakable");
-            RaycastHit2D hit = Physics2D.Raycast(transform.position + Vector3.down * height, direction, 3f, mask);
-            if (hit.collider != null) return false;
-        }
+        //if (this is PlayerController) {
+        //    Vector3 targetedPosition = new Vector3(Mathf.FloorToInt(destination.x), Mathf.FloorToInt(destination.y), 0);
+        //    Vector2 direction = (targetedPosition - transform.position).normalized;
+        //    LayerMask mask = LayerMask.GetMask("Breakable");
+        //    RaycastHit2D hit = Physics2D.Raycast(transform.position + Vector3.down * height, direction, 3f, mask);
+        //    if (hit.collider != null) return false;
+        //}
         
         return true;
 

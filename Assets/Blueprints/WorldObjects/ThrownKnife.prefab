@@ -12,6 +12,10 @@ PrefabInstance:
       propertyPath: damage
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 108443578691346250, guid: 0b40b998f539b6b4ba3c286736f5e081, type: 3}
+      propertyPath: zHitBuffer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 6523550421169357497, guid: 0b40b998f539b6b4ba3c286736f5e081, type: 3}
       propertyPath: m_Name
       value: ThrownKnife

@@ -20,10 +20,12 @@ public class CameraFollow : MonoBehaviour
     private float shakeDuration = 0f;
     private int shakeIntensity = 1;
     private float timeSinceStartShake = float.NegativeInfinity;
+    private bool isCameraShakeEnabled = true;
 
     private void Start() {
         realPosition = transform.position;
         Unlock();
+        isCameraShakeEnabled = PlayerPrefs.GetInt(PrefsHelper.CAMERA_SHAKE, 1) == 1;
     }
 
     public void StartNewLevel() {
@@ -44,10 +46,12 @@ public class CameraFollow : MonoBehaviour
     }
 
     public void Shake(float duration, int intensity) {
-        timeSinceStartShake = Time.timeSinceLevelLoad;
-        shakeDuration = duration;
-        shakeIntensity = intensity;
-        isShaking = true;
+        if (isCameraShakeEnabled) {
+            timeSinceStartShake = Time.timeSinceLevelLoad;
+            shakeDuration = duration;
+            shakeIntensity = intensity;
+            isShaking = true;
+        }
     }
 
     private void LateUpdate()
