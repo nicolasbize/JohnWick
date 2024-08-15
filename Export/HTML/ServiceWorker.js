@@ -1,4 +1,4 @@
-const cacheName = "DefaultCompany-Brawl64-1.0";
+const cacheName = "Gad Games-Baba Yaga-1.0";
 const contentToCache = [
     "Build/HTML.loader.js",
     "Build/HTML.framework.js.br",

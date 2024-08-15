@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -16,6 +14,8 @@ public class MainMenu : MenuScreen
     [SerializeField] private SplashScreen introScreen;
     [SerializeField] private SplashScreen outroScreen;
     [SerializeField] private ScoreScreen scoreScreen;
+    [SerializeField] private MusicManager musicManager;
+    [SerializeField] private SoundManager soundManager;
 
     private int currentMenuSelectionIndex = 0;
     private bool inMainMenu = false;
@@ -28,7 +28,7 @@ public class MainMenu : MenuScreen
         optionsScreen.OnDismiss += OnOptionsDismiss;
         scoreScreen.OnDismiss += OnScoreScreenDismiss;
         outroScreen.OnFinishSplash += OnFinishOutro;
-        MusicManager.Instance.OnFadeOut += OnMusicFadeOut;
+        musicManager.OnFadeOut += OnMusicFadeOut;
     }
 
     private void OnMusicFadeOut(object sender, MusicManager.OnFadeEventArgs e) {
@@ -64,19 +64,19 @@ public class MainMenu : MenuScreen
             splashScreen.gameObject.SetActive(!skipSplash);
         }
         if (isMenuMusicPlayed) {
-            MusicManager.Instance.Play(MusicManager.Melody.MainMenu);
+            musicManager.Play(MusicManager.Melody.MainMenu);
         } else {
-            MusicManager.Instance.Play(MusicManager.Melody.IntroOutro);
+            musicManager.Play(MusicManager.Melody.IntroOutro);
         }
         RefreshSelection();
     }
 
     private void OnScoreScreenDismiss(object sender, System.EventArgs e) {
-        // let player refresh if needed
+        ResetAllPrefs();
     }
 
     private void OnFinishIntro(object sender, System.EventArgs e) {
-        MusicManager.Instance.Stop();
+        musicManager.Stop();
     }
 
     private void OnFinishSplashScreen(object sender, System.EventArgs e) {
@@ -114,7 +114,7 @@ public class MainMenu : MenuScreen
                 if (currentMenuSelectionIndex < 0) {
                     currentMenuSelectionIndex = menuOptions.Count - 1;
                 }
-                SoundManager.Instance.PlayMenuMove();
+                soundManager.PlayMenuMove();
                 RefreshSelection();
             } else if (!isVerticalMovementDetected && upDownMovement < 0) {
                 currentMenuSelectionIndex += 1;
@@ -122,14 +122,14 @@ public class MainMenu : MenuScreen
                 if (currentMenuSelectionIndex > menuOptions.Count - 1) {
                     currentMenuSelectionIndex = 0;
                 }
-                SoundManager.Instance.PlayMenuMove();
+                soundManager.PlayMenuMove();
                 RefreshSelection();
             } else if (upDownMovement == 0) {
                 isVerticalMovementDetected = false;
             }
 
             if (IsSelectionMade()) {
-                SoundManager.Instance.PlayMenuSelect();
+                soundManager.PlayMenuSelect();
                 EnterSelection();
             }
         }
@@ -161,7 +161,7 @@ public class MainMenu : MenuScreen
     private void ShowIntro() {
         PlayerPrefs.DeleteKey(PrefsHelper.GAME_OVER);
         if (!skipIntro) {
-            MusicManager.Instance.Play(MusicManager.Melody.IntroOutro);
+            musicManager.Play(MusicManager.Melody.IntroOutro);
             introScreen.gameObject.SetActive(true);
         } else {
             StartNewGame();
@@ -170,12 +170,12 @@ public class MainMenu : MenuScreen
 
     private void StartNewGame() {
         ResetAllPrefs();
+        PlayerPrefs.SetInt(PrefsHelper.NEW_GAME, 1);
         SceneManager.LoadScene(SceneHelper.GAME_SCENE, LoadSceneMode.Single);
     }
 
     private void ResetAllPrefs() {
         PlayerPrefs.DeleteAll();
-        PlayerPrefs.SetInt(PrefsHelper.NEW_GAME, 1);
     }
 
 }
