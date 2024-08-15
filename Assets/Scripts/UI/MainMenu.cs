@@ -33,7 +33,7 @@ public class MainMenu : MenuScreen
 
     private void OnMusicFadeOut(object sender, MusicManager.OnFadeEventArgs e) {
         if (e.musicFaded == MusicManager.Melody.IntroOutro) {
-            SceneManager.LoadScene(SceneHelper.GAME_SCENE, LoadSceneMode.Single);
+            StartNewGame();
         }
     }
 
@@ -43,6 +43,10 @@ public class MainMenu : MenuScreen
     }
 
     private void Start() {
+
+        if (!PlayerPrefs.HasKey(PrefsHelper.NEW_GAME)) {
+            ResetAllPrefs();
+        }
 
         creditsScreen.gameObject.SetActive(false);
         optionsScreen.gameObject.SetActive(false);
@@ -68,8 +72,7 @@ public class MainMenu : MenuScreen
     }
 
     private void OnScoreScreenDismiss(object sender, System.EventArgs e) {
-        scoreScreen.gameObject.SetActive(false);
-        ShowCredits();
+        // let player refresh if needed
     }
 
     private void OnFinishIntro(object sender, System.EventArgs e) {
@@ -161,8 +164,18 @@ public class MainMenu : MenuScreen
             MusicManager.Instance.Play(MusicManager.Melody.IntroOutro);
             introScreen.gameObject.SetActive(true);
         } else {
-            SceneManager.LoadScene(SceneHelper.GAME_SCENE, LoadSceneMode.Single);
+            StartNewGame();
         }
+    }
+
+    private void StartNewGame() {
+        ResetAllPrefs();
+        SceneManager.LoadScene(SceneHelper.GAME_SCENE, LoadSceneMode.Single);
+    }
+
+    private void ResetAllPrefs() {
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.SetInt(PrefsHelper.NEW_GAME, 1);
     }
 
 }

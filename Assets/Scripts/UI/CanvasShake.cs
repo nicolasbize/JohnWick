@@ -18,15 +18,15 @@ public class CanvasShake : MonoBehaviour
     }
 
     public void Shake(float duration, int intensity) {
-        timeSinceStartShake = Time.timeSinceLevelLoad;
+        timeSinceStartShake = Time.realtimeSinceStartup;
         shakeDuration = duration;
         shakeIntensity = intensity;
         isShaking = true;
     }
 
-    private void LateUpdate() {
+    private void Update() {
         if (isShaking) {
-            if (Time.timeSinceLevelLoad - timeSinceStartShake < shakeDuration) {
+            if (Time.realtimeSinceStartup - timeSinceStartShake < shakeDuration) {
                 rect.anchoredPosition = realPosition + new Vector3(Random.Range(0, shakeIntensity + 1), Random.Range(0, shakeIntensity + 1), 0);
             } else {
                 isShaking = false;

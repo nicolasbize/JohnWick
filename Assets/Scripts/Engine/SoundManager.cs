@@ -23,6 +23,9 @@ public class SoundManager : MonoBehaviour
     }
 
     public void Play(SoundType type) {
+        if (type == SoundType.Hit || type == SoundType.HitAlt || type == SoundType.MissJump || type == SoundType.Gunshot || type == SoundType.HitKnife) {
+            sounds[type].pitch = Random.Range(0.8f, 1.2f);
+        }
         sounds[type].Play();
     }
 

@@ -13,6 +13,7 @@ public class PlayerController : BaseCharacterController {
     private bool isAirKicking = false;
     private float timeSinceLanded = float.NegativeInfinity;
     private float durationBetweenJumps = 0.3f;
+    private bool isJumpingLeft = false;
 
     private List<Vector2> transitionDestinations = new List<Vector2>() {
         new Vector2(300, 3), new Vector2(360, 3)
@@ -266,6 +267,7 @@ public class PlayerController : BaseCharacterController {
             animator.SetBool("IsJumping", true);
             SoundManager.Instance.Play(SoundManager.SoundType.MissJump);
             isJumpPressed = false;
+            isJumpingLeft = IsFacingLeft;
         }
 
         if (state == State.Jumping) {
@@ -367,6 +369,15 @@ public class PlayerController : BaseCharacterController {
     private void HandleWalkingWithInput() {
         if (CanMove()) {
             preciseVelocity = new Vector2(Input.GetAxisRaw(InputHelper.AXIS_HORIZONTAL), Input.GetAxisRaw(InputHelper.AXIS_VERTICAL)).normalized * moveSpeed;
+
+            // prevent changing direction when jumping
+            if (state == State.Jumping) {
+                if (isJumpingLeft && preciseVelocity.x > 0) {
+                    preciseVelocity = new Vector2(0, preciseVelocity.y);
+                } else if (!isJumpingLeft && preciseVelocity.x < 0) {
+                    preciseVelocity = new Vector2(0, preciseVelocity.y);
+                }
+            }
             TryMoveTo(PrecisePosition + preciseVelocity * Time.deltaTime);
 
             if (preciseVelocity != Vector2.zero) {

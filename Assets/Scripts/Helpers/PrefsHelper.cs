@@ -10,4 +10,5 @@ public static class PrefsHelper
     public static string SFX_VOLUME = "SoundVolume";
     public static string SCORE = "Score";
     public static string HEALTH = "Health";
+    public static string NEW_GAME = "NewGame";
 }

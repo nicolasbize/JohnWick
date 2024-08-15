@@ -38,14 +38,17 @@ public class Options : MonoBehaviour
             canvasShake.Shake(0.1f, 2);
         }
         PlayerPrefs.SetInt(PrefsHelper.CAMERA_SHAKE, shakeCheckbox.IsSelected ? 1 : 0);
+        if (Camera.main.GetComponent<CameraFollow>() != null) {
+            Camera.main.GetComponent<CameraFollow>().IsCameraShakeEnabled = shakeCheckbox.IsSelected;
+        }
     }
 
     private void OnSoundVolumeValueChange(object sender, EventArgs e) {
         float percentValue = soundRangePicker.Value * 8f / 100f;
         if (percentValue == 0) {
-            soundMixer.audioMixer.SetFloat("Volume-SFX", -80f);
+            soundMixer.audioMixer.SetFloat("Volume-Master", -80f);
         } else {
-            soundMixer.audioMixer.SetFloat("Volume-SFX", 20.0f * Mathf.Log10(percentValue));
+            soundMixer.audioMixer.SetFloat("Volume-Master", 20.0f * Mathf.Log10(percentValue));
         }
         PlayerPrefs.SetInt(PrefsHelper.SFX_VOLUME, soundRangePicker.Value);
         SoundManager.Instance.PlayMenuMove();
@@ -58,7 +61,7 @@ public class Options : MonoBehaviour
         } else {
             musicMixer.audioMixer.SetFloat("Volume-Music", 20.0f * Mathf.Log10(percentValue));
         }
-        PlayerPrefs.SetInt(PrefsHelper.MUSIC_VOLUME, soundRangePicker.Value);
+        PlayerPrefs.SetInt(PrefsHelper.MUSIC_VOLUME, musicRangePicker.Value);
         SoundManager.Instance.PlayMenuMove();
     }
 

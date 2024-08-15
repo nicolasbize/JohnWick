@@ -297,9 +297,9 @@ public class EnemyController : BaseCharacterController {
     private void WalkTowards(Vector2 targetDestination) {
         Vector2 xBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
         float fasterInPositionSpeed = moveSpeed;
-        float buffer = 8f;
+        float buffer = 16f;
         if (PrecisePosition.x < (xBoundaries.x + buffer) || PrecisePosition.x > (xBoundaries.y - buffer)) {
-            fasterInPositionSpeed *= 2; // get them in the screen faster
+            fasterInPositionSpeed *= 3; // get them in the screen faster
         }
         preciseVelocity = targetDestination * moveSpeed;
         TryMoveTo(PrecisePosition + preciseVelocity * Time.deltaTime);

@@ -62,9 +62,7 @@ public class RangePicker : MonoBehaviour, IActivable {
                     Value = 0;
                 }
                 RefreshPicker();
-                if (prevValue != Value) {
-                    OnValueChange?.Invoke(this, EventArgs.Empty);
-                }
+                OnValueChange?.Invoke(this, EventArgs.Empty);
             } else if (!isHorizontalMovementDetected && leftRightMovement > 0) {
                 int prevValue = Value;
                 Value += 1;
@@ -73,9 +71,7 @@ public class RangePicker : MonoBehaviour, IActivable {
                     Value = maxValue;
                 }
                 RefreshPicker();
-                if (prevValue != Value) {
-                    OnValueChange?.Invoke(this, EventArgs.Empty);
-                }
+                OnValueChange?.Invoke(this, EventArgs.Empty);
             } else if (leftRightMovement == 0) {
                 isHorizontalMovementDetected = false;
             }

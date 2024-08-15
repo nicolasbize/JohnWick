@@ -15,7 +15,6 @@ public class SplashScreen : MenuScreen
     [SerializeField] private Transform blackScreen;
 
     private Step currentStep = Step.UIAppearing;
-    private float blackScreenAlpha = 1f;
     private float timeStartFade = float.NegativeInfinity;
     private float timeStartStable = float.NegativeInfinity;
     private int currentScreenIndex = 0;
@@ -23,7 +22,6 @@ public class SplashScreen : MenuScreen
 
     private void Start() {
         timeStartFade = Time.timeSinceLevelLoad;
-        blackScreenAlpha = blackScreen.GetComponent<RawImage>().material.GetFloat("_Fade");
     }
 
     private void Update() {
@@ -64,7 +62,7 @@ public class SplashScreen : MenuScreen
     }
 
     private bool IsInputSkipped() {
-        if (currentStep == Step.UIStable) {
+        if (currentStep == Step.UIStable && (Time.timeSinceLevelLoad - timeStartStable > 1f)) {
             return IsSelectionMade();
         }
         return false;
