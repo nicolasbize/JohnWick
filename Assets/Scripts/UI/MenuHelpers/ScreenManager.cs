@@ -20,7 +20,7 @@ public class ScreenManager : MonoBehaviour
     }
 
     private void OnMusicFadeOut(object sender, MusicManager.OnFadeEventArgs e) {
-        if (currentScreen == ScreenType.Intro) {
+        if (musicManager.CurrentMelody == MusicManager.Melody.IntroOutro && !GameState.HasCompletedGame) {
             StartGame();
         }
     }

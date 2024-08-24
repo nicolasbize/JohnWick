@@ -16,9 +16,9 @@ public class MainMenuUI : MonoBehaviour {
 
     private void Awake() {
         keyboard = GetComponent<MenuKeyboardController>();
+        keyboard.OnEnterKeyPress += OnEnterKeyPress;
         keyboard.OnUpKeyPress += OnUpKeyPress;
         keyboard.OnDownKeyPress += OnDownKeyPress;
-        keyboard.OnEnterKeyPress += OnEnterKeyPress;
 
         fader = GetComponent<FadingController>();
         fader.OnCompleteFade += OnReadyToDismiss;

@@ -23,21 +23,25 @@ public class RangePicker : MonoBehaviour, IActivable {
     }
 
     private void OnRightKeyPress(object sender, EventArgs e) {
-        Value += 1;
-        if (Value > maxValue) {
-            Value = maxValue;
+        if (isActivated) {
+            Value += 1;
+            if (Value > maxValue) {
+                Value = maxValue;
+            }
+            RefreshPicker();
+            OnValueChange?.Invoke(this, EventArgs.Empty);
         }
-        RefreshPicker();
-        OnValueChange?.Invoke(this, EventArgs.Empty);
     }
 
     private void OnLeftKeyPress(object sender, EventArgs e) {
-        Value -= 1;
-        if (Value < 0) {
-            Value = 0;
+        if (isActivated) {
+            Value -= 1;
+            if (Value < 0) {
+                Value = 0;
+            }
+            RefreshPicker();
+            OnValueChange?.Invoke(this, EventArgs.Empty);
         }
-        RefreshPicker();
-        OnValueChange?.Invoke(this, EventArgs.Empty);
     }
 
     private void Start() {

@@ -110,7 +110,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 64, y: 64}
+  m_SizeDelta: {x: 100, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &7563274221879803711
 MonoBehaviour:
@@ -124,7 +124,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d81dc5ef542a9834c9d18f9ba693984b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  screenType: 0
 --- !u!114 &-6833006028099933329
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -153,7 +152,7 @@ MonoBehaviour:
   durationStable: 4
   screensToFade: []
   blackScreen: {fileID: 5713886911237522872}
-  isInteractive: 0
+  isAutoDismissable: 0
 --- !u!1 &4873981228835607813
 GameObject:
   m_ObjectHideFlags: 0

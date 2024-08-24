@@ -19,7 +19,7 @@ public class MusicManager : MonoBehaviour
 
     private AudioSource audioSource;
     private Melody nextMelody = Melody.None;
-    private Melody currentMelody = Melody.None;
+    public Melody CurrentMelody { get; private set; } = Melody.None;
     private bool isFadingOut;
     private bool isFadingIn;
     private float timeStartFade = float.NegativeInfinity;
@@ -42,7 +42,7 @@ public class MusicManager : MonoBehaviour
             Debug.Log("Could not play melody, still fading stuff");
         } else {
             nextMelody = melody;
-            if (currentMelody == Melody.None) {
+            if (CurrentMelody == Melody.None) {
                 StartTrack();
             } else {
                 isFadingOut = true;
@@ -68,7 +68,7 @@ public class MusicManager : MonoBehaviour
             } else {
                 isFadingOut = false;
                 OnFadeOut?.Invoke(this, new OnFadeEventArgs() {
-                    musicFaded = currentMelody
+                    musicFaded = CurrentMelody
                 });
                 StartTrack();
             }
@@ -91,7 +91,7 @@ public class MusicManager : MonoBehaviour
         if (nextMelody != Melody.None) { // swap music while volume at 0
             audioSource.clip = gameMusics[nextMelody];
             audioSource.Play();
-            currentMelody = nextMelody;
+            CurrentMelody = nextMelody;
             nextMelody = Melody.None;
             isFadingIn = true;
             timeStartFade = Time.timeSinceLevelLoad;

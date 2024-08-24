@@ -27,10 +27,10 @@ public class MenuKeyboardController : MonoBehaviour
         float horizontalMovement = Input.GetAxisRaw(InputHelper.AXIS_HORIZONTAL);
         if (!isHorizontalMovementDetected && horizontalMovement > 0) {
             isHorizontalMovementDetected = true;
-            OnLeftKeyPress?.Invoke(this, EventArgs.Empty);
+            OnRightKeyPress?.Invoke(this, EventArgs.Empty);
         } else if (!isHorizontalMovementDetected && horizontalMovement < 0) {
             isHorizontalMovementDetected = true;
-            OnRightKeyPress?.Invoke(this, EventArgs.Empty);
+            OnLeftKeyPress?.Invoke(this, EventArgs.Empty);
         } else if (horizontalMovement == 0) {
             isHorizontalMovementDetected = false;
         }

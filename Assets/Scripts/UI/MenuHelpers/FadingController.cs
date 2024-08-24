@@ -16,30 +16,20 @@ public class FadingController : MonoBehaviour
     [SerializeField] private float durationStable;
     [SerializeField] private List<Transform> screensToFade;
     [SerializeField] private Transform blackScreen;
-    [SerializeField] private bool isAutoDismissable;
+    [SerializeField] private bool autoClose;
 
     private Step currentStep = Step.UIAppearing;
     private float timeStartFade = float.NegativeInfinity;
     private float timeStartStable = float.NegativeInfinity;
     private int currentScreenIndex = 0;
     private bool hasCompleted = false;
-    private MenuKeyboardController keyboard;
-    private BaseMenuScreen menu;
-
-    private void Awake() {
-        keyboard = GetComponent<MenuKeyboardController>();
-        keyboard.OnEnterKeyPress += OnEnterPress;
-
-        menu = GetComponent<BaseMenuScreen>();
-    }
 
     private void Start() {
         timeStartFade = Time.timeSinceLevelLoad;
     }
 
-    private void OnEnterPress(object sender, EventArgs e) {
-        // when not interactive, allow enter key to skip faster through the stable state
-        if (currentStep == Step.UIStable && isAutoDismissable) {
+    public void SkipCurrentFrame() {
+        if (currentStep == Step.UIStable) {
             StartFadingOut();
         }
     }
@@ -52,7 +42,7 @@ public class FadingController : MonoBehaviour
             }
             blackScreen.GetComponent<RawImage>().material.SetFloat("_Fade", 1 - progress);
         } else if (currentStep == Step.UIStable &&
-                    isAutoDismissable &&
+                    autoClose &&
                     Time.timeSinceLevelLoad - timeStartStable > durationStable) {
             // fade out after enough time at stable state
             StartFadingOut();

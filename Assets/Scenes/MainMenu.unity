@@ -326,9 +326,9 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 1
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 64, y: 64}
+  m_ReferenceResolution: {x: 100, y: 64}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 1
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -396,7 +396,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 82a285b5e6231574db781ae2f24b95c3, type: 2}
   - {fileID: 11400000, guid: 0d32a8dc8de12e54a9f588cc0db24f72, type: 2}
   - {fileID: 11400000, guid: e4c01e3fb3bb32041b4600feaf546903, type: 2}
-  skipSplash: 0
+  skipSplash: 1
   skipIntro: 0
   musicManager: {fileID: 1379993077}
   soundManager: {fileID: 900297512}
@@ -434,7 +434,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ComponentVersion: 1
   m_AssetsPPU: 1
-  m_RefResolutionX: 64
+  m_RefResolutionX: 100
   m_RefResolutionY: 64
   m_CropFrame: 1
   m_GridSnapping: 1
@@ -506,7 +506,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -523,10 +523,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.05550737
+    x: 0
     y: 0
-    width: 0.2590344
-    height: 0.65040654
+    width: 1
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
