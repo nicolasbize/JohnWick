@@ -154,6 +154,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3648957002286924473}
   - component: {fileID: 6382691935320259194}
+  - component: {fileID: 3881190271902489465}
   m_Layer: 5
   m_Name: Checkbox
   m_TagString: Untagged
@@ -197,3 +198,15 @@ MonoBehaviour:
   checkboxOn: {fileID: 4699289425501632068}
   checkboxOff: {fileID: 489903808504813090}
   <IsSelected>k__BackingField: 0
+--- !u!114 &3881190271902489465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6978094789985548933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4738c0c721f9f2d49a08152a817c7409, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

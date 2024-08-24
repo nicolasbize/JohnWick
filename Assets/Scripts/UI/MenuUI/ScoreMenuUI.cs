@@ -1,11 +1,10 @@
 using System;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 
-public class ScoreScreen : MonoBehaviour
+public class ScoreMenuUI : BaseMenuScreen
 {
-    public event EventHandler OnDismiss;
-
     [SerializeField] public string title;
     [SerializeField] public int pointsPerHP;
     [SerializeField] public float durationBeforeUpdating;
@@ -23,7 +22,20 @@ public class ScoreScreen : MonoBehaviour
 
     private float timeSinceLastUpdate = float.NegativeInfinity;
     private float durationEachUpdate = 0.1f;
-    private bool dismissed = false;
+
+    private FadingController fader;
+    private MenuKeyboardController keyboard;
+    private BaseMenuScreen menu;
+
+    private void Awake() {
+        keyboard = GetComponent<MenuKeyboardController>();
+        keyboard.OnEnterKeyPress += OnEnterKeyPress;
+
+        fader = GetComponent<FadingController>();
+        fader.OnCompleteFade += OnReadyToDismiss;
+
+        menu = GetComponent<BaseMenuScreen>();
+    }
 
     private void Start() {
         titleLabel.text = title;
@@ -31,12 +43,23 @@ public class ScoreScreen : MonoBehaviour
         InitScreen();
     }
 
+    private void OnEnterKeyPress(object sender, EventArgs e) {
+        if (isDoneUpdatingScore) {
+            GameState.PlayerScore = totalScore;
+            fader.StartFadingOut();
+        }
+    }
+
+    private void OnReadyToDismiss(object sender, EventArgs e) {
+        menu.CloseScreen();
+    }
+
     private void Update() {
         if (!isUpdatingScore && (Time.timeSinceLevelLoad - timeSinceShown > durationBeforeUpdating)) {
             isUpdatingScore = true;
             isDoneUpdatingScore = false;
-            initialScore = PlayerPrefs.GetInt(PrefsHelper.SCORE, 0);
-            remainingHealth = PlayerPrefs.GetInt(PrefsHelper.HEALTH, 0);
+            initialScore = GameState.PlayerScore;
+            remainingHealth = GameState.PlayerHealth;
             totalScore = initialScore;
             RefreshScreen();
             if (remainingHealth == 0) {
@@ -53,18 +76,8 @@ public class ScoreScreen : MonoBehaviour
             } else {
                 isDoneUpdatingScore = true;
             }
-        } else if (isDoneUpdatingScore && IsSelectionMade()) {
-            if (!dismissed) {
-                dismissed = true;
-                PlayerPrefs.SetInt(PrefsHelper.SCORE, totalScore);
-                OnDismiss?.Invoke(this, EventArgs.Empty);
-            }
         }
 
-    }
-
-    private bool IsSelectionMade() {
-        return Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetButtonDown(InputHelper.BTN_ATTACK);
     }
 
     private void InitScreen() {

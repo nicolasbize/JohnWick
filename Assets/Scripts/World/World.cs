@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.SocialPlatforms.Impl;
 
 public class World : MonoBehaviour
 {
@@ -12,7 +10,7 @@ public class World : MonoBehaviour
 
     [SerializeField] private List<Level> levels;
     [SerializeField] private Transform levelParent;
-    [SerializeField] private ScoreScreen scoreScreen;
+    [SerializeField] private BaseMenuScreen scoreScreen;
     [SerializeField] private Counter currentScore;
 
     public int CurrentLevelIndex { get; private set;} = 0;
@@ -24,7 +22,8 @@ public class World : MonoBehaviour
         foreach (Transform existingLevel in levelParent) {
             Destroy(existingLevel.gameObject);
         }
-        scoreScreen.OnDismiss += OnScoreDismiss;
+
+        scoreScreen.OnCloseScreen += OnScoreDismiss;
     }
 
     private void OnScoreDismiss(object sender, EventArgs e) {
@@ -38,10 +37,6 @@ public class World : MonoBehaviour
         Camera.main.GetComponent<CameraFollow>().OnPositionChange += OnCameraPositionChange;
         TransitionScreen.Instance.OnReadyToLoadContent += OnTransitionReadyToLoadLevel;
         TransitionScreen.Instance.OnReadyToPlay += OnTransitionReadyToPlay;
-    }
-
-    private void Update() {
-        
     }
 
     private void OnTransitionReadyToPlay(object sender, EventArgs e) {
@@ -66,9 +61,9 @@ public class World : MonoBehaviour
     }
 
     private void OnFinishLastLevel(object sender, EventArgs e) {
-        PlayerPrefs.SetInt(PrefsHelper.SCORE, currentScore.GetValue());
-        PlayerPrefs.SetInt(PrefsHelper.HEALTH, PlayerController.Instance.CurrentHP);
-        PlayerPrefs.SetInt(PrefsHelper.GAME_OVER, 1);
+        GameState.PlayerHealth = PlayerController.Instance.CurrentHP;
+        GameState.PlayerScore = currentScore.GetValue();
+        GameState.HasCompletedGame = true;
         SceneManager.LoadScene(SceneHelper.MENU_SCENE, LoadSceneMode.Single);
     }
 
@@ -89,8 +84,8 @@ public class World : MonoBehaviour
     }
 
     private void OnTransitionReadyToLoadLevel(object sender, EventArgs e) {
-        PlayerPrefs.SetInt(PrefsHelper.SCORE, currentScore.GetValue());
-        PlayerPrefs.SetInt(PrefsHelper.HEALTH, PlayerController.Instance.CurrentHP);
+        //PlayerPrefs.SetInt(PrefsHelper.SCORE, currentScore.GetValue());
+        //PlayerPrefs.SetInt(PrefsHelper.HEALTH, PlayerController.Instance.CurrentHP);
         scoreScreen.gameObject.SetActive(true);
 
     }

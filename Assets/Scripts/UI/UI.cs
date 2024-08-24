@@ -13,8 +13,8 @@ public class UI : MonoBehaviour
     [SerializeField] private Animator goIndicatorAnimator;
     [SerializeField] private PlayerController player;
     [SerializeField] private Continue continueScreen;
-    [SerializeField] private Options optionsScreen;
-    [SerializeField] private ScoreScreen scoreScreen;
+    [SerializeField] private BaseMenuScreen optionsScreen;
+    [SerializeField] private BaseMenuScreen scoreScreen;
     [SerializeField] private Counter score;
 
     private float timeSinceLastHealthRefresh = float.NegativeInfinity;
@@ -33,10 +33,10 @@ public class UI : MonoBehaviour
         player.OnDeath += OnPlayerDeath;
         continueScreen.OnContinue += OnContinueGame;
         continueScreen.OnGameOver += OnGameOver;
-        scoreScreen.OnDismiss += OnDismissScore;
+        scoreScreen.OnCloseScreen += OnDismissScore;
+        optionsScreen.OnCloseScreen += OnOptionsDismiss;
         goIndicatorAnimator.gameObject.SetActive(false);
-        optionsScreen.OnDismiss += OnOptionsDismiss;
-        score.SetValue(PlayerPrefs.GetInt(PrefsHelper.SCORE, 0));
+        score.SetValue(GameState.PlayerScore);
     }
 
     private void OnOptionsDismiss(object sender, System.EventArgs e) {
@@ -53,8 +53,8 @@ public class UI : MonoBehaviour
 
     private void OnGameOver(object sender, System.EventArgs e) {
         continueScreen.gameObject.SetActive(false);
-        PlayerPrefs.SetInt(PrefsHelper.SCORE, score.GetValue());
-        PlayerPrefs.SetInt(PrefsHelper.HEALTH, 0);
+        //PlayerPrefs.SetInt(PrefsHelper.SCORE, score.GetValue());
+        //PlayerPrefs.SetInt(PrefsHelper.HEALTH, 0);
         scoreScreen.gameObject.SetActive(true);
         isGameOver = true;
     }
@@ -84,7 +84,7 @@ public class UI : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape)) {
             Time.timeScale = 0f;
             optionsScreen.gameObject.SetActive(true);
-            optionsScreen.RefreshOptions();
+            //optionsScreen.RefreshOptions();
         }
     }
 

@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5cf6525dbd649640b3135658c4b2fab, type: 3}
+  m_Name: OptionsMenuScreen
+  m_EditorClassIdentifier: 
+  screenType: 4
+  screen: {fileID: 8605236402217312305, guid: 82c16cb1846f31c41a8400225cf9a053, type: 3}

@@ -13,11 +13,34 @@ public class RangePicker : MonoBehaviour, IActivable {
     [SerializeField] private int maxValue;
     [field: SerializeField] public int Value { get; private set; }
 
+    private MenuKeyboardController keyboard;
     private bool isActivated = false;
-    private bool isHorizontalMovementDetected = false;
 
-    private void Start()
-    {
+    private void Awake() {
+        keyboard = GetComponent<MenuKeyboardController>();
+        keyboard.OnLeftKeyPress += OnLeftKeyPress;
+        keyboard.OnRightKeyPress += OnRightKeyPress;
+    }
+
+    private void OnRightKeyPress(object sender, EventArgs e) {
+        Value += 1;
+        if (Value > maxValue) {
+            Value = maxValue;
+        }
+        RefreshPicker();
+        OnValueChange?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void OnLeftKeyPress(object sender, EventArgs e) {
+        Value -= 1;
+        if (Value < 0) {
+            Value = 0;
+        }
+        RefreshPicker();
+        OnValueChange?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void Start() {
         RefreshPicker();
     }
 
@@ -48,34 +71,6 @@ public class RangePicker : MonoBehaviour, IActivable {
     public void SetValue(int value) {
         Value = value;
         RefreshPicker();
-    }
-
-    private void Update()
-    {
-        if (isActivated) {
-            float leftRightMovement = Input.GetAxisRaw(InputHelper.AXIS_HORIZONTAL);
-            if (!isHorizontalMovementDetected && leftRightMovement < 0) {
-                int prevValue = Value;
-                Value -= 1;
-                isHorizontalMovementDetected = true;
-                if (Value < 0) {
-                    Value = 0;
-                }
-                RefreshPicker();
-                OnValueChange?.Invoke(this, EventArgs.Empty);
-            } else if (!isHorizontalMovementDetected && leftRightMovement > 0) {
-                int prevValue = Value;
-                Value += 1;
-                isHorizontalMovementDetected = true;
-                if (Value > maxValue) {
-                    Value = maxValue;
-                }
-                RefreshPicker();
-                OnValueChange?.Invoke(this, EventArgs.Empty);
-            } else if (leftRightMovement == 0) {
-                isHorizontalMovementDetected = false;
-            }
-        }
     }
 
 }

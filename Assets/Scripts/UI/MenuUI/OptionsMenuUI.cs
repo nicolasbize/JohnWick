@@ -6,9 +6,8 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UIElements;
 
-public class Options : MonoBehaviour
-{
-    public event EventHandler OnDismiss;
+public class OptionsMenuUI : MonoBehaviour {
+
     [SerializeField] private List<TextMeshProUGUI> menuOptions;
     [SerializeField] private RangePicker musicRangePicker;
     [SerializeField] private RangePicker soundRangePicker;
@@ -16,12 +15,24 @@ public class Options : MonoBehaviour
     [SerializeField] private AudioMixerGroup musicMixer;
     [SerializeField] private AudioMixerGroup soundMixer;
 
+    private MenuKeyboardController keyboard;
+    private FadingController fader;
+    private BaseMenuScreen menu;
     private int currentSelectionIndex = 0;
-    private bool isVerticalMovementDetected = false;
     private List<IActivable> controls;
     private CanvasShake canvasShake;
 
     private void Awake() {
+        keyboard = GetComponent<MenuKeyboardController>();
+        keyboard.OnUpKeyPress += OnUpKeyPress;
+        keyboard.OnDownKeyPress += OnDownKeyPress;
+        keyboard.OnEnterKeyPress += OnEnterKeyPress;
+
+        fader = GetComponent<FadingController>();
+        fader.OnCompleteFade += OnReadyToDismiss;
+
+        menu = GetComponent<BaseMenuScreen>();
+
         musicRangePicker.OnValueChange += OnMusicVolumeChange;
         soundRangePicker.OnValueChange += OnSoundVolumeValueChange;
         shakeCheckbox.OnValueChange += OnShakeValueChange;
@@ -29,6 +40,20 @@ public class Options : MonoBehaviour
             musicRangePicker, soundRangePicker, shakeCheckbox
         };
         canvasShake = GetComponent<CanvasShake>();
+    }
+
+    private void Start() {
+        if (!PlayerPrefs.HasKey(PrefsHelper.CAMERA_SHAKE)) {
+            PlayerPrefs.SetInt(PrefsHelper.CAMERA_SHAKE, 1);
+        }
+        RefreshOptions();
+        if (!fader.enabled) {
+            fader.DisplayContent();
+        }
+    }
+
+    private void OnReadyToDismiss(object sender, EventArgs e) {
+        menu.CloseScreen(); // let the parent controller decide what to show next, it might be game or main menu
     }
 
     private void OnShakeValueChange(object sender, EventArgs e) {
@@ -65,44 +90,35 @@ public class Options : MonoBehaviour
         SoundManager.Instance.PlayMenuMove();
     }
 
-    private void Start() {
-        if (!PlayerPrefs.HasKey(PrefsHelper.CAMERA_SHAKE)) {
-            PlayerPrefs.SetInt(PrefsHelper.CAMERA_SHAKE, 1);
+    private void OnUpKeyPress(object sender, EventArgs e) {
+        currentSelectionIndex -= 1;
+        if (currentSelectionIndex < 0) {
+            currentSelectionIndex = menuOptions.Count - 1;
         }
+        SoundManager.Instance.PlayMenuMove();
         RefreshOptions();
     }
 
-    private void Update() {
-        float upDownMovement = Input.GetAxisRaw(InputHelper.AXIS_VERTICAL);
-        if (!isVerticalMovementDetected && upDownMovement > 0) {
-            currentSelectionIndex -= 1;
-            isVerticalMovementDetected = true;
-            if (currentSelectionIndex < 0) {
-                currentSelectionIndex = menuOptions.Count - 1;
-            }
-            SoundManager.Instance.PlayMenuMove();
-            RefreshOptions();
-        } else if (!isVerticalMovementDetected && upDownMovement < 0) {
-            currentSelectionIndex += 1;
-            isVerticalMovementDetected = true;
-            if (currentSelectionIndex > menuOptions.Count - 1) {
-                currentSelectionIndex = 0;
-            }
-            SoundManager.Instance.PlayMenuMove();
-            RefreshOptions();
-        } else if (upDownMovement == 0) {
-            isVerticalMovementDetected = false;
-        }
-
-        if ((currentSelectionIndex == menuOptions.Count - 1) && IsSelectionMade()) {
+    private void OnDownKeyPress(object sender, EventArgs e) {
+        currentSelectionIndex += 1;
+        if (currentSelectionIndex > menuOptions.Count - 1) {
             currentSelectionIndex = 0;
-            SoundManager.Instance.PlayMenuSelect();
-            OnDismiss?.Invoke(this, EventArgs.Empty);
         }
+        SoundManager.Instance.PlayMenuMove();
+        RefreshOptions();
     }
 
-    private bool IsSelectionMade() {
-        return Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetButtonDown(InputHelper.BTN_ATTACK);
+    private void OnEnterKeyPress(object sender, EventArgs e) {
+        if (currentSelectionIndex == menuOptions.Count - 1) {
+            currentSelectionIndex = 0;
+            SoundManager.Instance.PlayMenuSelect();
+
+            if (fader.enabled) {
+                fader.StartFadingOut();
+            } else {
+                menu.CloseScreen();
+            }
+        }
     }
 
     public void RefreshOptions() {

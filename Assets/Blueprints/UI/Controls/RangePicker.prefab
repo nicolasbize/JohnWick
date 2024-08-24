@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 637350276109651119}
   - component: {fileID: 3858555156141910084}
   - component: {fileID: 6814154865353811190}
+  - component: {fileID: 8075140611980189630}
   m_Layer: 5
   m_Name: RangePicker
   m_TagString: Untagged
@@ -79,3 +80,15 @@ MonoBehaviour:
   fullTickPrefab: {fileID: 1205522936418361631, guid: 1bd7d9d50d6096440875160aab6cfa73, type: 3}
   maxValue: 8
   <Value>k__BackingField: 4
+--- !u!114 &8075140611980189630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6763769280596026206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4738c0c721f9f2d49a08152a817c7409, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

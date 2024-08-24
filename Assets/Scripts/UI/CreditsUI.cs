@@ -1,35 +1,44 @@
 using System;
 using UnityEngine;
 
-public class Credits : MenuScreen
+public class CreditsUI : MonoBehaviour
 {
-
-    public event EventHandler OnDismiss;
-
     [SerializeField] private RectTransform creditsContainer;
     [SerializeField] private int startPositionY;
     [SerializeField] private int endPositionY;
     [SerializeField] private float durationRoll;
 
+    private FadingController fader;
+    private BaseMenuScreen menu;
+    private MenuKeyboardController keyboard;
     private float preciseY;
-    private bool isStarted = false;
-    private bool isActivated = false;
     private bool isRolling = false;
     private float timeSinceStartedRolling = float.NegativeInfinity;
 
+    private void Awake() {
+        keyboard = GetComponent<MenuKeyboardController>();
+        keyboard.OnEnterKeyPress += OnEnterKeyPress;
+
+        fader = GetComponent<FadingController>();
+        fader.OnCompleteFade += OnReadyToDismiss;
+
+        menu = GetComponent<BaseMenuScreen>();
+    }
+
     private void Start() {
-        isStarted = true;
-        if (isActivated) {
-            StartRolling();
+        StartRolling();
+        timeSinceStartedRolling = Time.timeSinceLevelLoad;
+    }
+
+    private void OnEnterKeyPress(object sender, EventArgs e) {
+        if (Time.timeSinceLevelLoad - timeSinceStartedRolling > 3f) {
+            isRolling = false;
+            fader.StartFadingOut();
         }
     }
 
-    public void Activate() {
-        if (isStarted) {
-            StartRolling();
-        } else {
-            isActivated = true;
-        }
+    private void OnReadyToDismiss(object sender, EventArgs e) {
+        menu.CloseScreen();
     }
 
     private void StartRolling() {
@@ -48,12 +57,6 @@ public class Credits : MenuScreen
 
 
     private void Update() {
-        if (IsSelectionMade()) {
-            isRolling = false;
-            SoundManager.Instance.PlayMenuSelect();
-            OnDismiss?.Invoke(this, EventArgs.Empty);
-        }
-
         if (isRolling) {
             float progress = (Time.timeSinceLevelLoad - timeSinceStartedRolling) / durationRoll;
             if (progress >= 1) {
