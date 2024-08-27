@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d8b10fd7f64d64bbfe793d3d7f488e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <MaxHP>k__BackingField: 34
+  <MaxHP>k__BackingField: 26
   <HasKnife>k__BackingField: 0
   <HasGun>k__BackingField: 0
   hasMultipleKnives: 0
@@ -177,16 +177,10 @@ MonoBehaviour:
   pickableKnifePrefab: {fileID: 0}
   pickableGunPrefab: {fileID: 0}
   sparkPrefab: {fileID: 5678868446284842596, guid: a0b29e60691760b4bb48a4ab60cd1739, type: 3}
-  hitSound: {fileID: 8300000, guid: aa765145c85d354459fb21f51adab87f, type: 3}
-  hitAltSound: {fileID: 8300000, guid: 6bfba2b2a069af442ac5a10f21b36aad, type: 3}
-  missSound: {fileID: 8300000, guid: e5f51d2c17182c04d85de18a16f87cd1, type: 3}
-  eatFoodSound: {fileID: 0}
-  gunshotSound: {fileID: 0}
   minMaxSecsBeforeHitting: {x: 0.5, y: 1}
   flyKickPower: 100
   summersaltDuration: 0.5
   breakableBar: {fileID: 0}
-  gruntSound: {fileID: 8300000, guid: a1c01f5859a02ba4dae16340f1290add, type: 3}
   <EnemySO>k__BackingField: {fileID: 11400000, guid: 916e6afc9dd843f41a4fac36b46af2c4, type: 2}
 --- !u!82 &4174640093849827705
 AudioSource:

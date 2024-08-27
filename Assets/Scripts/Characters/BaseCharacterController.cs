@@ -5,6 +5,7 @@ using UnityEngine;
 public abstract class BaseCharacterController : MonoBehaviour {
     public enum State { Idle, Walking, PreparingAttack, Attacking, Blocking, Hurt, Flying, Falling, Grounded, Dropping, WaitingForDoor, Dying, Dead, WaitingForPlayer, Jumping, Summersalting }
     public enum InitialPosition { Behind, Garage, Roof, Street }
+    public enum MeleePosition { None, TopLeft, TopRight, BottomLeft, BottomRight }
 
     public event EventHandler OnDirectionChange;
     public event EventHandler OnDying;
@@ -55,9 +56,11 @@ public abstract class BaseCharacterController : MonoBehaviour {
     protected InitialPosition initialPosition = InitialPosition.Street;
     protected AudioSource audioSource;
     protected State statePriorToAttacking = State.Idle;
+    protected CapsuleCollider2D capsuleCollider;
 
     protected virtual void Awake() {
         animator = GetComponent<Animator>();
+        capsuleCollider = GetComponent<CapsuleCollider2D>();
     }
 
     protected virtual void Start() {
@@ -80,7 +83,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
     public bool IsFacingLeft { get; protected set; }
 
     public abstract void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal);
-    public abstract bool IsVulnerable(Vector2 damageOrigin, bool canBlock = true);
+    public abstract bool IsVulnerable(Vector2 damageOrigin);
     protected abstract void MaybeInductDamage(bool muteMissSounds = false);
     protected abstract void FixedUpdate();
 
@@ -200,17 +203,24 @@ public abstract class BaseCharacterController : MonoBehaviour {
             // this is pretty horrible
             if (this is PlayerController && destination.y > 30) return false;
             if (this is PlayerController && destination.y < 2) return false;
-            if (this is PlayerController && World.Instance.CurrentLevelIndex == 0 && destination.x > 294 && destination.y > 28 - (destination.x - 295)) return false;
+            if (this is PlayerController && World.Instance.CurrentLevelIndex == 0 && destination.x > 672 && destination.y > 28 - (destination.x - 673)) return false;
             if (this is PlayerController && World.Instance.CurrentLevelIndex == 1) { //todo: swap this back to 1 when levels are both loaded
                 // check if the boss is registered, might be super slow let's see.
                 ButcherController boss = (ButcherController)((PlayerController)this).Enemies.Find(e => e is ButcherController);
                 if (boss != null && !boss.HasStartedEngaging) {
-                    Rect barRect = new Rect(240f, 15f, 160, 60);
+                    Rect barRect = new Rect(530f, 15f, 160, 60);
                     if (barRect.Contains(destination)) return false;
                 }
             }
         }
 
+        if (this is EnemyController) {
+            Vector3 targetedPosition = new Vector3(Mathf.FloorToInt(destination.x), Mathf.FloorToInt(destination.y), 0);
+            Vector2 direction = (targetedPosition - transform.position).normalized;
+            LayerMask mask = LayerMask.GetMask("Enemy");
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, 8f, mask);
+            if (hit.collider != null && hit.collider.GetComponent<EnemyController>() != this) return false;
+        }
         //if (this is PlayerController) {
         //    Vector3 targetedPosition = new Vector3(Mathf.FloorToInt(destination.x), Mathf.FloorToInt(destination.y), 0);
         //    Vector2 direction = (targetedPosition - transform.position).normalized;
@@ -218,7 +228,7 @@ public abstract class BaseCharacterController : MonoBehaviour {
         //    RaycastHit2D hit = Physics2D.Raycast(transform.position + Vector3.down * height, direction, 3f, mask);
         //    if (hit.collider != null) return false;
         //}
-        
+
         return true;
 
 
@@ -263,6 +273,9 @@ public abstract class BaseCharacterController : MonoBehaviour {
                     state = State.Idle;
                 } else {
                     state = State.Dying;
+                    if (capsuleCollider != null) {
+                        capsuleCollider.enabled = false;
+                    }
                     timeDyingStart = Time.timeSinceLevelLoad;
                     OnDying?.Invoke(this, EventArgs.Empty);
                 }
@@ -324,7 +337,4 @@ public abstract class BaseCharacterController : MonoBehaviour {
         return state == State.Idle || state == State.Walking;
     }
 
-    protected bool CanBlock() {
-        return state == State.Idle || state == State.Walking;
-    }
 }

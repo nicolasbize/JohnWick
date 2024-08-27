@@ -12,6 +12,7 @@ public class World : MonoBehaviour
     [SerializeField] private Transform levelParent;
     [SerializeField] private BaseMenuScreen scoreScreen;
     [SerializeField] private Counter currentScore;
+    [SerializeField] private TransitionScreen transitionScreen;
 
     public int CurrentLevelIndex { get; private set;} = 0;
 
@@ -35,8 +36,8 @@ public class World : MonoBehaviour
     private void Start() {
         LoadLevel(CurrentLevelIndex);
         Camera.main.GetComponent<CameraFollow>().OnPositionChange += OnCameraPositionChange;
-        TransitionScreen.Instance.OnReadyToLoadContent += OnTransitionReadyToLoadLevel;
-        TransitionScreen.Instance.OnReadyToPlay += OnTransitionReadyToPlay;
+        transitionScreen.OnReadyToLoadContent += OnTransitionReadyToLoadLevel;
+        transitionScreen.OnReadyToPlay += OnTransitionReadyToPlay;
     }
 
     private void OnTransitionReadyToPlay(object sender, EventArgs e) {
@@ -44,8 +45,8 @@ public class World : MonoBehaviour
     }
 
     private void OnCameraPositionChange(object sender, EventArgs e) {
-        if (Camera.main.transform.position.x >= 320) {
-            Camera.main.transform.position = new Vector3(320, 32, -10); // lock at end of level
+        if (Camera.main.transform.position.x >= 620) {
+            Camera.main.transform.position = new Vector3(620, 32, -10); // lock at end of level
             Camera.main.GetComponent<CameraFollow>().LockInPlace();
         }
     }
@@ -77,7 +78,7 @@ public class World : MonoBehaviour
         Debug.Log("level cleared - score");
         if (CurrentLevelIndex < levels.Count -1 ) {
             CurrentLevelIndex += 1;
-            TransitionScreen.Instance.StartTransition();
+            transitionScreen.StartTransition();
         } else {
             Debug.Log("complete game");
         }
@@ -95,6 +96,6 @@ public class World : MonoBehaviour
         Camera.main.GetComponent<CameraFollow>().StartNewLevel();
         PlayerController.Instance.StartNewLevel();
         LoadLevel(CurrentLevelIndex);
-        TransitionScreen.Instance.FinishTransition();
+        transitionScreen.FinishTransition();
     }
 }

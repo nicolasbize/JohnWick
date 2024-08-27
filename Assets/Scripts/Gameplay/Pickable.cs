@@ -43,19 +43,6 @@ public class Pickable : MonoBehaviour
         IsPickable = true;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision) {
-        if (IsPickable && collision != null && collision.gameObject.GetComponent<PlayerController>() != null) {
-            collision.gameObject.GetComponent<PlayerController>().PickableItem = this;
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D collision) {
-
-        if (IsPickable && collision != null && collision.gameObject.GetComponent<PlayerController>() != null) {
-            collision.gameObject.GetComponent<PlayerController>().PickableItem = null;
-        }
-    }
-
     public void PickupItem() {
         Destroy(gameObject);
     }

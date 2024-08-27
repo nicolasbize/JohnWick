@@ -51,7 +51,7 @@ public class BouncerController : BaseCharacterController, IBoss {
         UI.Instance.SetBossMode(this, EnemySO.enemyType);
     }
 
-    public override bool IsVulnerable(Vector2 damageOrigin, bool canBlock = true) {
+    public override bool IsVulnerable(Vector2 damageOrigin) {
         if (!hasStartedEngaging) return false;
         if (isBlocking) return false;
         if (state == State.Flying) return false;

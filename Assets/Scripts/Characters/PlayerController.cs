@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class PlayerController : BaseCharacterController {
+
+
 
     [SerializeField] private float jumpForce;
     
@@ -14,17 +17,21 @@ public class PlayerController : BaseCharacterController {
     private float timeSinceLanded = float.NegativeInfinity;
     private float durationBetweenJumps = 0.3f;
     private bool isJumpingLeft = false;
+    private Dictionary<MeleePosition, EnemyController> availableMeleeSlots = new Dictionary<MeleePosition, EnemyController>() {
+        { MeleePosition.TopLeft, null },
+        { MeleePosition.TopRight, null },
+        { MeleePosition.BottomLeft, null },
+        { MeleePosition.BottomRight, null },
+    };
 
     private List<Vector2> transitionDestinations = new List<Vector2>() {
-        new Vector2(300, 3), new Vector2(360, 3)
+        new Vector2(640, 3), new Vector2(670, 3)
     };
     private List<string> comboAttackTriggers = new List<string>() {
         "Punch", "Punch", "PunchAlt", "Kick", "Roundhouse"
     };
     private int currentComboIndex = 0;
     private int currentTransitionDestinationIndex = 0;
-
-    public Pickable PickableItem { get; set; }
 
     public static PlayerController Instance;
 
@@ -37,10 +44,11 @@ public class PlayerController : BaseCharacterController {
     protected override void Start() {
         base.Start();
         World.Instance.OnLevelTransitionStart += OnLevelTransitionStart;
+        UI.Instance.NotifyHeroHealthChange(this);
     }
 
     public void StartNewLevel() {
-        PrecisePosition = new Vector3(-40, 6, 6);
+        PrecisePosition = new Vector3(30, 6, 6);
         preciseVelocity = Vector3.zero;
         CurrentHP = MaxHP;
         UI.Instance.NotifyHeroHealthChange(this);
@@ -75,6 +83,25 @@ public class PlayerController : BaseCharacterController {
         }
     }
 
+    public void FreeMeleeSlot(MeleePosition slot) {
+        availableMeleeSlots[slot] = null;
+    }
+
+    public MeleePosition ReserveMeleeSlot(EnemyController enemy) {
+        List<MeleePosition> availableSlots = new List<MeleePosition>();
+        foreach (MeleePosition position in availableMeleeSlots.Keys) {
+            if (position != MeleePosition.None && availableMeleeSlots[position] == null) {
+                availableSlots.Add(position);
+            }
+        }
+        if (availableSlots.Count > 0) {
+            MeleePosition rndPosition = availableSlots[Random.Range(0, availableSlots.Count)];
+            availableMeleeSlots[rndPosition] = enemy;
+            return rndPosition;
+        } else {
+            return MeleePosition.None;
+        }
+    }
 
     public override void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
@@ -101,7 +128,7 @@ public class PlayerController : BaseCharacterController {
         }
     }
 
-    public override bool IsVulnerable(Vector2 damageOrigin, bool canBlock = true) {
+    public override bool IsVulnerable(Vector2 damageOrigin) {
         if (state == State.Hurt || state == State.Falling || state == State.Grounded || state == State.Dying || state == State.Dead) {
             return false;
         }
@@ -109,11 +136,6 @@ public class PlayerController : BaseCharacterController {
             return false;
         }
 
-        if (canBlock && state == State.Blocking && (
-            (IsFacingLeft && damageOrigin.x < PrecisePosition.x) ||
-            (!IsFacingLeft && damageOrigin.x > PrecisePosition.x))) {
-            return false;
-        }
         return true;
     }
 
@@ -150,7 +172,7 @@ public class PlayerController : BaseCharacterController {
                 if (state == State.Jumping) { // jump kick always knocks down
                     hitType = Hit.Type.Knockdown;
                 }
-                int damage = isPowerAttack ? 2 : 4;
+                int damage = isPowerAttack ? 4 : 2;
                 enemy.ReceiveHit(PrecisePosition, damage, hitType);
                 hasHitEnemy = true;
             }
@@ -193,7 +215,6 @@ public class PlayerController : BaseCharacterController {
             bool wasFacingLeft = IsFacingLeft;
 
             HandleJumpingWithInput();
-            // HandleBlockInput(); // blocking seems useless in this game, removing for now but keeping in the code.
             HandleWalkingWithInput();
             HandleAttackingWithInput();
             HandleAirKicks();
@@ -229,6 +250,7 @@ public class PlayerController : BaseCharacterController {
         state = State.Jumping;
         DropAllCarriedWeapons();
         animator.SetBool("IsJumping", true);
+        capsuleCollider.enabled = true;
         Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
         float midX = Mathf.FloorToInt((screenBoundaries.y - screenBoundaries.x) / 2f);
         PrecisePosition = new Vector2(midX, 20);
@@ -283,35 +305,26 @@ public class PlayerController : BaseCharacterController {
         }
     }
 
-    private void HandleBlockInput() {
-        if (CanBlock() && Input.GetButton("Block")) {
-            state = State.Blocking;
-        }
-        if (state == State.Blocking && !Input.GetButton("Block")) {
-            state = State.Idle;
-        }
-        animator.SetBool("IsBlocking", state == State.Blocking);
-    }
-
     private void HandleAttackingWithInput() {
         if (CanAttack() && isAttackPressed) {
             isAttackPressed = false;
             // first check if there is something to pick up
-            if (CanPickUpItemFromGround()) {
+            Pickable pickable = PickUpItemFromGround();
+            if (pickable != null) {
                 animator.SetTrigger("Pickup");
-                if (PickableItem.Type == Pickable.PickableType.Knife) {
+                if (pickable.Type == Pickable.PickableType.Knife) {
                     HasKnife = true;
                     UpdateKnifeGameObject();
-                } else if (PickableItem.Type == Pickable.PickableType.Gun) {
+                } else if (pickable.Type == Pickable.PickableType.Gun) {
                     HasGun = true;
                     bulletsLeft = 3;
                     UpdateGunGameObject();
-                } else if (PickableItem.Type == Pickable.PickableType.Food) {
+                } else if (pickable.Type == Pickable.PickableType.Food) {
                     CurrentHP = MaxHP;
                     UI.Instance.NotifyHeroHealthChange(this);
                     SoundManager.Instance.Play(SoundManager.SoundType.EatFood);
                 }
-                PickableItem.PickupItem();
+                pickable.PickupItem();
             } else {
                 statePriorToAttacking = state;
                 if (state == State.Jumping) {
@@ -342,13 +355,20 @@ public class PlayerController : BaseCharacterController {
         }
     }
 
-    private bool CanPickUpItemFromGround() {
-        if (PickableItem == null) return false;
-        if (PickableItem.Type == Pickable.PickableType.Food) return true;
-        if (HasKnife || HasGun) return false;
-        if (HasKnife && PickableItem.Type == Pickable.PickableType.Knife) return false;
-        if (HasGun && PickableItem.Type == Pickable.PickableType.Gun) return false;
-        return true;
+    private Pickable PickUpItemFromGround() {
+        LayerMask mask = LayerMask.GetMask("Pickable");
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector3.down * 2, mask);
+        if (hit.collider != null && hit.collider.GetComponent<Pickable>() != null) {
+            Pickable pickable = hit.collider.GetComponent<Pickable>();
+            if (pickable.IsPickable) {
+                if (pickable.Type == Pickable.PickableType.Food) return pickable;
+                if (HasKnife || HasGun) return null;
+                if (HasKnife && pickable.Type == Pickable.PickableType.Knife) return null;
+                if (HasGun && pickable.Type == Pickable.PickableType.Gun) return null;
+                return pickable;
+            }
+        }
+        return null;
     }
 
     private void MaybeBreakBarrel() {

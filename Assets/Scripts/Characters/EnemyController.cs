@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Unity.Burst.CompilerServices;
 using UnityEngine;
 
 public class EnemyController : BaseCharacterController {
@@ -8,7 +10,6 @@ public class EnemyController : BaseCharacterController {
     [SerializeField] private float flySpeed;
     [SerializeField] private int pointsScored;
     [SerializeField] private Vector2 minMaxSecsBeforeHitting;
-    //[SerializeField] private PlayerController player;
     [SerializeField] private GarageDoor garageDoor;
     [field:SerializeField] public EnemySO EnemySO { get; private set; }
     [field: SerializeField] public bool IsActivatedForCheckpoint { get; private set; }
@@ -18,6 +19,7 @@ public class EnemyController : BaseCharacterController {
     private bool isInHittingStance = false;
     private Vector3 originalPosition;
     private PlayerController player;
+    private MeleePosition reservedPosition;
 
     protected override void Start() {
         base.Start();
@@ -154,7 +156,7 @@ public class EnemyController : BaseCharacterController {
         pickable.transform.position = transform.position + Vector3.down * 4;
     }
 
-    public override bool IsVulnerable(Vector2 damageOrigin, bool canBlock = true) {
+    public override bool IsVulnerable(Vector2 damageOrigin) {
         return state == State.Idle ||
                state == State.Walking ||
                state == State.PreparingAttack ||
@@ -218,6 +220,12 @@ public class EnemyController : BaseCharacterController {
                     animator.SetBool("IsWalking", true);
                 }
             } else {
+                if (reservedPosition == MeleePosition.None) {
+                    reservedPosition = player.ReserveMeleeSlot(this);
+                    if (reservedPosition != MeleePosition.None) {
+                        Debug.Log("reserved position " + reservedPosition);
+                    }
+                }
                 Vector2 nextTargetDestination = GetNextMovementDirection();
                 bool isPlayerTooFar = nextTargetDestination.magnitude > 0;
                 animator.SetBool("IsWalking", isPlayerTooFar);
@@ -248,6 +256,25 @@ public class EnemyController : BaseCharacterController {
             SetTransformFromPrecisePosition();
             Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
             height = 5f;
+
+            // check if we're hitting other enemies along the way
+            LayerMask mask = LayerMask.GetMask("Enemy");
+            ContactFilter2D contactFilter = new ContactFilter2D();
+            contactFilter.SetLayerMask(mask);
+            List<RaycastHit2D> hits = new List<RaycastHit2D>();
+            Physics2D.Raycast(transform.position + Vector3.up * 2, Vector3.down * 2, contactFilter, hits);
+            if (hits.Count > 0) {
+                foreach (RaycastHit2D hit in hits) {
+                    EnemyController other = hit.collider.GetComponent<EnemyController>();
+                    if (other != null && other != this) {
+                        if (other.IsVulnerable(PrecisePosition)) {
+                            other.ReceiveHit(PrecisePosition, 2, Hit.Type.Knockdown);
+                        }
+                    }
+                }
+
+            }
+            
             if ((transform.position.x < screenBoundaries.x + 8) ||
                 (transform.position.x > screenBoundaries.y - 8)) {
                 animator.SetBool("IsFlying", false);
@@ -303,6 +330,10 @@ public class EnemyController : BaseCharacterController {
         }
         preciseVelocity = targetDestination * moveSpeed;
         TryMoveTo(PrecisePosition + preciseVelocity * Time.deltaTime);
+        if (preciseVelocity == Vector2.zero) { // something is blocking the path, try to go down instead
+            preciseVelocity = Vector2.down * moveSpeed;
+            TryMoveTo(PrecisePosition + preciseVelocity * Time.deltaTime);
+        }
         if (preciseVelocity != Vector2.zero) {
             state = State.Walking;
         } else {
@@ -313,11 +344,12 @@ public class EnemyController : BaseCharacterController {
     private bool IsPlayerWithinReach() {
         bool isYAligned = Mathf.Abs(player.transform.position.z - transform.position.z) < verticalMarginBetweenEnemyAndPlayer;
         bool isXAligned = Mathf.Abs(player.transform.position.x - transform.position.x) < attackReach + 1;
-        return (isYAligned && isXAligned);
+        bool isXTooClose = Mathf.Abs(player.transform.position.x - transform.position.x) < 4f;
+        return (isYAligned && isXAligned && !isXTooClose);
     }
 
     private Vector2 GetRangeWeaponPosition() {
-        float buffer = 6f;
+        float buffer = 20f;
         Vector2 screenBoundaries = Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries();
         // find closest screen boundary
         float destX = screenBoundaries.x + buffer;
@@ -327,17 +359,34 @@ public class EnemyController : BaseCharacterController {
         return new Vector2(destX, player.transform.position.z);
     }
 
+    
+
     private Vector2 GetNextMovementDirection() {
         Vector2 target = Vector2.zero;
 
         if (IsPlayerWithinReach()) {
             return Vector2.zero; // no need to go any further
         }
-
-        if (transform.position.x > player.transform.position.x) {
-            target = new Vector2(player.transform.position.x + attackReach, player.transform.position.z);
-        } else {
-            target = new Vector2(player.transform.position.x - attackReach, player.transform.position.z);
+        switch (reservedPosition) {
+            case MeleePosition.TopLeft:
+                target = new Vector2(player.transform.position.x - attackReach, player.transform.position.z + verticalMarginBetweenEnemyAndPlayer / 2);
+                break;
+            case MeleePosition.TopRight:
+                target = new Vector2(player.transform.position.x + attackReach, player.transform.position.z + verticalMarginBetweenEnemyAndPlayer / 2);
+                break;
+            case MeleePosition.BottomLeft:
+                target = new Vector2(player.transform.position.x - attackReach, player.transform.position.z - verticalMarginBetweenEnemyAndPlayer / 2);
+                break;
+            case MeleePosition.BottomRight:
+                target = new Vector2(player.transform.position.x + attackReach, player.transform.position.z - verticalMarginBetweenEnemyAndPlayer / 2);
+                break;
+            default: // no assigned slots, stay a bit further away
+                if (transform.position.x > player.transform.position.x) {
+                    target = new Vector2(player.transform.position.x + 3 * attackReach, player.transform.position.z);
+                } else {
+                    target = new Vector2(player.transform.position.x - 3 * attackReach, player.transform.position.z);
+                }
+                break;
         }
         return (target - PrecisePosition).normalized;
     }

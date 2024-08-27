@@ -38,7 +38,7 @@ public class ButcherController : BaseCharacterController, IBoss {
         StartSummersalt();
     }
 
-    public override bool IsVulnerable(Vector2 damageOrigin, bool canBlock = true) {
+    public override bool IsVulnerable(Vector2 damageOrigin) {
         if (isFlyKicking || state == State.Flying) return false;
         if (!HasStartedEngaging) return false;
         if (CurrentHP <= 0) return false;

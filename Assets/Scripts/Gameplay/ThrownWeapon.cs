@@ -5,24 +5,25 @@ public class ThrownWeapon : MonoBehaviour
     [SerializeField] private int damage;
     [SerializeField] private float speed;
     [SerializeField] private float zHitBuffer;
-    [SerializeField] private float height;
     [field:SerializeField] public Vector2 Direction { get; set; }
     [field:SerializeField] public BaseCharacterController Emitter { get; set; }
     [SerializeField] private SpriteRenderer weaponSprite;
+    [SerializeField] private SpriteRenderer shadowSprite;
 
     private Vector2 position;
+    private float timeSinceStart;
 
     void Start()
     {
         position = new Vector2(transform.position.x, transform.position.y);
-        height = 8;
+        timeSinceStart = Time.timeSinceLevelLoad;
     }
 
     void Update()
     {
         weaponSprite.flipX = Direction.x < 0;
         position += speed * Direction * Time.deltaTime;
-        transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y + height), Mathf.FloorToInt(position.y));
+        transform.position = new Vector3(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y), Mathf.FloorToInt(position.y));
 
         if (!WithinBoundaries(Camera.main.GetComponent<CameraFollow>().GetScreenXBoundaries())) {
             Destroy(gameObject);
@@ -38,7 +39,7 @@ public class ThrownWeapon : MonoBehaviour
         if (collision != null && collision.gameObject.GetComponent<BaseCharacterController>() != null && 
             collision.gameObject != Emitter.gameObject) {
             BaseCharacterController characterController = collision.GetComponent<BaseCharacterController>();
-            if (characterController.IsVulnerable(position, false) && IsAlignedWith(collision.gameObject)) {
+            if (characterController.IsVulnerable(position) && IsAlignedWith(collision.gameObject)) {
                 int realDamage = damage;
                 if (characterController is PlayerController) {
                     realDamage = Mathf.FloorToInt(damage / 2f);

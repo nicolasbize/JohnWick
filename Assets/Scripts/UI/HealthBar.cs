@@ -13,7 +13,7 @@ public class HealthBar : MonoBehaviour
     [SerializeField] private RectTransform meter;
     [SerializeField] private RectTransform supplementalMeter;
 
-    private const int maxSize = 17;
+    private const int maxSize = 25;
 
     public void RefreshMeter(int maxHp, int currentHp) {
         if (currentHp < 0) { currentHp = 0; }

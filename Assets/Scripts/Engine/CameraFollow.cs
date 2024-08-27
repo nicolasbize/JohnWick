@@ -9,6 +9,7 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private PlayerController player;
     [SerializeField] private int viewDistance;
     [SerializeField] private float cameraSpeed;
+    [SerializeField] private Vector2 screenSize;
 
     private Vector3 realPosition = Vector3.zero; // might be different than shown position due to screenshake
     private Vector3 positionBeforeUnlock = Vector3.zero;
@@ -29,7 +30,7 @@ public class CameraFollow : MonoBehaviour
     }
 
     public void StartNewLevel() {
-        realPosition = new Vector3(0, 32, -10);
+        realPosition = new Vector3(0, screenSize.y, -10);
         transform.position = realPosition;
         Unlock();
     }
@@ -91,6 +92,6 @@ public class CameraFollow : MonoBehaviour
     }
 
     public Vector2 GetScreenXBoundaries() {
-        return new Vector2(realPosition.x - 32, realPosition.x + 32);
+        return new Vector2(realPosition.x - screenSize.x / 2, realPosition.x + screenSize.x / 2);
     }
 }

@@ -14,28 +14,32 @@ public class Breakable : MonoBehaviour
     private Vector2 precisePosition;
     private float height = 5; // start top off
     private Vector2 velocity = Vector2.zero;
-    private float dzHeight = 2f;
-    private float gravity = 10f;
-    private float intensity = 20f;
+    private float dzHeight = 50f;
+    private float gravity = 200f;
+    private float intensity = 10f;
     private int nbBouncesLeft = 3;
+    private CapsuleCollider2D capsuleCollider;
 
-    // Start is called before the first frame update
-    void Start()
+
+    private void Awake() {
+        capsuleCollider = GetComponent<CapsuleCollider2D>();
+    }
+
+    private void Start()
     {
         precisePosition = transform.position;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (broken) {
             dzHeight -= gravity * Time.deltaTime;
-            height += dzHeight;
+            height += dzHeight * Time.deltaTime;
             precisePosition += velocity * Time.deltaTime;
             brokenObjectSprite.transform.position = new Vector3(Mathf.FloorToInt(precisePosition.x), Mathf.FloorToInt(precisePosition.y + height), Mathf.FloorToInt(precisePosition.y));
             transform.gameObject.layer = LayerMask.NameToLayer("Pickable");
-            if (height <= 0 && nbBouncesLeft > 0) {
-                dzHeight = nbBouncesLeft / 2;
+            if (height <= 0 && nbBouncesLeft > 0 && dzHeight < 0) {
+                dzHeight = nbBouncesLeft  * 10;
                 nbBouncesLeft -= 1;
                 brokenObjectSprite.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, .5f + nbBouncesLeft * 0.2f);
             } else if (height <= 0 && nbBouncesLeft <= 0) {
@@ -49,6 +53,7 @@ public class Breakable : MonoBehaviour
 
     public void Break(Vector2 hitPosition) {
         if (!broken) {
+            capsuleCollider.enabled = false;
             broken = true;
             cleanObjectSprite.GetComponent<SpriteRenderer>().enabled = false;
             bottomFixedSprite.GetComponent<SpriteRenderer>().enabled = true;
