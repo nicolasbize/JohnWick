@@ -11,17 +11,18 @@ public class MovieUI : MonoBehaviour
     [SerializeField] private ScreenType nextScreen;
 
     private FadingController fader;
-    private MenuKeyboardController keyboard;
     private BaseMenuScreen menu;
 
     private void Awake() {
         fader = GetComponent<FadingController>();
-        fader.OnCompleteFade += OnReadyToDismiss;
-
-        keyboard = GetComponent<MenuKeyboardController>();
-        keyboard.OnEnterKeyPress += OnEnterKeyPress;
-
         menu = GetComponent<BaseMenuScreen>();
+        PlayerInputListener.Instance.OnSelectPress += OnSelectPress;
+        fader.OnCompleteFade += OnReadyToDismiss;
+    }
+
+    private void OnDestroy() {
+        PlayerInputListener.Instance.OnSelectPress -= OnSelectPress;
+        fader.OnCompleteFade -= OnReadyToDismiss;
     }
 
     private void OnReadyToDismiss(object sender, EventArgs e) {
@@ -32,7 +33,7 @@ public class MovieUI : MonoBehaviour
         }
     }
 
-    private void OnEnterKeyPress(object sender, EventArgs e) {
+    private void OnSelectPress(object sender, EventArgs e) {
         fader.SkipCurrentFrame();
     }
 }

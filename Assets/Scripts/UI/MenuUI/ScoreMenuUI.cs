@@ -5,13 +5,13 @@ using UnityEngine;
 
 public class ScoreMenuUI : BaseMenuScreen
 {
-    [SerializeField] public string title;
-    [SerializeField] public int pointsPerHP;
-    [SerializeField] public float durationBeforeUpdating;
-    [SerializeField] public TextMeshProUGUI titleLabel;
-    [SerializeField] public TextMeshProUGUI initialScoreLabel;
-    [SerializeField] public TextMeshProUGUI healthValueLabel;
-    [SerializeField] public TextMeshProUGUI totalScoreLabel;
+    [SerializeField] private string title;
+    [SerializeField] private int pointsPerHP;
+    [SerializeField] private float durationBeforeUpdating;
+    [SerializeField] private TextMeshProUGUI titleLabel;
+    [SerializeField] private TextMeshProUGUI initialScoreLabel;
+    [SerializeField] private TextMeshProUGUI healthValueLabel;
+    [SerializeField] private TextMeshProUGUI totalScoreLabel;
 
     private float timeSinceShown = float.NegativeInfinity;
     private bool isUpdatingScore = false;
@@ -24,17 +24,20 @@ public class ScoreMenuUI : BaseMenuScreen
     private float durationEachUpdate = 0.1f;
 
     private FadingController fader;
-    private MenuKeyboardController keyboard;
     private BaseMenuScreen menu;
 
     private void Awake() {
-        keyboard = GetComponent<MenuKeyboardController>();
-        keyboard.OnEnterKeyPress += OnEnterKeyPress;
-
         fader = GetComponent<FadingController>();
+        menu = GetComponent<BaseMenuScreen>();
+
+        PlayerInputListener.Instance.OnSelectPress += OnSelectPress;
         fader.OnCompleteFade += OnReadyToDismiss;
 
-        menu = GetComponent<BaseMenuScreen>();
+    }
+
+    private void OnDestroy() {
+        PlayerInputListener.Instance.OnSelectPress -= OnSelectPress;
+        fader.OnCompleteFade -= OnReadyToDismiss;
     }
 
     private void Start() {
@@ -43,7 +46,7 @@ public class ScoreMenuUI : BaseMenuScreen
         InitScreen();
     }
 
-    private void OnEnterKeyPress(object sender, EventArgs e) {
+    private void OnSelectPress(object sender, EventArgs e) {
         if (isDoneUpdatingScore) {
             GameState.PlayerScore = totalScore;
             fader.StartFadingOut();
@@ -71,10 +74,12 @@ public class ScoreMenuUI : BaseMenuScreen
             if (remainingHealth > 0) {
                 remainingHealth -= 1;
                 totalScore += pointsPerHP;
+                GameState.PlayerScore = totalScore;
                 RefreshScreen();
                 SoundManager.Instance.Play(SoundManager.SoundType.Tick);
             } else {
                 isDoneUpdatingScore = true;
+
             }
         }
 

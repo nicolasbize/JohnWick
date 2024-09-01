@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Random = UnityEngine.Random;
 
 public class PlayerController : BaseCharacterController {
 
-
-
     [SerializeField] private float jumpForce;
-    
+
     public List<BaseCharacterController> Enemies { get; private set; }
     private bool isTransitioningLevel = false;
     private bool hasFinishedTransition = false;
@@ -32,6 +31,8 @@ public class PlayerController : BaseCharacterController {
     };
     private int currentComboIndex = 0;
     private int currentTransitionDestinationIndex = 0;
+    private bool isAttackPressed = false;
+    private bool isJumpPressed = false;
 
     public static PlayerController Instance;
 
@@ -39,6 +40,25 @@ public class PlayerController : BaseCharacterController {
         base.Awake();
         Enemies = new List<BaseCharacterController>();
         Instance = this;
+        PlayerInputListener.Instance.OnAttackPress += OnAttackPress;
+        PlayerInputListener.Instance.OnJumpPress += OnJumpPress;
+    }
+
+    private void OnDestroy() {
+        PlayerInputListener.Instance.OnAttackPress -= OnAttackPress;
+        PlayerInputListener.Instance.OnJumpPress -= OnJumpPress;
+    }
+
+    private void OnJumpPress(object sender, EventArgs e) {
+        if (!isJumpPressed) {
+            isJumpPressed = true;
+        }
+    }
+
+    private void OnAttackPress(object sender, EventArgs e) {
+        if (!isAttackPressed) {
+            isAttackPressed = true;
+        }
     }
 
     protected override void Start() {
@@ -146,6 +166,7 @@ public class PlayerController : BaseCharacterController {
 
     private void Sprite_OnAttackAnimationComplete(object sender, System.EventArgs e) {
         state = State.Idle;
+        isAttackPressed = false;
     }
 
     protected override void MaybeInductDamage(bool muteMissSounds = false) {
@@ -194,19 +215,6 @@ public class PlayerController : BaseCharacterController {
         currentComboIndex = 1; // don't start at zero since this is the first hit
         ComboIndicator.Instance.ResetCombo();
     }
-
-    private bool isAttackPressed = false;
-    private bool isJumpPressed = false;
-
-    private void Update() {
-        if (Input.GetButtonDown(InputHelper.BTN_JUMP) && (Time.timeSinceLevelLoad - timeSinceLanded > durationBetweenJumps)) {
-            isJumpPressed = true;
-        }
-        if (Input.GetButtonDown(InputHelper.BTN_ATTACK)) {
-            isAttackPressed = true;
-        }
-    }
-
     protected override void FixedUpdate() {
         if (hasCompletedLevel) return;
         if (isTransitioningLevel && !hasFinishedTransition) {
@@ -298,6 +306,8 @@ public class PlayerController : BaseCharacterController {
             if (height < 0f) {
                 state = State.Idle;
                 height = 0f;
+                isJumpPressed = false;
+                isAttackPressed = false;
                 animator.SetBool("IsJumping", false);
                 isAirKicking = false;
                 timeSinceLanded = Time.timeSinceLevelLoad;
@@ -357,7 +367,7 @@ public class PlayerController : BaseCharacterController {
 
     private Pickable PickUpItemFromGround() {
         LayerMask mask = LayerMask.GetMask("Pickable");
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector3.down * 2, mask);
+        RaycastHit2D hit = Physics2D.Raycast(PrecisePosition + Vector2.up * 4, Vector2.down * 8, mask);
         if (hit.collider != null && hit.collider.GetComponent<Pickable>() != null) {
             Pickable pickable = hit.collider.GetComponent<Pickable>();
             if (pickable.IsPickable) {
@@ -388,7 +398,7 @@ public class PlayerController : BaseCharacterController {
 
     private void HandleWalkingWithInput() {
         if (CanMove()) {
-            preciseVelocity = new Vector2(Input.GetAxisRaw(InputHelper.AXIS_HORIZONTAL), Input.GetAxisRaw(InputHelper.AXIS_VERTICAL)).normalized * moveSpeed;
+            preciseVelocity = PlayerInputListener.Instance.GetInputVector().normalized * moveSpeed;
 
             // prevent changing direction when jumping
             if (state == State.Jumping) {

@@ -10,22 +10,36 @@ public class MainMenuUI : MonoBehaviour {
 
     private int currentMenuSelectionIndex = 0;
     private FadingController fader;
-    private MenuKeyboardController keyboard;
     private BaseMenuScreen menu;
     private ScreenType selectedScreen = ScreenType.None;
+    private float timeSinceEnabled = float.NegativeInfinity;
 
     private void Awake() {
-        keyboard = GetComponent<MenuKeyboardController>();
-        keyboard.OnEnterKeyPress += OnEnterKeyPress;
-        keyboard.OnUpKeyPress += OnUpKeyPress;
-        keyboard.OnDownKeyPress += OnDownKeyPress;
-
         fader = GetComponent<FadingController>();
-        fader.OnCompleteFade += OnReadyToDismiss;
-
         menu = GetComponent<BaseMenuScreen>();
+
+        fader.OnCompleteFade += OnReadyToDismiss;
+        PlayerInputListener.Instance.OnSelectPress += OnSelectPress;
+        PlayerInputListener.Instance.OnUpPress += OnUpPress;
+        PlayerInputListener.Instance.OnDownPress += OnDownPress;
     }
-    
+
+    private void OnDestroy() {
+        fader.OnCompleteFade -= OnReadyToDismiss;
+        PlayerInputListener.Instance.OnSelectPress -= OnSelectPress;
+        PlayerInputListener.Instance.OnUpPress -= OnUpPress;
+        PlayerInputListener.Instance.OnDownPress -= OnDownPress;
+    }
+
+    private void OnEnable() {
+        timeSinceEnabled = Time.realtimeSinceStartup;
+        currentMenuSelectionIndex = 0;
+        RefreshSelection();
+        if (!fader.enabled) {
+            fader.DisplayContent();
+        }
+    }
+
     private void Start() {
         RefreshSelection();
         if (!fader.enabled) {
@@ -33,12 +47,11 @@ public class MainMenuUI : MonoBehaviour {
         }
     }
 
-
     private void OnReadyToDismiss(object sender, EventArgs e) {
         menu.SwitchScreen(selectedScreen);
     }
 
-    private void OnUpKeyPress(object sender, EventArgs e) {
+    private void OnUpPress(object sender, EventArgs e) {
         currentMenuSelectionIndex -= 1;
         if (currentMenuSelectionIndex < 0) {
             currentMenuSelectionIndex = menuOptions.Count - 1;
@@ -47,7 +60,7 @@ public class MainMenuUI : MonoBehaviour {
         RefreshSelection();
     }
 
-    private void OnDownKeyPress(object sender, EventArgs e) {
+    private void OnDownPress(object sender, EventArgs e) {
         currentMenuSelectionIndex += 1;
         if (currentMenuSelectionIndex > menuOptions.Count - 1) {
             currentMenuSelectionIndex = 0;
@@ -56,9 +69,11 @@ public class MainMenuUI : MonoBehaviour {
         RefreshSelection();
     }
 
-    private void OnEnterKeyPress(object sender, EventArgs e) {
-        SoundManager.Instance.PlayMenuSelect();
-        EnterSelection();
+    private void OnSelectPress(object sender, EventArgs e) {
+        if (Time.realtimeSinceStartup - timeSinceEnabled > 0.3f) {
+            SoundManager.Instance.PlayMenuSelect();
+            EnterSelection();
+        }
     }
 
     private void RefreshSelection() {

@@ -50,7 +50,7 @@ public class ButcherController : BaseCharacterController, IBoss {
     public override void ReceiveHit(Vector2 damageOrigin, int dmg = 0, Hit.Type hitType = Hit.Type.Normal) {
         if (IsVulnerable(damageOrigin)) {
             ComboIndicator.Instance.IncreaseCombo();
-            ReceiveDamage(Mathf.Max(dmg - 2, 0)); // 2 armor
+            ReceiveDamage(Mathf.Max(dmg - 1, 0)); // 2 armor
             Vector2 attackVector = damageOrigin.x < PrecisePosition.x ? Vector2.right : Vector2.left;
             if (CurrentHP > 0) {
                 state = State.Hurt;

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1205522936418361631}
   - component: {fileID: 8307900399345354698}
   - component: {fileID: 2573487033488081954}
+  - component: {fileID: 4513604328576837764}
   m_Layer: 5
   m_Name: FullTick
   m_TagString: Untagged
@@ -72,3 +73,15 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!114 &4513604328576837764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5774544901139500186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc8e6868cb2a17a4baceb9e14ba91a51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

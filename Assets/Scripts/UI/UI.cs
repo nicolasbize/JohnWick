@@ -1,10 +1,14 @@
+using System;
 using System.Collections.Generic;
+using UnityEditor.Search;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UI : MonoBehaviour
 {
+
     [SerializeField] private float durationHealthDisplayed;
     [SerializeField] private HealthBar enemyHealthbar;
     [SerializeField] private Image enemyAvatar;
@@ -15,16 +19,28 @@ public class UI : MonoBehaviour
     [SerializeField] private Continue continueScreen;
     [SerializeField] private BaseMenuScreen optionsScreen;
     [SerializeField] private BaseMenuScreen scoreScreen;
+    [SerializeField] private PlayerController playerController;
     [SerializeField] private Counter score;
+    [SerializeField] private Transform touchControls;
 
     private float timeSinceLastHealthRefresh = float.NegativeInfinity;
     private bool isBossMode = false;
     private bool isGameOver = false;
+    private float timeSinceOptionsShown = float.NegativeInfinity;
 
     public static UI Instance;
 
     private void Awake() {
         Instance = this;
+        PlayerInputListener.Instance.OnCancelPress += OnCancelPress;
+    }
+
+    private void OnDestroy() {
+        PlayerInputListener.Instance.OnCancelPress -= OnCancelPress;
+    }
+
+    private void OnCancelPress(object sender, EventArgs e) {
+        ShowOptions();
     }
 
     private void Start() {
@@ -36,12 +52,16 @@ public class UI : MonoBehaviour
         scoreScreen.OnCloseScreen += OnDismissScore;
         optionsScreen.OnCloseScreen += OnOptionsDismiss;
         goIndicatorAnimator.gameObject.SetActive(false);
+        touchControls.gameObject.SetActive(GameState.IsUsingTouchControls);
         score.SetValue(GameState.PlayerScore);
     }
 
     private void OnOptionsDismiss(object sender, System.EventArgs e) {
-        optionsScreen.gameObject.SetActive(false);
-        Time.timeScale = 1f;
+        if (optionsScreen.gameObject.activeSelf && (Time.realtimeSinceStartup - timeSinceOptionsShown > 0.3f)) {
+            optionsScreen.gameObject.SetActive(false);
+            touchControls.gameObject.SetActive(GameState.IsUsingTouchControls);
+            Time.timeScale = 1f;
+        }
     }
 
     private void OnDismissScore(object sender, System.EventArgs e) {
@@ -53,8 +73,8 @@ public class UI : MonoBehaviour
 
     private void OnGameOver(object sender, System.EventArgs e) {
         continueScreen.gameObject.SetActive(false);
-        //PlayerPrefs.SetInt(PrefsHelper.SCORE, score.GetValue());
-        //PlayerPrefs.SetInt(PrefsHelper.HEALTH, 0);
+        GameState.PlayerScore = score.GetValue();
+        GameState.PlayerHealth = 0;
         scoreScreen.gameObject.SetActive(true);
         isGameOver = true;
     }
@@ -80,11 +100,13 @@ public class UI : MonoBehaviour
             (Time.timeSinceLevelLoad - timeSinceLastHealthRefresh > durationHealthDisplayed)) {
             HideEnemyHealthbar();
         }
+    }
 
-        if (Input.GetKeyDown(KeyCode.Escape)) {
+    public void ShowOptions() {
+        if (!optionsScreen.gameObject.activeSelf) {
             Time.timeScale = 0f;
             optionsScreen.gameObject.SetActive(true);
-            //optionsScreen.RefreshOptions();
+            timeSinceOptionsShown = Time.realtimeSinceStartup;
         }
     }
 

@@ -56,7 +56,6 @@ public class World : MonoBehaviour
             Destroy(existingLevel.gameObject);
         }
         Level level = Instantiate(levels[levelIndex], levelParent);
-        level.transform.position = Vector3.zero;
         level.OnStartTransition += OnStartTransitionLevel;
         level.OnFinishLastLevel += OnFinishLastLevel;
     }
@@ -85,14 +84,15 @@ public class World : MonoBehaviour
     }
 
     private void OnTransitionReadyToLoadLevel(object sender, EventArgs e) {
-        //PlayerPrefs.SetInt(PrefsHelper.SCORE, currentScore.GetValue());
-        //PlayerPrefs.SetInt(PrefsHelper.HEALTH, PlayerController.Instance.CurrentHP);
+        GameState.PlayerScore = currentScore.GetValue();
+        GameState.PlayerHealth = PlayerController.Instance.CurrentHP;
         scoreScreen.gameObject.SetActive(true);
 
     }
 
     private void GoToNextLevel() {
         scoreScreen.gameObject.SetActive(false);
+        currentScore.SetValue(GameState.PlayerScore);
         Camera.main.GetComponent<CameraFollow>().StartNewLevel();
         PlayerController.Instance.StartNewLevel();
         LoadLevel(CurrentLevelIndex);

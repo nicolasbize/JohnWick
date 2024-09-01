@@ -222,9 +222,6 @@ public class EnemyController : BaseCharacterController {
             } else {
                 if (reservedPosition == MeleePosition.None) {
                     reservedPosition = player.ReserveMeleeSlot(this);
-                    if (reservedPosition != MeleePosition.None) {
-                        Debug.Log("reserved position " + reservedPosition);
-                    }
                 }
                 Vector2 nextTargetDestination = GetNextMovementDirection();
                 bool isPlayerTooFar = nextTargetDestination.magnitude > 0;
@@ -328,7 +325,7 @@ public class EnemyController : BaseCharacterController {
         if (PrecisePosition.x < (xBoundaries.x + buffer) || PrecisePosition.x > (xBoundaries.y - buffer)) {
             fasterInPositionSpeed *= 3; // get them in the screen faster
         }
-        preciseVelocity = targetDestination * moveSpeed;
+        preciseVelocity = targetDestination * fasterInPositionSpeed;
         TryMoveTo(PrecisePosition + preciseVelocity * Time.deltaTime);
         if (preciseVelocity == Vector2.zero) { // something is blocking the path, try to go down instead
             preciseVelocity = Vector2.down * moveSpeed;

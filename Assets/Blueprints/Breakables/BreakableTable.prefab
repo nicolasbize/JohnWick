@@ -40,6 +40,18 @@ PrefabInstance:
       propertyPath: m_WasSpriteAssigned
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3472072595909181689, guid: aed02cd59a3e4ef468804ad793475b0c, type: 3}
+      propertyPath: m_Size.x
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 3472072595909181689, guid: aed02cd59a3e4ef468804ad793475b0c, type: 3}
+      propertyPath: m_Size.y
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 3472072595909181689, guid: aed02cd59a3e4ef468804ad793475b0c, type: 3}
+      propertyPath: m_Offset.y
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3524469026353583134, guid: aed02cd59a3e4ef468804ad793475b0c, type: 3}
       propertyPath: m_Size.x
       value: 40

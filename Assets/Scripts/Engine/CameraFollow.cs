@@ -30,7 +30,7 @@ public class CameraFollow : MonoBehaviour
     }
 
     public void StartNewLevel() {
-        realPosition = new Vector3(0, screenSize.y, -10);
+        realPosition = new Vector3(screenSize.x / 2f, screenSize.y / 2f, -10);
         transform.position = realPosition;
         Unlock();
     }

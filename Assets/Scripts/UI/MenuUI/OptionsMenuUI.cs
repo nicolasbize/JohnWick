@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor.ShaderGraph;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -10,34 +11,70 @@ public class OptionsMenuUI : MonoBehaviour {
     [SerializeField] private RangePicker musicRangePicker;
     [SerializeField] private RangePicker soundRangePicker;
     [SerializeField] private Checkbox shakeCheckbox;
+    [SerializeField] private Checkbox touchControlCheckbox;
     [SerializeField] private AudioMixerGroup musicMixer;
     [SerializeField] private AudioMixerGroup soundMixer;
+    [SerializeField] private Clickable returnLabel;
 
-    private MenuKeyboardController keyboard;
     private FadingController fader;
     private BaseMenuScreen menu;
     private int currentSelectionIndex = 0;
     private List<IActivable> controls;
     private CanvasShake canvasShake;
+    private float timeSinceEnabled = float.NegativeInfinity;
 
     private void Awake() {
-        keyboard = GetComponent<MenuKeyboardController>();
-        keyboard.OnUpKeyPress += OnUpKeyPress;
-        keyboard.OnDownKeyPress += OnDownKeyPress;
-        keyboard.OnEnterKeyPress += OnEnterKeyPress;
-
+        controls = new List<IActivable>() {
+            musicRangePicker, soundRangePicker, shakeCheckbox, touchControlCheckbox
+        };
         fader = GetComponent<FadingController>();
-        fader.OnCompleteFade += OnReadyToDismiss;
-
         menu = GetComponent<BaseMenuScreen>();
+        canvasShake = GetComponent<CanvasShake>();
 
+        returnLabel.OnClick += OnReadyToDismiss;
+        fader.OnCompleteFade += OnReadyToDismiss;
+        PlayerInputListener.Instance.OnUpPress += OnUpPress;
+        PlayerInputListener.Instance.OnDownPress += OnDownPress;
+        PlayerInputListener.Instance.OnSelectPress += OnSelectPress;
+        PlayerInputListener.Instance.OnCancelPress += OnReadyToDismiss;
         musicRangePicker.OnValueChange += OnMusicVolumeChange;
         soundRangePicker.OnValueChange += OnSoundVolumeValueChange;
         shakeCheckbox.OnValueChange += OnShakeValueChange;
-        controls = new List<IActivable>() {
-            musicRangePicker, soundRangePicker, shakeCheckbox
-        };
-        canvasShake = GetComponent<CanvasShake>();
+        touchControlCheckbox.OnValueChange += OnTouchControlValueChange;
+        foreach (var control in controls) {
+            control.OnRequestActivation += OnControlActivationRequest;
+        }
+    }
+
+    private void OnDestroy() {
+
+        returnLabel.OnClick -= OnReadyToDismiss;
+        fader.OnCompleteFade -= OnReadyToDismiss;
+        PlayerInputListener.Instance.OnUpPress -= OnUpPress;
+        PlayerInputListener.Instance.OnDownPress -= OnDownPress;
+        PlayerInputListener.Instance.OnSelectPress -= OnSelectPress;
+        PlayerInputListener.Instance.OnCancelPress -= OnReadyToDismiss;
+        musicRangePicker.OnValueChange -= OnMusicVolumeChange;
+        soundRangePicker.OnValueChange -= OnSoundVolumeValueChange;
+        shakeCheckbox.OnValueChange -= OnShakeValueChange;
+        touchControlCheckbox.OnValueChange -= OnTouchControlValueChange;
+        foreach (var control in controls) {
+            control.OnRequestActivation -= OnControlActivationRequest;
+        }
+    }
+
+    private void OnControlActivationRequest(object sender, EventArgs e) {
+        for (int i=0; i<controls.Count; i++) {
+            if (sender == controls[i]) {
+                currentSelectionIndex = i;
+            }
+        }
+        RefreshOptions();
+    }
+
+    private void OnTouchControlValueChange(object sender, EventArgs e) {
+        SoundManager.Instance.PlayMenuSelect();
+        GameState.IsUsingTouchControls = touchControlCheckbox.IsSelected;
     }
 
     private void Start() {
@@ -48,6 +85,12 @@ public class OptionsMenuUI : MonoBehaviour {
         if (!fader.enabled) {
             fader.DisplayContent();
         }
+    }
+
+    private void OnEnable() {
+        timeSinceEnabled = Time.realtimeSinceStartup;
+        currentSelectionIndex = 0;
+        RefreshOptions();
     }
 
     private void OnReadyToDismiss(object sender, EventArgs e) {
@@ -88,7 +131,7 @@ public class OptionsMenuUI : MonoBehaviour {
         SoundManager.Instance.PlayMenuMove();
     }
 
-    private void OnUpKeyPress(object sender, EventArgs e) {
+    private void OnUpPress(object sender, EventArgs e) {
         currentSelectionIndex -= 1;
         if (currentSelectionIndex < 0) {
             currentSelectionIndex = menuOptions.Count - 1;
@@ -97,7 +140,7 @@ public class OptionsMenuUI : MonoBehaviour {
         RefreshOptions();
     }
 
-    private void OnDownKeyPress(object sender, EventArgs e) {
+    private void OnDownPress(object sender, EventArgs e) {
         currentSelectionIndex += 1;
         if (currentSelectionIndex > menuOptions.Count - 1) {
             currentSelectionIndex = 0;
@@ -106,15 +149,17 @@ public class OptionsMenuUI : MonoBehaviour {
         RefreshOptions();
     }
 
-    private void OnEnterKeyPress(object sender, EventArgs e) {
-        if (currentSelectionIndex == menuOptions.Count - 1) {
-            currentSelectionIndex = 0;
-            SoundManager.Instance.PlayMenuSelect();
+    private void OnSelectPress(object sender, EventArgs e) {
+        if (Time.realtimeSinceStartup - timeSinceEnabled > 0.3f) {
+            if (currentSelectionIndex == menuOptions.Count - 1) {
+                currentSelectionIndex = 0;
+                SoundManager.Instance.PlayMenuSelect();
 
-            if (fader.enabled) {
-                fader.StartFadingOut();
-            } else {
-                menu.CloseScreen();
+                if (fader.enabled) {
+                    fader.StartFadingOut();
+                } else {
+                    menu.CloseScreen();
+                }
             }
         }
     }
@@ -123,6 +168,7 @@ public class OptionsMenuUI : MonoBehaviour {
         musicRangePicker.SetValue(PlayerPrefs.GetInt(PrefsHelper.MUSIC_VOLUME, 4));
         soundRangePicker.SetValue(PlayerPrefs.GetInt(PrefsHelper.SFX_VOLUME, 4));
         shakeCheckbox.SetValue(PlayerPrefs.GetInt(PrefsHelper.CAMERA_SHAKE, 1) == 1);
+        touchControlCheckbox.SetValue(GameState.IsUsingTouchControls);
         for (int i=0; i<menuOptions.Count; i++) {
             if (currentSelectionIndex == i) {
                 menuOptions[i].color = ColorHelper.SelectedColor;

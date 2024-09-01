@@ -287,6 +287,8 @@ GameObject:
   - component: {fileID: 1620348730}
   - component: {fileID: 1620348729}
   - component: {fileID: 1620348733}
+  - component: {fileID: 1620348735}
+  - component: {fileID: 1620348734}
   m_Layer: 5
   m_Name: ScreenContainer
   m_TagString: Untagged
@@ -400,6 +402,128 @@ MonoBehaviour:
   skipIntro: 0
   musicManager: {fileID: 1379993077}
   soundManager: {fileID: 900297512}
+--- !u!114 &1620348734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1620348728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4738c0c721f9f2d49a08152a817c7409, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1620348735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1620348728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: c9ceab00a2acdaf43991024f8d468b36, type: 3}
+  m_NotificationBehavior: 2
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1620348734}
+        m_TargetAssemblyTypeName: PlayerInputListener, Assembly-CSharp
+        m_MethodName: OnJumpButtonPressed
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 78ee2583-914e-4091-a68b-80fa6bc2a618
+    m_ActionName: Player/Jump[/Keyboard/x]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1620348734}
+        m_TargetAssemblyTypeName: PlayerInputListener, Assembly-CSharp
+        m_MethodName: OnAttackButtonPressed
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: d93f001c-06af-4756-a29d-ad0663583e4f
+    m_ActionName: Player/Attack[/Keyboard/c]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1620348734}
+        m_TargetAssemblyTypeName: PlayerInputListener, Assembly-CSharp
+        m_MethodName: OnUIMovementPerformed
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 22a2c665-c690-4078-9dfe-d0beb3d51267
+    m_ActionName: Player/Movement[/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1620348734}
+        m_TargetAssemblyTypeName: PlayerInputListener, Assembly-CSharp
+        m_MethodName: OnCancelButtonPressed
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 6ee2322c-f36f-45c0-89aa-4b5111b99413
+    m_ActionName: Player/Cancel[/Keyboard/escape]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1620348734}
+        m_TargetAssemblyTypeName: PlayerInputListener, Assembly-CSharp
+        m_MethodName: OnSelectButtonPressed
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 4bb52caa-9629-428c-b7c3-2bc02073a9e7
+    m_ActionName: Player/Select[/Keyboard/space,/Keyboard/enter,/Keyboard/c,/Keyboard/x]
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: Player
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
 --- !u!1 &2008851323
 GameObject:
   m_ObjectHideFlags: 0

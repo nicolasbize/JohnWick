@@ -20,10 +20,6 @@ PrefabInstance:
       propertyPath: zHitBuffer
       value: 6
       objectReference: {fileID: 0}
-    - target: {fileID: 688099008159389518, guid: 0b40b998f539b6b4ba3c286736f5e081, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 12
-      objectReference: {fileID: 0}
     - target: {fileID: 3492388778826918171, guid: 0b40b998f539b6b4ba3c286736f5e081, type: 3}
       propertyPath: m_Size.x
       value: 8
