@@ -398,7 +398,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 82a285b5e6231574db781ae2f24b95c3, type: 2}
   - {fileID: 11400000, guid: 0d32a8dc8de12e54a9f588cc0db24f72, type: 2}
   - {fileID: 11400000, guid: e4c01e3fb3bb32041b4600feaf546903, type: 2}
-  skipSplash: 1
+  skipSplash: 0
   skipIntro: 0
   musicManager: {fileID: 1379993077}
   soundManager: {fileID: 900297512}

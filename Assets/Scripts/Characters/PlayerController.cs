@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Random = UnityEngine.Random;
@@ -196,6 +197,9 @@ public class PlayerController : BaseCharacterController {
                 int damage = isPowerAttack ? 4 : 2;
                 enemy.ReceiveHit(PrecisePosition, damage, hitType);
                 hasHitEnemy = true;
+                if (hitType == Hit.Type.PowerEject) {
+                    TimeHelper.Instance.StopTime();
+                }
             }
         }
 
@@ -215,6 +219,8 @@ public class PlayerController : BaseCharacterController {
         currentComboIndex = 1; // don't start at zero since this is the first hit
         ComboIndicator.Instance.ResetCombo();
     }
+
+
     protected override void FixedUpdate() {
         if (hasCompletedLevel) return;
         if (isTransitioningLevel && !hasFinishedTransition) {

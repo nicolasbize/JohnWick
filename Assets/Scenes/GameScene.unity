@@ -210,6 +210,7 @@ GameObject:
   - component: {fileID: 47350893}
   - component: {fileID: 47350895}
   - component: {fileID: 47350894}
+  - component: {fileID: 47350896}
   m_Layer: 0
   m_Name: World
   m_TagString: Untagged
@@ -373,6 +374,19 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &47350896
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 47350890}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c8cd7107e1e65249997705375501b6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  durationTimeStop: 0.1
 --- !u!1 &67095734 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2929252285020697097, guid: aaa2c939c0359ac4dbce3f49e8b90252, type: 3}
@@ -1000,7 +1014,6 @@ MonoBehaviour:
   playerController: {fileID: 0}
   score: {fileID: 1265158783}
   touchControls: {fileID: 800298505}
-  playerInputListener: {fileID: 47350894}
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -2618,7 +2631,6 @@ MonoBehaviour:
   - {fileID: 1504972487484211622, guid: c56fb8ec35b0bd8418216a0e0ac6db0a, type: 3}
   - {fileID: 1504972487484211622, guid: a4e2026f56e80a647a9627757566b140, type: 3}
   numberContainer: {fileID: 1027934002}
-  playerInputListener: {fileID: 47350894}
 --- !u!1 &2092858601
 GameObject:
   m_ObjectHideFlags: 0
