@@ -31,7 +31,7 @@ public class OptionsMenuUI : MonoBehaviour {
         menu = GetComponent<BaseMenuScreen>();
         canvasShake = GetComponent<CanvasShake>();
 
-        returnLabel.OnClick += OnReadyToDismiss;
+        returnLabel.OnClick += OnReadyToExit;
         fader.OnCompleteFade += OnReadyToDismiss;
         PlayerInputListener.Instance.OnUpPress += OnUpPress;
         PlayerInputListener.Instance.OnDownPress += OnDownPress;
@@ -47,8 +47,7 @@ public class OptionsMenuUI : MonoBehaviour {
     }
 
     private void OnDestroy() {
-
-        returnLabel.OnClick -= OnReadyToDismiss;
+        returnLabel.OnClick -= OnReadyToExit;
         fader.OnCompleteFade -= OnReadyToDismiss;
         PlayerInputListener.Instance.OnUpPress -= OnUpPress;
         PlayerInputListener.Instance.OnDownPress -= OnDownPress;
@@ -95,6 +94,10 @@ public class OptionsMenuUI : MonoBehaviour {
 
     private void OnReadyToDismiss(object sender, EventArgs e) {
         menu.CloseScreen(); // let the parent controller decide what to show next, it might be game or main menu
+    }
+
+    private void OnReadyToExit(object sender, EventArgs e) {
+        ExitScreen();
     }
 
     private void OnShakeValueChange(object sender, EventArgs e) {
@@ -150,17 +153,20 @@ public class OptionsMenuUI : MonoBehaviour {
     }
 
     private void OnSelectPress(object sender, EventArgs e) {
-        if (Time.realtimeSinceStartup - timeSinceEnabled > 0.3f) {
-            if (currentSelectionIndex == menuOptions.Count - 1) {
-                currentSelectionIndex = 0;
-                SoundManager.Instance.PlayMenuSelect();
+        if (Time.realtimeSinceStartup - timeSinceEnabled > 0.3f &&
+            currentSelectionIndex == menuOptions.Count - 1) {
+            ExitScreen();
+        }
+    }
 
-                if (fader.enabled) {
-                    fader.StartFadingOut();
-                } else {
-                    menu.CloseScreen();
-                }
-            }
+    private void ExitScreen() {
+        currentSelectionIndex = 0;
+        SoundManager.Instance.PlayMenuSelect();
+
+        if (fader.enabled) {
+            fader.StartFadingOut();
+        } else {
+            menu.CloseScreen();
         }
     }
 

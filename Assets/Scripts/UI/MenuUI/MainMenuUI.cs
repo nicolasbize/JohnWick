@@ -7,6 +7,7 @@ using static BaseMenuScreen;
 public class MainMenuUI : MonoBehaviour {
 
     [SerializeField] private List<TextMeshProUGUI> menuOptions;
+    [SerializeField] private Transform menuOptionsContainer;
 
     private int currentMenuSelectionIndex = 0;
     private FadingController fader;
@@ -22,6 +23,19 @@ public class MainMenuUI : MonoBehaviour {
         PlayerInputListener.Instance.OnSelectPress += OnSelectPress;
         PlayerInputListener.Instance.OnUpPress += OnUpPress;
         PlayerInputListener.Instance.OnDownPress += OnDownPress;
+        foreach (Clickable option in menuOptionsContainer.GetComponentsInChildren<Clickable>()) {
+            option.OnClick += OnOptionClick;
+        }
+    }
+
+    private void OnOptionClick(object sender, EventArgs e) {
+        for (int i = 0; i < menuOptions.Count; i++) {
+            if (menuOptions[i].GetComponent<Clickable>() == (Clickable) sender) {
+                currentMenuSelectionIndex = i;
+                RefreshSelection();
+                EnterSelection();
+            }
+        }
     }
 
     private void OnDestroy() {
@@ -29,6 +43,9 @@ public class MainMenuUI : MonoBehaviour {
         PlayerInputListener.Instance.OnSelectPress -= OnSelectPress;
         PlayerInputListener.Instance.OnUpPress -= OnUpPress;
         PlayerInputListener.Instance.OnDownPress -= OnDownPress;
+        foreach (Clickable option in menuOptionsContainer.GetComponentsInChildren<Clickable>()) {
+            option.OnClick += OnOptionClick;
+        }
     }
 
     private void OnEnable() {
@@ -71,7 +88,6 @@ public class MainMenuUI : MonoBehaviour {
 
     private void OnSelectPress(object sender, EventArgs e) {
         if (Time.realtimeSinceStartup - timeSinceEnabled > 0.3f) {
-            SoundManager.Instance.PlayMenuSelect();
             EnterSelection();
         }
     }
@@ -84,6 +100,7 @@ public class MainMenuUI : MonoBehaviour {
     }
 
     private void EnterSelection() {
+        SoundManager.Instance.PlayMenuSelect();
         if (currentMenuSelectionIndex == 0) {
             selectedScreen = ScreenType.Intro;
         } else if (currentMenuSelectionIndex == 1) {

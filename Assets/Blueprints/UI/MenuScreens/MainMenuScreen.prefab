@@ -62,7 +62,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -89,6 +89,7 @@ GameObject:
   - component: {fileID: 8682064574475910425}
   - component: {fileID: 5137653115886328062}
   - component: {fileID: 5218291584073936877}
+  - component: {fileID: 6166435651135434170}
   m_Layer: 5
   m_Name: OptionsButton
   m_TagString: Untagged
@@ -212,6 +213,18 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &6166435651135434170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5589693433894882635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc8e6868cb2a17a4baceb9e14ba91a51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7507038872342215495
 GameObject:
   m_ObjectHideFlags: 0
@@ -223,6 +236,7 @@ GameObject:
   - component: {fileID: 413906839452808462}
   - component: {fileID: 5612713362495835240}
   - component: {fileID: 2566979400085256017}
+  - component: {fileID: 5514121283526957020}
   m_Layer: 5
   m_Name: CreditsButton
   m_TagString: Untagged
@@ -346,6 +360,18 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &5514121283526957020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7507038872342215495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc8e6868cb2a17a4baceb9e14ba91a51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9185487816822726798
 GameObject:
   m_ObjectHideFlags: 0
@@ -357,6 +383,7 @@ GameObject:
   - component: {fileID: 1944735866134932712}
   - component: {fileID: 5072873272694070991}
   - component: {fileID: 3690755586275393605}
+  - component: {fileID: 4717855507602749597}
   m_Layer: 5
   m_Name: PlayButton
   m_TagString: Untagged
@@ -411,7 +438,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: PLAY
+  m_text: <link>PLAY</link>
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 42e9bbdf2d59c5b44bfa1e6a0057ab49, type: 2}
   m_sharedMaterial: {fileID: 2919830908378659434, guid: 42e9bbdf2d59c5b44bfa1e6a0057ab49, type: 2}
@@ -480,6 +507,18 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &4717855507602749597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9185487816822726798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc8e6868cb2a17a4baceb9e14ba91a51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &7816123171447918558
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -646,3 +685,4 @@ MonoBehaviour:
   - {fileID: 3690755586275393605}
   - {fileID: 5218291584073936877}
   - {fileID: 2566979400085256017}
+  menuOptionsContainer: {fileID: 4616109498192930262}

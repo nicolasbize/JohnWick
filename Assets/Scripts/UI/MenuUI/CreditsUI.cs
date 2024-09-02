@@ -17,9 +17,14 @@ public class CreditsUI : MonoBehaviour
     private void Awake() {
         fader = GetComponent<FadingController>();
         menu = GetComponent<BaseMenuScreen>();
+        GetComponent<Clickable>().OnClick += OnCreditsClick;
 
         PlayerInputListener.Instance.OnSelectPress += OnSelectPress;
         fader.OnCompleteFade += OnReadyToDismiss;
+    }
+
+    private void OnCreditsClick(object sender, EventArgs e) {
+        StartClosingCredits();
     }
 
     private void OnDestroy() {
@@ -32,10 +37,14 @@ public class CreditsUI : MonoBehaviour
         timeSinceStartedRolling = Time.timeSinceLevelLoad;
     }
 
+    private void StartClosingCredits() {
+        isRolling = false;
+        fader.StartFadingOut();
+    }
+
     private void OnSelectPress(object sender, EventArgs e) {
         if (Time.timeSinceLevelLoad - timeSinceStartedRolling > 3f) {
-            isRolling = false;
-            fader.StartFadingOut();
+            StartClosingCredits();
         }
     }
 
