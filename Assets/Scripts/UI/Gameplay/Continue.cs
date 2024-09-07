@@ -38,6 +38,9 @@ public class Continue : MonoBehaviour
     }
 
     private void RefreshCounter() {
+        foreach (Transform child in numberContainer.transform) {
+            Destroy(child.gameObject);
+        }
         Transform number = Instantiate(numbers[currentIndex]);
         number.SetParent(numberContainer);
         number.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, -2, 0);
@@ -61,6 +64,7 @@ public class Continue : MonoBehaviour
 
     private void TryContinue() {
         if (isRunning && currentIndex < 9) {
+            isRunning = false;
             OnContinue?.Invoke(this, EventArgs.Empty);
         }
     }

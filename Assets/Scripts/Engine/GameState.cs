@@ -8,4 +8,5 @@ public static class GameState {
     public static int PlayerHealth { get; set; } = 27;
     public static int PlayerScore { get; set; } = 0;
     public static bool IsUsingTouchControls { get; set; } = Application.isMobilePlatform;
+    public static bool IsGameOver { get; set; } = false;
 }

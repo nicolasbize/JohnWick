@@ -1,9 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class RangePicker : MonoBehaviour, IActivable {
@@ -101,6 +97,7 @@ public class RangePicker : MonoBehaviour, IActivable {
     public void SetValue(int value) {
         Value = value;
         RefreshPicker();
+        OnValueChange?.Invoke(this, EventArgs.Empty);
     }
 
 }

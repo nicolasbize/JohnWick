@@ -122,7 +122,7 @@ public class BouncerController : BaseCharacterController, IBoss {
 
     private void HandleMoving() {
 
-        if (CanMove()) {
+        if (CurrentHP > 0 && CanMove()) {
             FacePlayer();
             if (nextAttackType == AttackType.NormalAttack) { // go towards the player
                 Vector2 nextTargetDestination = GetDirectionTowardsPlayer();
@@ -166,7 +166,7 @@ public class BouncerController : BaseCharacterController, IBoss {
     }
 
     private void HandleAttack() {
-        if (state == State.PreparingAttack &&
+        if (CurrentHP > 0 && state == State.PreparingAttack &&
             (Time.timeSinceLevelLoad - timeSincePreparedToHit > waitDurationBeforeHit)) {
             
             isBlocking = false;

@@ -326,7 +326,7 @@ public class PlayerController : BaseCharacterController {
             isAttackPressed = false;
             // first check if there is something to pick up
             Pickable pickable = PickUpItemFromGround();
-            if (pickable != null) {
+            if (pickable != null && state != State.Jumping) {
                 animator.SetTrigger("Pickup");
                 if (pickable.Type == Pickable.PickableType.Knife) {
                     HasKnife = true;

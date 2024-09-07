@@ -16,14 +16,13 @@ public class UI : MonoBehaviour
     [SerializeField] private PlayerController player;
     [SerializeField] private Continue continueScreen;
     [SerializeField] private BaseMenuScreen optionsScreen;
-    [SerializeField] private BaseMenuScreen scoreScreen;
+    [SerializeField] private ScoreMenuUI scoreScreen;
     [SerializeField] private PlayerController playerController;
     [SerializeField] private Counter score;
     [SerializeField] private Transform touchControls;
 
     private float timeSinceLastHealthRefresh = float.NegativeInfinity;
     private bool isBossMode = false;
-    private bool isGameOver = false;
     private float timeSinceOptionsShown = float.NegativeInfinity;
 
     public static UI Instance;
@@ -63,7 +62,7 @@ public class UI : MonoBehaviour
     }
 
     private void OnDismissScore(object sender, System.EventArgs e) {
-        if (isGameOver) {
+        if (GameState.IsGameOver) {
             // Fade out music
             SceneManager.LoadScene(SceneHelper.MENU_SCENE, LoadSceneMode.Single);
         }
@@ -74,14 +73,17 @@ public class UI : MonoBehaviour
         GameState.PlayerScore = score.GetValue();
         GameState.PlayerHealth = 0;
         scoreScreen.gameObject.SetActive(true);
-        isGameOver = true;
+        scoreScreen.SetTitle("GAME OVER");
+        GameState.IsGameOver = true;
     }
 
     private void OnContinueGame(object sender, System.EventArgs e) {
-        continueScreen.gameObject.SetActive(false);
-        // substract 1000 pts for each death
-        score.SetValue(Mathf.Max(0, score.GetValue() - 1000));
-        player.Respawn();
+        if (continueScreen.gameObject.activeSelf && player.CurrentHP <= 0) {
+            continueScreen.gameObject.SetActive(false);
+            // substract 1000 pts for each death
+            score.SetValue(Mathf.Max(0, score.GetValue() - 1000));
+            player.Respawn();
+        }
     }
 
     public void AddScore(int value) {

@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ScoreMenuUI : BaseMenuScreen
 {
-    [SerializeField] private string title;
+    [SerializeField] public string title;
     [SerializeField] private int pointsPerHP;
     [SerializeField] private float durationBeforeUpdating;
     [SerializeField] private TextMeshProUGUI titleLabel;
@@ -30,14 +30,20 @@ public class ScoreMenuUI : BaseMenuScreen
         fader = GetComponent<FadingController>();
         menu = GetComponent<BaseMenuScreen>();
 
+        GetComponent<Clickable>().OnClick += OnScreenClick;
         PlayerInputListener.Instance.OnSelectPress += OnSelectPress;
         fader.OnCompleteFade += OnReadyToDismiss;
 
     }
 
+    private void OnScreenClick(object sender, EventArgs e) {
+        ExitScreen();
+    }
+
     private void OnDestroy() {
         PlayerInputListener.Instance.OnSelectPress -= OnSelectPress;
         fader.OnCompleteFade -= OnReadyToDismiss;
+        GetComponent<Clickable>().OnClick -= OnScreenClick;
     }
 
     private void Start() {
@@ -47,7 +53,11 @@ public class ScoreMenuUI : BaseMenuScreen
     }
 
     private void OnSelectPress(object sender, EventArgs e) {
-        if (isDoneUpdatingScore) {
+        ExitScreen();
+    }
+
+    private void ExitScreen() {
+        if (isDoneUpdatingScore && !GameState.IsGameOver) {
             GameState.PlayerScore = totalScore;
             fader.StartFadingOut();
         }
@@ -55,6 +65,11 @@ public class ScoreMenuUI : BaseMenuScreen
 
     private void OnReadyToDismiss(object sender, EventArgs e) {
         menu.CloseScreen();
+    }
+
+    public void SetTitle(string title) {
+        this.title = title;
+        titleLabel.text = title;
     }
 
     private void Update() {
@@ -65,9 +80,6 @@ public class ScoreMenuUI : BaseMenuScreen
             remainingHealth = GameState.PlayerHealth;
             totalScore = initialScore;
             RefreshScreen();
-            if (remainingHealth == 0) {
-                titleLabel.text = "GAME OVER";
-            }
         } else if (isUpdatingScore && !isDoneUpdatingScore &&
             (Time.timeSinceLevelLoad - timeSinceLastUpdate > durationEachUpdate)) {
             timeSinceLastUpdate = Time.timeSinceLevelLoad;
